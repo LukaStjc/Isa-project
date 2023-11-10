@@ -18,6 +18,7 @@ public class RegisteredUser extends User
 
     @ManyToOne
     private LoyaltyProgram loyaltyProgram;
+
     @Column
     private Integer points;
 
@@ -28,6 +29,7 @@ public class RegisteredUser extends User
 
 
     public RegisteredUser() {
+        super();
     }
 
     public RegisteredUser(Integer id, String email, String firstName, String lastName, String password, String occupation) {
@@ -65,4 +67,6 @@ public class RegisteredUser extends User
     public void setOccupation(String occupation) {
         this.occupation = occupation;
     }
+
+
 }

@@ -16,6 +16,7 @@ public class Company {
 
     @OneToMany(mappedBy="company",fetch = FetchType.EAGER)
     private List<Equipment> equipment;
+
     @Column
     private String description;
 
