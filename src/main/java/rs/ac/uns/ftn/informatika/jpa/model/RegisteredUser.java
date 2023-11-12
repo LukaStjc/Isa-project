@@ -19,6 +19,8 @@ public class RegisteredUser extends User
     @ManyToOne
     private LoyaltyProgram loyaltyProgram;
 
+    @ManyToOne
+    private Hospital hospital;
     @Column
     private Integer points;
 

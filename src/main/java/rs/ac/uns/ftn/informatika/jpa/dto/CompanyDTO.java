@@ -1,51 +1,32 @@
-package rs.ac.uns.ftn.informatika.jpa.model;
+package rs.ac.uns.ftn.informatika.jpa.dto;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import rs.ac.uns.ftn.informatika.jpa.model.Company;
 
-import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
-@Entity
-public class Company {
+public class CompanyDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
     private String name;
-
-    @OneToMany(mappedBy="company",fetch = FetchType.EAGER)
-    private List<Equipment> equipment;
-
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @OneToMany(mappedBy="company")
-    private List<CompanyAdmin> companyAdmins;
-
-    @ManyToOne
-    @JoinColumn(name = "created_by_admin")
-    private SystemAdmin systemAdmin;
-
-    @Column
     private String description;
-
-    @OneToOne
-    private Location location;
-    @Column
     private Date openingTime;
-
-    @Column
     private Date closingTime;
-
-    @Column
     private Double averageScore;
 
-    public Company() {
+    public CompanyDTO(Company company){
+        this.id = company.getId();
+        this.name = company.getName();
+        this.description= company.getDescription();
+        this.openingTime = company.getOpeningTime();
+        this.closingTime = company.getClosingTime();
+        this.averageScore = company.getAverageScore();
     }
 
-    public Company(Integer id, String name, String description, Date openingTime, Date closingTime, Double averageScore) {
+    public CompanyDTO() {
+    }
+
+    public CompanyDTO(Integer id, String name, String description, Date openingTime, Date closingTime, Double averageScore) {
         this.id = id;
         this.name = name;
         this.description = description;

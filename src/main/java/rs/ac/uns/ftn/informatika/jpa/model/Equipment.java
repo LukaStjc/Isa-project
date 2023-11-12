@@ -1,5 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
+
 import javax.persistence.*;
 
 @Entity
@@ -16,7 +18,7 @@ public class Equipment {
     @Column
     private String description;
     @Column
-    private String type;
+    private EquipmentType type;
     @Column
     private Double price;
     @Column
@@ -25,7 +27,7 @@ public class Equipment {
     public Equipment() {
     }
 
-    public Equipment(Integer id, String name, Company company, String description, String type, Double price, Integer quantity) {
+    public Equipment(Integer id, String name, Company company, String description, EquipmentType type, Double price, Integer quantity) {
         this.id = id;
         this.name = name;
         this.company = company;
@@ -67,11 +69,11 @@ public class Equipment {
         this.description = description;
     }
 
-    public String getType() {
+    public EquipmentType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(EquipmentType type) {
         this.type = type;
     }
 

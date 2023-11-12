@@ -3,8 +3,6 @@ package rs.ac.uns.ftn.informatika.jpa.model;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.LoyaltyType;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -22,22 +20,31 @@ public class LoyaltyProgram {
     @OneToMany(mappedBy="loyaltyProgram", fetch = FetchType.EAGER)
     private Set<RegisteredUser> registeredUsers;
 
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private SystemAdmin systemAdmin;
 
     @Column
     private int minPoints;
     @Column
     private int maxPoints;
 
-    public LoyaltyProgram() {
+    public LoyaltyProgram(SystemAdmin systemAdmin) {
         super();
+        this.systemAdmin = systemAdmin;
     }
 
-    public LoyaltyProgram(Integer id, LoyaltyType type, int minPoints, int maxPoints) {
+    public LoyaltyProgram(Integer id, LoyaltyType type, SystemAdmin systemAdmin, int minPoints, int maxPoints) {
         super();
         this.id = id;
         this.type = type;
+        this.systemAdmin = systemAdmin;
         this.minPoints = minPoints;
         this.maxPoints = maxPoints;
+    }
+
+    public LoyaltyProgram() {
+
     }
 
     public Integer getId() {
