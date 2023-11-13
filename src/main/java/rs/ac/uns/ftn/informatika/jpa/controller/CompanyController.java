@@ -3,10 +3,7 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CourseDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
@@ -37,6 +34,14 @@ public class CompanyController {
         }
 
         return new ResponseEntity<>(companyDTOS, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/create", consumes = "application/json")
+    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO){
+
+
+
+        return new ResponseEntity<>(companyDTO, HttpStatus.OK); // TODO ispraviti ako treba jer sam stavio samo da ne bi bio error
     }
 
 }
