@@ -36,6 +36,13 @@ public class Location {
         this.latitude = latitude;
     }
 
+    public Location(String country, String city, String streetName, String streetNumber) {
+        this.country = country;
+        this.city = city;
+        this.streetName = streetName;
+        this.streetNumber = streetNumber;
+    }
+
     public Integer getId() {
         return id;
     }

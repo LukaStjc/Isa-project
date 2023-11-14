@@ -54,6 +54,12 @@ public class Company {
         this.averageScore = averageScore;
     }
 
+    public Company(String name, String description, Location location) {
+        this.name = name;
+        this.description = description;
+        this.location = location;
+    }
+
     public Integer getId() {
         return id;
     }

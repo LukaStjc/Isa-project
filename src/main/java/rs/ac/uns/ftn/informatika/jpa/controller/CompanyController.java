@@ -5,11 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.CourseDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
-import rs.ac.uns.ftn.informatika.jpa.model.Course;
+import rs.ac.uns.ftn.informatika.jpa.model.Location;
+import rs.ac.uns.ftn.informatika.jpa.repository.LocationRepository;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
-import rs.ac.uns.ftn.informatika.jpa.service.CourseService;
+import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,8 @@ public class CompanyController {
 
     @Autowired
     private CompanyService companyService;
+    @Autowired
+    private LocationService locationService;
 
     @GetMapping
     public ResponseEntity<List<CompanyDTO>> getCompanies() {
@@ -36,12 +39,19 @@ public class CompanyController {
         return new ResponseEntity<>(companyDTOS, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/create", consumes = "application/json")
-    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO){
+    @PostMapping(consumes = "application/json")
+    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyLocationDTO companyLocationDTO){
 
+        Location location = new Location(companyLocationDTO.getCountry(), companyLocationDTO.getCity(), companyLocationDTO.getStreetName(), companyLocationDTO.getStreetNumber());
+        location = locationService.save(location);
+        if(location == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
+        Company company = new Company(companyLocationDTO.getName(), companyLocationDTO.getDescription(), location);
+        company = companyService.save(company);
 
-        return new ResponseEntity<>(companyDTO, HttpStatus.OK); // TODO ispraviti ako treba jer sam stavio samo da ne bi bio error
+        return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.CREATED);
     }
 
 }
