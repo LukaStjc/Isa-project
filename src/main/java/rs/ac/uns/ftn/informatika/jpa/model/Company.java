@@ -56,10 +56,14 @@ public class Company {
         this.averageScore = averageScore;
     }
 
-    public Company(String name, String description, Location location) {
+    public Company(String name, String description, Date openingTime, Date closingTime, Location location) {
         this.name = name;
         this.description = description;
         this.location = location;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
+
+        this.averageScore = (double) 0;
     }
 
     public Integer getId() {
