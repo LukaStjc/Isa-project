@@ -32,7 +32,9 @@ public class Company {
     private String description;
 
     @OneToOne
+    @JoinColumn(unique = true)
     private Location location;
+
     @Column
     private Date openingTime;
 
@@ -106,5 +108,13 @@ public class Company {
 
     public void setAverageScore(Double averageScore) {
         this.averageScore = averageScore;
+    }
+
+    public List<Equipment> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(List<Equipment> equipment) {
+        this.equipment = equipment;
     }
 }

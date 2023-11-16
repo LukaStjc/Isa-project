@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.repository.CompanyRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CompanyService {
@@ -19,4 +21,13 @@ public class CompanyService {
     public Company save(Company company) {
         return companyRepository.save(company);
     }
+    
+    public Company findOne(Integer id) {
+        return companyRepository.findById(id).orElseGet(null);
+    }
+
+    public List<Company> findByName(String text) {
+        return companyRepository.findByNameStartingWith(text);
+    }
+
 }

@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
+import org.hibernate.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,9 @@ import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "api/companies")
@@ -30,7 +33,6 @@ public class CompanyController {
 
         List<Company> companies = companyService.findAll();
 
-        // convert courses to DTOs
         List<CompanyDTO> companyDTOS = new ArrayList<>();
         for (Company c : companies) {
             companyDTOS.add(new CompanyDTO(c));
@@ -52,6 +54,20 @@ public class CompanyController {
         company = companyService.save(company);
 
         return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.CREATED);
+    }
+
+
+    @GetMapping(value = "/search")
+    public ResponseEntity<Collection<CompanyDTO>> searchCompaniesByName(@RequestParam("text") String text) {
+
+        List<Company> foundCompanies = (List<Company>) companyService.findByName(text);
+
+        List<CompanyDTO> companyDTOS = new ArrayList<>();
+        for (Company c : foundCompanies) {
+            companyDTOS.add(new CompanyDTO(c));
+        }
+
+        return new ResponseEntity<Collection<CompanyDTO>>(companyDTOS, HttpStatus.OK);
     }
 
 }
