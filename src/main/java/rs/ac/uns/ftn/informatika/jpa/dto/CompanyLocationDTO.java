@@ -1,5 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
+import java.util.Date;
+
 public class CompanyLocationDTO {
     private String name;
     private String description;
@@ -7,16 +9,20 @@ public class CompanyLocationDTO {
     private String city;
     private String streetName;
     private String streetNumber;
+    private Date openingTime;
+    private Date closingTime;
 
     public CompanyLocationDTO(){}
 
-    public CompanyLocationDTO(String country, String city, String streetName, String streetNumber, String name, String description) {
+    public CompanyLocationDTO(String country, String city, String streetName, String streetNumber, String name, String description, Date openingTime, Date closingTime) {
         this.country = country;
         this.city = city;
         this.streetName = streetName;
         this.streetNumber = streetNumber;
         this.name = name;
         this.description = description;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
     }
 
     public String getCountry() {
@@ -65,5 +71,21 @@ public class CompanyLocationDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Date getOpeningTime() {
+        return openingTime;
+    }
+
+    public void setOpeningTime(Date openingTime) {
+        this.openingTime = openingTime;
+    }
+
+    public Date getClosingTime() {
+        return closingTime;
+    }
+
+    public void setClosingTime(Date closingTime) {
+        this.closingTime = closingTime;
     }
 }

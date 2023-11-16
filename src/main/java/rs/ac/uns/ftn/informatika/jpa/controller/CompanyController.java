@@ -42,13 +42,17 @@ public class CompanyController {
     @PostMapping(consumes = "application/json")
     public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyLocationDTO companyLocationDTO){
 
-        Location location = new Location(companyLocationDTO.getCountry(), companyLocationDTO.getCity(), companyLocationDTO.getStreetName(), companyLocationDTO.getStreetNumber());
+        // TODO dodati proveru da li je korisnik Admin sistema
+
+        Location location = new Location(companyLocationDTO.getCountry(), companyLocationDTO.getCity(), companyLocationDTO.getStreetName(),
+                companyLocationDTO.getStreetNumber());
         location = locationService.save(location);
         if(location == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        Company company = new Company(companyLocationDTO.getName(), companyLocationDTO.getDescription(), location);
+        Company company = new Company(companyLocationDTO.getName(), companyLocationDTO.getDescription(), companyLocationDTO.getOpeningTime(),
+                companyLocationDTO.getClosingTime(), location);
         company = companyService.save(company);
 
         return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.CREATED);
