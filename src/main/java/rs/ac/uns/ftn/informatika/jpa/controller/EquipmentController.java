@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CourseDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Course;
@@ -78,5 +79,28 @@ public class EquipmentController {
         return new ResponseEntity<Collection<EquipmentDTO>>(equipmentDTOS, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/ordering/search")
+    public ResponseEntity<List<EquipmentBasicDTO>> findByName(@RequestParam("name") String name){
+        List<Equipment> foundEquipment = equipmentService.findByName(name);
+
+        List<EquipmentBasicDTO> equipmentBasicDTOS = new ArrayList<>();
+        for(Equipment e : foundEquipment){
+            equipmentBasicDTOS.add(new EquipmentBasicDTO(e));
+        }
+
+        return new ResponseEntity<>(equipmentBasicDTOS, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/ordering")
+    public ResponseEntity<List<EquipmentBasicDTO>> getAll(){
+        List<Equipment> foundEquipment = equipmentService.findAll();
+
+        List<EquipmentBasicDTO> equipmentBasicDTOS = new ArrayList<>();
+        for(Equipment e : foundEquipment){
+            equipmentBasicDTOS.add(new EquipmentBasicDTO(e));
+        }
+
+        return new ResponseEntity<>(equipmentBasicDTOS, HttpStatus.OK);
+    }
 
 }
