@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.repository.CompanyRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CompanyService {
@@ -28,6 +26,10 @@ public class CompanyService {
 
     public List<Company> findByName(String text) {
         return companyRepository.findByNameStartingWith(text);
+    }
+
+    public Company findExistingByName(String name){
+        return companyRepository.findByName(name);
     }
 
 }

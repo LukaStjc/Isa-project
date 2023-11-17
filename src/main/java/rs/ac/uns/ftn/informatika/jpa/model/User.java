@@ -4,10 +4,6 @@ import javax.persistence.*;
 
 import static javax.persistence.InheritanceType.JOINED;
 
-//@Setter
-//@Getter
-//@AllArgsConstructor
-//@NoArgsConstructor
 @Entity
 @Inheritance(strategy=JOINED)
 @Table(name="Userr")

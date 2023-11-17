@@ -17,4 +17,6 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :text, '%'))")
     List<Company> findByNameStartingWith(@Param("text") String text);
 
+    Company findByName(String name);
+
 }

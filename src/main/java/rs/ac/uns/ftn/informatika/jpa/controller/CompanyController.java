@@ -1,6 +1,5 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
-import org.hibernate.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,14 +8,12 @@ import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
-import rs.ac.uns.ftn.informatika.jpa.repository.LocationRepository;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "api/companies")
@@ -48,14 +45,23 @@ public class CompanyController {
 
         Location location = new Location(companyLocationDTO.getCountry(), companyLocationDTO.getCity(), companyLocationDTO.getStreetName(),
                 companyLocationDTO.getStreetNumber());
-        location = locationService.save(location);
-        if(location == null){
+        try{
+            location = locationService.save(location);
+        }
+        catch(RuntimeException e){
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         Company company = new Company(companyLocationDTO.getName(), companyLocationDTO.getDescription(), companyLocationDTO.getOpeningTime(),
                 companyLocationDTO.getClosingTime(), location);
-        company = companyService.save(company);
+        try{
+            company = companyService.save(company);
+        }
+        catch (RuntimeException e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.CREATED);
     }
@@ -72,6 +78,30 @@ public class CompanyController {
         }
 
         return new ResponseEntity<Collection<CompanyDTO>>(companyDTOS, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/names")
+    public ResponseEntity<String> getCompanyNames(){
+        List<Company> companies = companyService.findAll();
+
+        StringBuilder companyNames = new StringBuilder();
+
+        int i = 0;
+        companyNames.append(companies.get(i).getName());
+
+        for(i=1; i<companies.size(); ++i){
+            companyNames.append(", ");
+            companyNames.append(companies.get(i).getName());
+        }
+
+        return new ResponseEntity<>(companyNames.toString(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/has-name")
+    public Boolean doesCompanyExistByName(@RequestParam("name") String name){
+        Company c = companyService.findExistingByName(name);
+
+        return c != null;
     }
 
 }
