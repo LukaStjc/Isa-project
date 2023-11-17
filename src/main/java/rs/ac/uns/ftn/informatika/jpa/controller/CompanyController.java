@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.informatika.jpa.dto.CompanyBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
@@ -14,6 +15,7 @@ import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "api/companies")
@@ -26,16 +28,16 @@ public class CompanyController {
     private LocationService locationService;
 
     @GetMapping
-    public ResponseEntity<List<CompanyDTO>> getCompanies() {
+    public ResponseEntity<List<CompanyBasicDTO>> getCompanies() {
 
         List<Company> companies = companyService.findAll();
 
-        List<CompanyDTO> companyDTOS = new ArrayList<>();
+        List<CompanyBasicDTO> companyBasicDTOS = new ArrayList<>();
         for (Company c : companies) {
-            companyDTOS.add(new CompanyDTO(c));
+            companyBasicDTOS.add(new CompanyBasicDTO(c));
         }
 
-        return new ResponseEntity<>(companyDTOS, HttpStatus.OK);
+        return new ResponseEntity<>(companyBasicDTOS, HttpStatus.OK);
     }
 
     @PostMapping(consumes = "application/json")
