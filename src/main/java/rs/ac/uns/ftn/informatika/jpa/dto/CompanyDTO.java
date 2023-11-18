@@ -34,6 +34,7 @@ public class CompanyDTO {
     public List<EquipmentDTO> EquipmentToDTO(List<Equipment> equipment){
         List<EquipmentDTO> equipmentDTOS = new ArrayList<>();
         for (Equipment e: equipment) {
+
             EquipmentDTO equipmentDTO = new EquipmentDTO(e);
 
             equipmentDTOS.add(equipmentDTO);
