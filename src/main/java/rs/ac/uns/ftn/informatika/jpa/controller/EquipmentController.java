@@ -4,12 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.CourseDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentOrderingDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
-import rs.ac.uns.ftn.informatika.jpa.model.Course;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
@@ -80,27 +77,27 @@ public class EquipmentController {
     }
 
     @GetMapping(value = "/ordering/search")
-    public ResponseEntity<List<EquipmentBasicDTO>> findByName(@RequestParam("name") String name){
+    public ResponseEntity<List<EquipmentOrderingDTO>> findByName(@RequestParam("name") String name){
         List<Equipment> foundEquipment = equipmentService.findByName(name);
 
-        List<EquipmentBasicDTO> equipmentBasicDTOS = new ArrayList<>();
+        List<EquipmentOrderingDTO> equipmentOrderingDTOS = new ArrayList<>();
         for(Equipment e : foundEquipment){
-            equipmentBasicDTOS.add(new EquipmentBasicDTO(e));
+            equipmentOrderingDTOS.add(new EquipmentOrderingDTO(e));
         }
 
-        return new ResponseEntity<>(equipmentBasicDTOS, HttpStatus.OK);
+        return new ResponseEntity<>(equipmentOrderingDTOS, HttpStatus.OK);
     }
 
     @GetMapping(value = "/ordering")
-    public ResponseEntity<List<EquipmentBasicDTO>> getAll(){
+    public ResponseEntity<List<EquipmentOrderingDTO>> getAll(){
         List<Equipment> foundEquipment = equipmentService.findAll();
 
-        List<EquipmentBasicDTO> equipmentBasicDTOS = new ArrayList<>();
+        List<EquipmentOrderingDTO> equipmentOrderingDTOS = new ArrayList<>();
         for(Equipment e : foundEquipment){
-            equipmentBasicDTOS.add(new EquipmentBasicDTO(e));
+            equipmentOrderingDTOS.add(new EquipmentOrderingDTO(e));
         }
 
-        return new ResponseEntity<>(equipmentBasicDTOS, HttpStatus.OK);
+        return new ResponseEntity<>(equipmentOrderingDTOS, HttpStatus.OK);
     }
 
 }

@@ -1,28 +1,29 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
-import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 
 import static rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType.*;
 
-public class EquipmentBasicDTO {
+public class EquipmentOrderingDTO {
     private Integer id;
     private String name;
     private String description;
     private String equipmentType;
-    private Company company;
+    private String companyName;
+    private Double averageScore;
 
-    public EquipmentBasicDTO(){}
+    public EquipmentOrderingDTO(){}
 
-    public EquipmentBasicDTO(Integer id, String name, String description, String equipmentType, Company company) {
+    public EquipmentOrderingDTO(Integer id, String name, String description, String equipmentType, String companyName, Double score) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.equipmentType = equipmentType;
-        this.company = company;
+        this.companyName = companyName;
+        this.averageScore = score;
     }
 
-    public EquipmentBasicDTO(Equipment equipment){
+    public EquipmentOrderingDTO(Equipment equipment){
         this.id = equipment.getId();
         this.name = equipment.getName();
         if (equipment.getType() == type1)
@@ -32,7 +33,8 @@ public class EquipmentBasicDTO {
         if (equipment.getType() == type3)
             equipmentType = "Tip 3";
         this.description = equipment.getDescription();
-        this.company = equipment.getCompany();
+        this.companyName = equipment.getCompany().getName();
+        this.averageScore = equipment.getCompany().getAverageScore();
     }
 
     public Integer getId() {
@@ -67,11 +69,19 @@ public class EquipmentBasicDTO {
         this.equipmentType = equipmentType;
     }
 
-    public Company getCompany() {
-        return company;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public Double getAverageScore() {
+        return averageScore;
+    }
+
+    public void setAverageScore(Double averageScore) {
+        this.averageScore = averageScore;
     }
 }
