@@ -1,31 +1,3 @@
-insert into student (index_number, first_name, last_name) values ('5', 'Marko', 'Marković');
-insert into student (index_number, first_name, last_name) values ('ra2-2014', 'Milan', 'Milanović');
-insert into student (index_number, first_name, last_name) values ('ra3-2014', 'Ivana', 'Ivanović');
-insert into student (index_number, first_name, last_name) values ('ra4-2014', 'Bojan', 'Bojanović');
-insert into student (index_number, first_name, last_name) values ('ra5-2014', 'Pera', 'Perić');
-insert into student (index_number, first_name, last_name) values ('ra6-2014', 'Zoran', 'Zoranović');
-insert into student (index_number, first_name, last_name) values ('ra7-2014', 'Bojana', 'Bojanović');
-insert into student (index_number, first_name, last_name) values ('ra8-2014', 'Milana', 'Milanović');
-insert into student (index_number, first_name, last_name) values ('ra9-2014', 'Jovana', 'Jovanić');
-
-insert into course (name) values ('Matematika');
-insert into course (name) values ('Osnove programiranja');
-insert into course (name) values ('Objektno programiranje');
-
-insert into teacher (first_name, last_name, deleted) values ('Strahinja', 'Simić', false);
-insert into teacher (first_name, last_name, deleted) values ('Marina', 'Antić', false);
-insert into teacher (first_name, last_name, deleted) values ('Siniša', 'Branković', false);
-
-insert into teaching (course_id, teacher_id) values (1, 1);
-insert into teaching (course_id, teacher_id) values (1, 2);
-insert into teaching (course_id, teacher_id) values (2, 2);
-insert into teaching (course_id, teacher_id) values (3, 3);
-
-insert into exam (student_id, course_id, date, grade) values (1, 1, '2016-02-01', 9);
-insert into exam (student_id, course_id, date, grade) values (1, 2, '2016-04-19', 8);
-insert into exam (student_id, course_id, date, grade) values (2, 1, '2016-02-01', 10);
-insert into exam (student_id, course_id, date, grade) values (2, 2, '2016-04-19', 10);
-
 insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Sime Milosevica',11, 19.833549, 45.267136);
 insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Belgrade' ,'Pera Cetkovica',55, 20.833549, 46.267136);
 insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Zajecar' ,'Jase Tomica',33, 20.833549, 46.267136);
@@ -47,8 +19,8 @@ insert into loyalty_program (id,type,min_points, max_points,  admin_id) values (
 insert into loyalty_program (id,type,min_points, max_points,  admin_id) values (2, 2, 1001, 5000, 7);
 
 -- paziti na loyalty_progra_id i dozvoli neunosenje stranog kljuca
-insert into registered_user (id , telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id) values (5, '0613241802', 0, 0, 'zemljoradnik', 1, 1);
-insert into registered_user (id , telephone_number, penalty_points, points, occupation,loyalty_program_id, hospital_id) values (8, '0613241802', 0, 0, 'poljoprivrednik',1, 1);
+insert into registered_user (id , telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id, location_id, activation_code) values (5, '0613241802', 0, 0, 'zemljoradnik', 1, 1, 1, 'APwO1SBNEVeJO8xs5zLmvHqGQsjKmgl6');
+insert into registered_user (id , telephone_number, penalty_points, points, occupation,loyalty_program_id, hospital_id, location_id, activation_code) values (8, '0613241802', 0, 0, 'poljoprivrednik',1, 1, 2, 'ZA8hEPFFq4nO2eaHjQYkA2UzPUnukSWK');
 -- insert into registered_user (id , telephone_number, penalty_points, points, occupation) values (5, '0613241802', 0, 0, 'zemljoradnik');
 
 -- TODO promeniti average_score na 0, za kt1 su stavljene neke vrednosti
