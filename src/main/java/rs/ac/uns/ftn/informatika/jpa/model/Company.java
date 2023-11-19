@@ -14,7 +14,7 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
+    @Column(unique = true)
     private String name;
 
     @OneToMany(mappedBy="company",fetch = FetchType.EAGER)

@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.repository.EquipmentRepository;
 
@@ -18,5 +19,19 @@ public class EquipmentService {
 
     public List<Equipment> findByName(String text) {
         return equipmentRepository.findByNameStartingWith(text);
+    }
+
+    public List<Equipment> findByNameContainsAndCompany_AverageScoreGreaterThanEquals(String name, double score){
+        return equipmentRepository.findByNameContainsAndCompany_AverageScoreGreaterThanEquals(name, score);
+    }
+
+    public List<Equipment> findByNameContainsAndTypeEquals(String name, EquipmentType type){
+        return equipmentRepository.findByNameContainsAndTypeEquals(name, type);
+    }
+
+    public List<Equipment> findByNameContainsAndCompany_AverageScoreGreaterThanEqualsAndTypeEquals(
+            String name, double score, int type){
+        return equipmentRepository.
+                findByNameContainsAndCompany_AverageScoreGreaterThanEqualsAndTypeEquals(name, score, type);
     }
 }
