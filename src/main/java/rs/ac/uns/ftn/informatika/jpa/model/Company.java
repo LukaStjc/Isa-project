@@ -23,7 +23,7 @@ public class Company {
 
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy="company")
-    private List<CompanyAdmin> companyAdmins;
+    private List<CompanyAdmin> companyAdmins;   //maybe refactor to Admins
 
     @ManyToOne
     @JoinColumn(name = "created_by_admin")
@@ -129,4 +129,19 @@ public class Company {
         this.equipment = equipment;
     }
 
+    public List<CompanyAdmin> getCompanyAdmins() {
+        return companyAdmins;
+    }
+
+    public void setCompanyAdmins(List<CompanyAdmin> companyAdmins) {
+        this.companyAdmins = companyAdmins;
+    }
+
+    public SystemAdmin getSystemAdmin() {
+        return systemAdmin;
+    }
+
+    public void setSystemAdmin(SystemAdmin systemAdmin) {
+        this.systemAdmin = systemAdmin;
+    }
 }

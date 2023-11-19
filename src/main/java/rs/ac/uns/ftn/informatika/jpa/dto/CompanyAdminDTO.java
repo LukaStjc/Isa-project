@@ -1,5 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
+import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
+
 public class CompanyAdminDTO {
 
     private String email;
@@ -17,6 +19,15 @@ public class CompanyAdminDTO {
         this.password = password;
         this.companyName = companyName;
     }
+
+    public CompanyAdminDTO(CompanyAdmin ca) {
+        this.email = ca.getEmail();
+        this.firstName = ca.getFirstName();
+        this.lastName = ca.getLastName();
+        this.companyName = ca.getCompany().getName();
+
+    }
+
 
     public String getEmail() {
         return email;

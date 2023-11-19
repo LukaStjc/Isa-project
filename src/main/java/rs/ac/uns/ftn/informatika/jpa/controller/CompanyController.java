@@ -47,7 +47,22 @@ public class CompanyController {
 
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
+    @PutMapping ("/update/{id}")
+    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Integer id,   @RequestBody CompanyLocationDTO dto){
+        Company company = companyService.findBy(id);
+         company.setName(dto.getName());
+         company.setDescription((dto.getDescription()));
+         Location location = company.getLocation();
+         location.setCountry(dto.getCountry());
+         location.setCity(dto.getCity());
+         location.setStreet(dto.getStreetName());
+         location.setStreetNumber(dto.getStreetNumber());
+        locationService.save(location);
+         company.setLocation(location);
 
+         companyService.save(company);
+         return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.OK);
+    }
     @PostMapping(consumes = "application/json")
     public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyLocationDTO companyLocationDTO){
 
@@ -113,5 +128,8 @@ public class CompanyController {
 
         return c != null;
     }
+
+
+
 
 }
