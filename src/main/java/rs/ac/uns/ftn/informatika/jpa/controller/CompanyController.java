@@ -8,6 +8,7 @@ import rs.ac.uns.ftn.informatika.jpa.dto.CompanyBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
+import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
@@ -39,6 +40,13 @@ public class CompanyController {
 
         return new ResponseEntity<>(companyBasicDTOS, HttpStatus.OK);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id){
+        Company company = companyService.findBy(id);
+        CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
+
+        return new ResponseEntity<>(companyDTO, HttpStatus.OK);
+    }
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyLocationDTO companyLocationDTO){
@@ -52,7 +60,7 @@ public class CompanyController {
         }
         catch(RuntimeException e){
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         Company company = new Company(companyLocationDTO.getName(), companyLocationDTO.getDescription(), companyLocationDTO.getOpeningTime(),
@@ -62,7 +70,7 @@ public class CompanyController {
         }
         catch (RuntimeException e){
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.CREATED);

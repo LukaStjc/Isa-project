@@ -26,7 +26,7 @@ public class CompanyAdminController {
 
         Company c = companyService.findExistingByName(companyAdminDTO.getCompanyName());
         if(c == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         CompanyAdmin companyAdmin = new CompanyAdmin(companyAdminDTO.getEmail(), companyAdminDTO.getFirstName(),
@@ -38,7 +38,7 @@ public class CompanyAdminController {
         catch(RuntimeException e){
             e.printStackTrace();
 
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return new ResponseEntity<>(companyAdminDTO, HttpStatus.CREATED);

@@ -4,6 +4,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
+    @Column(unique = true)
     private String name;
 
     @OneToMany(mappedBy="company",fetch = FetchType.EAGER)
@@ -62,6 +63,7 @@ public class Company {
         this.location = location;
         this.openingTime = openingTime;
         this.closingTime = closingTime;
+        this.equipment = new ArrayList<>();
 
         this.averageScore = (double) 0;
     }
