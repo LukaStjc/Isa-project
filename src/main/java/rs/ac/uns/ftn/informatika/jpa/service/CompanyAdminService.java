@@ -15,4 +15,8 @@ public class CompanyAdminService {
     public CompanyAdmin save(CompanyAdmin companyAdmin){
         return companyAdminRepository.save(companyAdmin);
     }
+
+    public CompanyAdmin findBy(Integer id) {
+        return companyAdminRepository.findById(id).orElseGet(null);
+    }
 }
