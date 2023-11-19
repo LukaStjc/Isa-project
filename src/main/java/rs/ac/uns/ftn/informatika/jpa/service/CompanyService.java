@@ -25,8 +25,8 @@ public class CompanyService {
         return companyRepository.findById(id).orElseGet(null);
     }
 
-    public List<Company> findByName(String text) {
-        return companyRepository.findByNameStartingWith(text);
+    public List<Company> findByNameContaining(String text) {
+        return companyRepository.findByNameContaining(text);
     }
 
     public Company findExistingByName(String name){

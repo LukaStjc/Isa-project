@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Location {
@@ -22,12 +23,24 @@ public class Location {
     @Column
     private Double latitude; //Duzina
 
+    @OneToMany(mappedBy="location",fetch = FetchType.LAZY)
+    private List<RegisteredUser> registeredUsers;
+
     public Location() {
     }
 
 
     public Location(Integer id, String country, String city, String streetName, String streetNumber, Double longitude, Double latitude) {
         this.id = id;
+        this.country = country;
+        this.city = city;
+        this.streetName = streetName;
+        this.streetNumber = streetNumber;
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
+
+    public Location(String country, String city, String streetName, String streetNumber, Double longitude, Double latitude) {
         this.country = country;
         this.city = city;
         this.streetName = streetName;

@@ -72,7 +72,7 @@ public class CompanyController {
     @GetMapping(value = "/search")
     public ResponseEntity<Collection<CompanyDTO>> searchCompaniesByName(@RequestParam("text") String text) {
 
-        List<Company> foundCompanies = (List<Company>) companyService.findByName(text);
+        List<Company> foundCompanies = (List<Company>) companyService.findByNameContaining(text);
 
         List<CompanyDTO> companyDTOS = new ArrayList<>();
         for (Company c : foundCompanies) {

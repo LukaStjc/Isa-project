@@ -6,4 +6,9 @@ import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 
 @Repository
 public interface RegisteredUserRepository extends JpaRepository<RegisteredUser, Integer> {
+
+    public RegisteredUser getByActivationCode(String activationCode);
+
+    public RegisteredUser getByEmail(String email);
+
 }
