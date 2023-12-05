@@ -5,6 +5,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,6 +29,7 @@ public class SystemAdmin  extends User{
     public SystemAdmin(List<LoyaltyProgram> loyaltyPrograms) {
         this.loyaltyPrograms = loyaltyPrograms;
     }
+
     public SystemAdmin(String email, String firstName, String lastName, String password) {
         super(email, firstName, lastName, password);
     }
@@ -36,6 +38,12 @@ public class SystemAdmin  extends User{
         super(email, firstName, lastName, password);
         this.loyaltyPrograms = loyaltyPrograms;
     }
+
+    public SystemAdmin(String email, String firstName, String lastName){
+        super(email, firstName, lastName);
+        this.loyaltyPrograms = new ArrayList<>();
+    }
+
 
     public List<LoyaltyProgram> getLoyaltyPrograms() {
         return loyaltyPrograms;

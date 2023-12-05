@@ -4,7 +4,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 
 public class CompanyAdminDTO {
 
-        private String email;
+    private String email;
     private String firstName;
     private String lastName;
     private String password;
