@@ -2,9 +2,11 @@ package rs.ac.uns.ftn.informatika.jpa.dto;
 
 public class UserDTO {
 
+    private Integer id;
     private String email;
     private String firstName;
     private String lastName;
+    private String password;
 
     public UserDTO(){}
 
@@ -26,6 +28,14 @@ public class UserDTO {
         return lastName;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -36,5 +46,13 @@ public class UserDTO {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
