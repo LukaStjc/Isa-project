@@ -25,7 +25,7 @@ public class ComplaintController {
 
     @GetMapping
     public ResponseEntity<List<ComplaintDTO>> getAll(){
-        List<Complaint> complaints = complaintService.getAll();
+        List<Complaint> complaints = complaintService.findUnansweredComplaints();
 
         List<ComplaintDTO> complaintDTOS = new ArrayList<>();
         for(Complaint c : complaints){

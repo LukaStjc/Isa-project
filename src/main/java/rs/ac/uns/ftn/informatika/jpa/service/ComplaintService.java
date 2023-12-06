@@ -2,7 +2,6 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import rs.ac.uns.ftn.informatika.jpa.dto.ComplaintDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Complaint;
 import rs.ac.uns.ftn.informatika.jpa.repository.ComplaintRepository;
 
@@ -15,7 +14,7 @@ public class ComplaintService {
     private ComplaintRepository complaintRepository;
 
 
-    public List<Complaint> getAll() {
-        return complaintRepository.findAll();
+    public List<Complaint> findUnansweredComplaints() {
+        return complaintRepository.findUnansweredComplaints();
     }
 }
