@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.ComplaintDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Complaint;
 import rs.ac.uns.ftn.informatika.jpa.service.ComplaintService;
+import rs.ac.uns.ftn.informatika.jpa.service.EmailService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,8 @@ public class ComplaintController {
     @Autowired
     private ComplaintService complaintService;
 
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping
     public ResponseEntity<List<ComplaintDTO>> getAll(){
@@ -41,16 +44,19 @@ public class ComplaintController {
         if(!optionalComplaint.isPresent()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Complaint complaint = optionalComplaint.get();
-        complaint.setReply(complaintDTO.getReply());
+        complaint.setReply(complaintDTO.getReply().replace('\n', ' '));
 
         try{
             complaintService.save(complaint);
+            emailService.sendComplaintReplyEmailToUser(complaintDTO.getReply(), complaint);
         }
         catch (RuntimeException e){
             e.printStackTrace();
 
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserDTO;
+import rs.ac.uns.ftn.informatika.jpa.model.Complaint;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.model.LoyaltyProgram;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
@@ -66,6 +67,23 @@ public class EmailService {
 		javaMailSender.send(mail);
 
 		System.out.println("Email is sent!");
+	}
+
+	public void sendComplaintReplyEmailToUser(String reply, Complaint complaint){
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setTo(complaint.getRegisteredUser().getEmail());
+		mail.setFrom(env.getProperty("spring.mail.username"));
+		mail.setSubject("Administrator has replied to your complaint");
+
+		String complaintTo = "";
+		if(complaint.getCompany() == null) complaintTo = complaint.getCompanyAdmin().getFirstName();
+		else complaintTo = complaint.getCompany().getName();
+
+		mail.setText("Dear " + complaint.getRegisteredUser().getFirstName() + "\n\nYour complaint to " + complaintTo
+					+ " was answered by Luka and it follows:\n" + reply);
+		//TODO izmeniti ovo Luka u complaint.getSystemAdmin().getFirstName()
+
+		javaMailSender.send(mail);
 	}
 
 }

@@ -3,7 +3,7 @@ insert into location (city,country, street_name, street_number, longitude, latit
 insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Zajecar' ,'Jase Tomica',33, 20.833549, 46.267136);
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 1);
 
-insert into userr (id, email, first_name, last_name, password) values (5, 'sadas@gmail.com', 'Marko', 'Markovic', 'pass');
+insert into userr (id, email, first_name, last_name, password) values (5, 'luka2001stajic@gmail.com', 'Marko', 'Markovic', 'pass');
 insert into userr (id, email, first_name, last_name, password) values (6, 'sada2s@gmail.com', 'Parko', 'Parkovic', 'pass');
 insert into userr (id, email, first_name, last_name, password) values (7, 'asjkdgasjk@gmail.com', 'Petar', 'Petric', 'passw');
 insert into userr (id, email, first_name, last_name, password) values (8, 'assadasjkdgasjk@gmail.com', 'Bojan', 'Bojanic', 'passw');
