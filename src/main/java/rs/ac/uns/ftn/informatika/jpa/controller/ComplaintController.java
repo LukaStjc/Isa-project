@@ -3,16 +3,14 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.ComplaintDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Complaint;
 import rs.ac.uns.ftn.informatika.jpa.service.ComplaintService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "api/complaints")
@@ -33,5 +31,27 @@ public class ComplaintController {
         }
 
         return new ResponseEntity<>(complaintDTOS, HttpStatus.OK);
+    }
+
+    //TODO dodati id admina sistema koji je odradio reply
+    @PutMapping(value = "/reply/{id}")
+    public ResponseEntity<Void> updateComplaintByReply(@PathVariable Integer id, @RequestBody ComplaintDTO complaintDTO){
+        Optional<Complaint> optionalComplaint = complaintService.findById(id);
+
+        if(!optionalComplaint.isPresent()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        Complaint complaint = optionalComplaint.get();
+        complaint.setReply(complaintDTO.getReply());
+
+        try{
+            complaintService.save(complaint);
+        }
+        catch (RuntimeException e){
+            e.printStackTrace();
+
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
