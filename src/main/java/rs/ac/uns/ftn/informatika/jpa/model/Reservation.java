@@ -4,6 +4,7 @@ import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,10 +30,15 @@ public class Reservation {
     public ReservationStatus status;
     public Double totalSum;
 
+    private Date startingTime;
+
+    private int durationMinutes;
+
     public Reservation() {
     }
 
-    public Reservation(Integer id, Set<ReservationItem> items, RegisteredUser user, CompanyAdmin admin, Hospital hospital, ReservationStatus status, Double totalSum) {
+    public Reservation(Integer id, Set<ReservationItem> items, RegisteredUser user, CompanyAdmin admin, Hospital hospital,
+                       ReservationStatus status, Double totalSum, Date startingTime, int durationMinutes) {
         this.id = id;
         this.items = items;
         this.user = user;
@@ -40,6 +46,8 @@ public class Reservation {
         this.hospital = hospital;
         this.status = status;
         this.totalSum = totalSum;
+        this.startingTime = startingTime;
+        this.durationMinutes = durationMinutes;
     }
 
     public Integer getId() {
@@ -60,6 +68,14 @@ public class Reservation {
 
     public RegisteredUser getUser() {
         return user;
+    }
+
+    public Date getStartingTime() {
+        return startingTime;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
     }
 
     public void setUser(RegisteredUser user) {
@@ -96,5 +112,13 @@ public class Reservation {
 
     public void setItems(Set<ReservationItem> items) {
         this.items = items;
+    }
+
+    public void setStartingTime(Date startingTime) {
+        this.startingTime = startingTime;
+    }
+
+    public void setDurationMinutes(int durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
 }
