@@ -42,3 +42,5 @@ insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);
 
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
+
+insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_time, duration_minutes) values (1, 8, 6, 1, 0, 50000, '2020-12-06 10:45:00', 40);
