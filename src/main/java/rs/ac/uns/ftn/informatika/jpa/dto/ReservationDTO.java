@@ -7,16 +7,16 @@ import java.util.Date;
 public class ReservationDTO {
 
     private Integer id;
-    private Date vremePocetka;
+    private Date startingTime;
     private int durationMinutes;
     private String name;
     private String lastName;
 
     public ReservationDTO(){}
 
-    public ReservationDTO(Integer id, Date vremePocetka, int durationMinutes, String name, String lastName) {
+    public ReservationDTO(Integer id, Date startingTime, int durationMinutes, String name, String lastName) {
         this.id = id;
-        this.vremePocetka = vremePocetka;
+        this.startingTime = startingTime;
         this.durationMinutes = durationMinutes;
         this.name = name;
         this.lastName = lastName;
@@ -24,7 +24,7 @@ public class ReservationDTO {
 
     public ReservationDTO(Reservation r){
         this.id = r.getId();
-        this.vremePocetka = r.getStartingDate();
+        this.startingTime = r.getStartingDate();
         this.durationMinutes = r.getDurationMinutes();
         this.name = r.getUser().getFirstName();
         this.lastName = r.getUser().getLastName();
@@ -34,8 +34,8 @@ public class ReservationDTO {
         return id;
     }
 
-    public Date getVremePocetka() {
-        return vremePocetka;
+    public Date getStartingTime() {
+        return startingTime;
     }
 
     public int getDurationMinutes() {
@@ -54,8 +54,8 @@ public class ReservationDTO {
         this.id = id;
     }
 
-    public void setVremePocetka(Date vremePocetka) {
-        this.vremePocetka = vremePocetka;
+    public void setStartingTime(Date startingTime) {
+        this.startingTime = startingTime;
     }
 
     public void setDurationMinutes(int durationMinutes) {
