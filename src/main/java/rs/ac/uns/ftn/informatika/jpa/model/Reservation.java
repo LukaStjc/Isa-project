@@ -3,7 +3,6 @@ package rs.ac.uns.ftn.informatika.jpa.model;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +29,7 @@ public class Reservation {
     public ReservationStatus status;
     public Double totalSum;
 
-    private Date startingTime;
+    private Date startingDate;
 
     private int durationMinutes;
 
@@ -38,7 +37,7 @@ public class Reservation {
     }
 
     public Reservation(Integer id, Set<ReservationItem> items, RegisteredUser user, CompanyAdmin admin, Hospital hospital,
-                       ReservationStatus status, Double totalSum, Date startingTime, int durationMinutes) {
+                       ReservationStatus status, Double totalSum, Date startingDate, int durationMinutes) {
         this.id = id;
         this.items = items;
         this.user = user;
@@ -46,7 +45,7 @@ public class Reservation {
         this.hospital = hospital;
         this.status = status;
         this.totalSum = totalSum;
-        this.startingTime = startingTime;
+        this.startingDate = startingDate;
         this.durationMinutes = durationMinutes;
     }
 
@@ -70,8 +69,8 @@ public class Reservation {
         return user;
     }
 
-    public Date getStartingTime() {
-        return startingTime;
+    public Date getStartingDate() {
+        return startingDate;
     }
 
     public int getDurationMinutes() {
@@ -114,8 +113,8 @@ public class Reservation {
         this.items = items;
     }
 
-    public void setStartingTime(Date startingTime) {
-        this.startingTime = startingTime;
+    public void setStartingDate(Date startingDate) {
+        this.startingDate = startingDate;
     }
 
     public void setDurationMinutes(int durationMinutes) {
