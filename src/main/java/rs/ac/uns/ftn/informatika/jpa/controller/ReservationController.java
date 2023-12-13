@@ -30,4 +30,19 @@ public class ReservationController {
 
         return new ResponseEntity<>(reservationDTOS, HttpStatus.OK);
     }
+
+    @GetMapping(value = "/month-overview")
+    public ResponseEntity<List<Integer>> getReservedDaysInMonth
+            (/*@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX") Date date*/){
+
+        List<Integer> days = new ArrayList<>();
+        days.add(5);
+        days.add(22);
+        for(Integer i : days){
+            System.out.println(i.toString());
+        }
+
+        return new ResponseEntity<>(days, HttpStatus.OK);
+    }
+
 }
