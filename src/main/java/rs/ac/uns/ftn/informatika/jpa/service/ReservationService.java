@@ -63,17 +63,8 @@ public class ReservationService {
                 }
             }
 
-            // Dodajem rezervacije koje su na izabrani dan
-            for(Reservation r : reservations){
-                if(r.getStartingDate().getDate() == day && r.getStartingDate().getMonth() == month
-                        && r.getStartingDate().getYear() == year){
-
-                    reservationDTOS.add(new ReservationDTO(r));
-                }
-            }
-
-            // Dodajem rezervacije koje su u nedelji posle izabranog dana
-            for(int i=0; i< daysAfter; ++i){
+            // Dodajem rezervacije koje su u nedelji posle izabranog dana, kao i rezervacije na izabrani dan
+            for(int i=0; i<daysAfter + 1; ++i){
                 calendar.setTime(date);
 
                 calendar.add(Calendar.DAY_OF_MONTH, i);
