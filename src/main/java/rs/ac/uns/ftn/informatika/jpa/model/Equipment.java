@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 
 import javax.persistence.*;
@@ -36,6 +37,15 @@ public class Equipment {
         this.price = price;
         this.quantity = quantity;
     }
+    public Equipment(EquipmentBasicDTO dto, Company company) {
+        this.name = dto.getName();
+        this.company = company;
+        this.description = dto.getDescription();
+        this.type = EquipmentType.valueOf(dto.getEquipmentType().replaceAll("\\s", "")); //removing spaces from input JSON
+        this.price = dto.getPrice();
+        this.quantity = dto.getQuantity();
+    }
+
 
     public Integer getId() {
         return id;
@@ -91,5 +101,13 @@ public class Equipment {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public void updateProperties(EquipmentBasicDTO dto) {
+        this.name = dto.getName();
+        this.description = dto.getDescription();
+        this.type = EquipmentType.valueOf(dto.getEquipmentType().replaceAll("\\s", "")); //removing spaces from input JSON
+        this.price = dto.getPrice();
+        this.quantity = dto.getQuantity();
     }
 }

@@ -4,17 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentOrderingDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
+import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequestMapping("api/equipment")
@@ -149,6 +151,46 @@ public class EquipmentController {
         }
 
         return equipmentType;
+    }
+    @PostMapping(consumes = "application/json")
+    public ResponseEntity<EquipmentBasicDTO> createEquipment(@RequestBody EquipmentBasicDTO dto){
+
+        // TODO dodati proveru da li je korisnik Admin sistema
+        Company company = companyService.findBy(dto.getCompanyId());
+        Equipment equipment = new Equipment(dto, company);
+        try{
+            equipment = equipmentService.save(equipment);
+        }
+        catch(RuntimeException e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.CREATED);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteEquipment(@PathVariable Integer id){
+        Equipment equipment = equipmentService.findBy(id);
+        equipmentService.delete(equipment);
+        return new ResponseEntity<>("Equipment succesfully deleted", HttpStatus.OK);
+    }
+    @PutMapping ("/update/{id}")
+    public ResponseEntity<EquipmentDTO> updateEquipment(@PathVariable Integer id, @RequestBody EquipmentBasicDTO dto){
+        Equipment equipment = equipmentService.findBy(id);
+        equipment.updateProperties(dto);
+        if(dto.getQuantity() == 0){
+            deleteEquipment(id);
+            return new ResponseEntity<>(HttpStatus.OK); // Return success response without saving
+        }
+        equipmentService.save(equipment);
+        return new ResponseEntity<>(new EquipmentDTO(equipment), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EquipmentBasicDTO> getById(@PathVariable Integer id){
+        Equipment equipment = equipmentService.findBy(id);
+
+        return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.OK);
     }
 
 }
