@@ -89,4 +89,30 @@ public class ReservationService {
     }
 
 
+    public List<Integer> getAllByMonthAndYear(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        int daysToCheck = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int currentMonth = date.getMonth();
+        int currentYear = date.getYear();
+
+        List<Reservation> reservations = reservationRepository.findAll();
+        List<Integer> daysToShow = new ArrayList<>();
+
+
+        for(int i=1; i<=daysToCheck; ++i){
+            for(Reservation r : reservations){
+
+                if(r.getStartingDate().getDate() == i && r.getStartingDate().getMonth() == currentMonth
+                    && r.getStartingDate().getYear() == currentYear){
+
+                    daysToShow.add(i);
+                    break;
+                }
+            }
+        }
+
+        return daysToShow;
+    }
 }

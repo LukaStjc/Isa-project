@@ -46,3 +46,4 @@ insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 
 insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (1, 8, 6, 1, 0, 50000, '2023-12-19 10:45:00', 40);
 insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (2, 5, 6, 1, 0, 30000, '2023-12-19 08:15:00', 25);
 insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (3, 5, 6, 1, 0, 1000, '2023-12-20 14:00:00', 35);
+insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (4, 8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
