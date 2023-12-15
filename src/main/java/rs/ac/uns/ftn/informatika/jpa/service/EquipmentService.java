@@ -2,6 +2,8 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.repository.EquipmentRepository;
@@ -33,5 +35,16 @@ public class EquipmentService {
             String name, double score, int type){
         return equipmentRepository.
                 findByNameContainsAndCompany_AverageScoreGreaterThanEqualsAndTypeEquals(name, score, type);
+    }
+    public Equipment save(Equipment equipment){
+        return equipmentRepository.save(equipment);
+    }
+
+    public Equipment findBy(Integer id) {
+        return equipmentRepository.findById(id).orElseGet(null);
+    }
+
+    public void delete(Equipment equipment) {
+        equipmentRepository.delete(equipment);
     }
 }
