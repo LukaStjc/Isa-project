@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 
 import javax.persistence.*;
@@ -47,6 +48,16 @@ public class Reservation {
         this.totalSum = totalSum;
         this.startingDate = startingDate;
         this.durationMinutes = durationMinutes;
+    }
+
+    public Reservation(CompanyAdmin admin, ReservationPremadeDTO dto) {
+        this.items = new HashSet<>();
+        this.user = null;
+        this.hospital = null;
+        this.status = ReservationStatus.Created;
+        this.totalSum = 0.0;
+        this.startingDate = new Date(dto.getSelectedDateTime());
+        this.admin = admin;
     }
 
     public Integer getId() {

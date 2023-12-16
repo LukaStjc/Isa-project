@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
 
 import java.util.Date;

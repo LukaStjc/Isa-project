@@ -128,4 +128,8 @@ public class ReservationService {
         }
         return reservationDTOS;
     }
+
+    public void save(Reservation reservation) {
+        reservationRepository.save(reservation);
+    }
 }

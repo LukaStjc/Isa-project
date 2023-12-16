@@ -19,4 +19,8 @@ public class CompanyAdminService {
     public CompanyAdmin findBy(Integer id) {
         return companyAdminRepository.findById(id).orElseGet(null);
     }
+
+    public CompanyAdmin findByFirstAndLastName(String firstName, String lastName) {
+        return companyAdminRepository.findByFirstNameAndLastName(firstName, lastName);
+    }
 }

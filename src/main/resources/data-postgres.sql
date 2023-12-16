@@ -43,8 +43,8 @@ insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
 
-insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (1, 8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
-insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (2, 5, 6, 1, 0, 30000, '2023-12-19 08:15:00', 25);
-insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (3, 5, 6, 1, 0, 1000, '2023-12-20 14:00:00', 35);
-insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (4, 8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
-insert into reservation(id, user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (5, NULL, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (5, 6, 1, 0, 30000, '2023-12-19 08:15:00', 25);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (5, 6, 1, 0, 1000, '2023-12-20 14:00:00', 35);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (NULL, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
