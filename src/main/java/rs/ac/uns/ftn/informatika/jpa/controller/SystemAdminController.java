@@ -67,4 +67,14 @@ public class SystemAdminController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    //TODO potrebno je dodati proveru passworda koji je vezan za id admina
+    @GetMapping(value = "/check-password")
+    public ResponseEntity<Boolean> isCurrentPassword(@RequestParam("password") String password){
+        Boolean matchesCurrentPassword = systemAdminService.isCurrentPassword(password, 7);
+
+        return new ResponseEntity<>(matchesCurrentPassword, HttpStatus.OK);
+
+
+    }
 }
