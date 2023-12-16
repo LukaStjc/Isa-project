@@ -17,6 +17,8 @@ public class CompanyDTO {
     private List<EquipmentDTO> equipment;
 
     private List<CompanyAdminDTO> admins;
+
+    private List<ReservationDTO> reservationDTOS;
     public CompanyDTO() {
     }
 
@@ -34,6 +36,17 @@ public class CompanyDTO {
         this.averageScore = averageScore;
         this.equipment = equipment;
         this.admins = admins;
+    }
+
+    public CompanyDTO(Integer id, String name, Location location, String description, Double averageScore, List<EquipmentDTO> equipment, List<CompanyAdminDTO> admins, List<ReservationDTO> reservationDTOS) {
+        this.id = id;
+        this.name = name;
+        this.location = location;
+        this.description = description;
+        this.averageScore = averageScore;
+        this.equipment = equipment;
+        this.admins = admins;
+        this.reservationDTOS = reservationDTOS;
     }
 
     public CompanyDTO(Integer id, String name, Location location, String description, Double averageScore, List<EquipmentDTO> equipment, List<CompanyAdminDTO> admins) {
@@ -129,5 +142,13 @@ public class CompanyDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<ReservationDTO> getReservationDTOS() {
+        return reservationDTOS;
+    }
+
+    public void setReservationDTOS(List<ReservationDTO> reservationDTOS) {
+        this.reservationDTOS = reservationDTOS;
     }
 }

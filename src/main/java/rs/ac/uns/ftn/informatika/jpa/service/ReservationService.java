@@ -3,6 +3,7 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
+import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
@@ -114,5 +115,17 @@ public class ReservationService {
         }
 
         return daysToShow;
+    }
+
+    public List<ReservationDTO> getAllPredefinedByCompanyAdmin(List<CompanyAdmin> companyAdmins) {
+        List<ReservationDTO> reservationDTOS = new ArrayList<>();
+        List<Reservation> reservations = new ArrayList<>();
+        for(CompanyAdmin admin: companyAdmins){
+            reservations.addAll(reservationRepository.findByAdminAndUserIsNull(admin));
+        }
+        for(Reservation reservation: reservations){
+            reservationDTOS.add(new ReservationDTO(reservation));
+        }
+        return reservationDTOS;
     }
 }

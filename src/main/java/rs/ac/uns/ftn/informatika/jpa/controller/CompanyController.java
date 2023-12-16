@@ -12,6 +12,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
+import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +28,8 @@ public class CompanyController {
     private CompanyService companyService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private ReservationService reservationService;
 
     @GetMapping
     public ResponseEntity<List<CompanyBasicDTO>> getCompanies() {
@@ -44,7 +47,7 @@ public class CompanyController {
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id){
         Company company = companyService.findBy(id);
         CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
-
+        companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
     @PutMapping ("/update/{id}")

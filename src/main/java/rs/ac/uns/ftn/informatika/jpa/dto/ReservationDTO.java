@@ -26,8 +26,13 @@ public class ReservationDTO {
         this.id = r.getId();
         this.startingTime = r.getStartingDate();
         this.durationMinutes = r.getDurationMinutes();
-        this.name = r.getUser().getFirstName();
-        this.lastName = r.getUser().getLastName();
+        if(r.getUser() == null){
+            this.name = "";
+            this.lastName="";
+        }else {
+            this.name = r.getUser().getFirstName();
+            this.lastName = r.getUser().getLastName();
+        }
     }
 
     public Integer getId() {
