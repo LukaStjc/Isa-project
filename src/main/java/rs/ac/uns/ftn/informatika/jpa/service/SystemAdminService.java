@@ -28,4 +28,8 @@ public class SystemAdminService {
 
         return systemAdmin.getPassword().equals(password);
     }
+
+    public Optional<SystemAdmin> getById(Integer id){
+        return systemAdminRepository.findById(id);
+    }
 }

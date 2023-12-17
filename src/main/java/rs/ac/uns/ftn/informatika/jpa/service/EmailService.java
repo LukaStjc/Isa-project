@@ -80,7 +80,7 @@ public class EmailService {
 		else complaintTo = complaint.getCompany().getName();
 
 		mail.setText("Dear " + complaint.getRegisteredUser().getFirstName() + "\n\nYour complaint to " + complaintTo
-					+ " was answered by Luka and it follows:\n" + reply);
+					+ " was answered by Petar and it follows:\n" + reply);
 		//TODO izmeniti ovo Luka u complaint.getSystemAdmin().getFirstName()
 
 		javaMailSender.send(mail);
