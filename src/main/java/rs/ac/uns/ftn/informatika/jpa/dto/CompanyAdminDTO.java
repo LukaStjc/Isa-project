@@ -9,6 +9,7 @@ public class CompanyAdminDTO {
     private String lastName;
     private String password;
     private String companyName;
+    private String companyId;
 
     public CompanyAdminDTO(){}
 
@@ -67,5 +68,13 @@ public class CompanyAdminDTO {
 
     public void setCompanyName(String company) {
         this.companyName = company;
+    }
+
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
     }
 }
