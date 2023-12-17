@@ -61,7 +61,9 @@ public class CompanyAdminController {
     @GetMapping("/{id}")
     public ResponseEntity<CompanyAdminDTO> findById(@PathVariable Integer id){
         CompanyAdmin admin = companyAdminService.findBy(id);
-        return new ResponseEntity<>(new CompanyAdminDTO(admin), HttpStatus.OK);
+        CompanyAdminDTO adminDTO = new CompanyAdminDTO(admin);
+        adminDTO.setCompanyId(admin.getCompany().getId().toString());
+        return new ResponseEntity<>(adminDTO, HttpStatus.OK);
     }
 
 
