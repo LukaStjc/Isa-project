@@ -7,17 +7,16 @@ import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ReservationService {
     @Autowired
     private ReservationRepository reservationRepository;
 
-    public List<ReservationDTO> getAllByDate(Date date, int showWeek){
+    @Autowired CompanyAdminService companyAdminService;
+
+    public List<ReservationDTO> getAllByDate(Date date, int showWeek, Integer id){
         List<Reservation> reservations = reservationRepository.findAll();
 
         final int day = date.getDate();
@@ -26,9 +25,17 @@ public class ReservationService {
 
         List<ReservationDTO> reservationDTOS = new ArrayList<>();
 
+        //TODO i ovo izbaciti
+        Optional<CompanyAdmin> optionalCompanyAdmin = companyAdminService.findById(id);//
+        if(!optionalCompanyAdmin.isPresent()){//
+            return null;//
+        }//
+        CompanyAdmin companyAdmin = optionalCompanyAdmin.get();//
+
+        //TODO i u ovim ifovima
         if(showWeek == 0){
             for(Reservation r : reservations){
-                if(r.getStartingDate().getDate() == day && r.getStartingDate().getMonth() == month
+                if(companyAdmin.getCompany().getId() == r.getAdmin().getCompany().getId() && r.getStartingDate().getDate() == day && r.getStartingDate().getMonth() == month
                         && r.getStartingDate().getYear() == year){
 
                     reservationDTOS.add(new ReservationDTO(r));
@@ -56,7 +63,7 @@ public class ReservationService {
                 int tmpYear = tmpDate.getYear();
 
                 for(Reservation r : reservations){
-                    if(r.getStartingDate().getDate() == tmpDay && r.getStartingDate().getMonth() == tmpMonth
+                    if(companyAdmin.getCompany().getId() == r.getAdmin().getCompany().getId() && r.getStartingDate().getDate() == tmpDay && r.getStartingDate().getMonth() == tmpMonth
                             && r.getStartingDate().getYear() == tmpYear){
 
                         reservationDTOS.add(new ReservationDTO(r));
@@ -76,7 +83,7 @@ public class ReservationService {
                 int tmpYear = tmpDate.getYear();
 
                 for(Reservation r : reservations){
-                    if(r.getStartingDate().getDate() == tmpDay && r.getStartingDate().getMonth() == tmpMonth
+                    if(companyAdmin.getCompany().getId() == r.getAdmin().getCompany().getId() && r.getStartingDate().getDate() == tmpDay && r.getStartingDate().getMonth() == tmpMonth
                             && r.getStartingDate().getYear() == tmpYear){
 
                         reservationDTOS.add(new ReservationDTO(r));
@@ -90,7 +97,7 @@ public class ReservationService {
     }
 
 
-    public List<Integer> getAllByMonthAndYear(Date date) {
+    public List<Integer> getAllByMonthAndYear(Date date, Integer id) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
@@ -101,11 +108,17 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findAll();
         List<Integer> daysToShow = new ArrayList<>();
 
+        //TODO i ovo izbaciti
+        Optional<CompanyAdmin> optionalCompanyAdmin = companyAdminService.findById(id);//
+        if(!optionalCompanyAdmin.isPresent()){//
+            return null;//
+        }//
+        CompanyAdmin companyAdmin = optionalCompanyAdmin.get();//
 
         for(int i=1; i<=daysToCheck; ++i){
             for(Reservation r : reservations){
 
-                if(r.getStartingDate().getDate() == i && r.getStartingDate().getMonth() == currentMonth
+                if(companyAdmin.getCompany().getId() == r.getAdmin().getCompany().getId() && r.getStartingDate().getDate() == i && r.getStartingDate().getMonth() == currentMonth
                     && r.getStartingDate().getYear() == currentYear){
 
                     daysToShow.add(i);

@@ -13,6 +13,8 @@ import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyAdminDTO;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping(value = "api/company-admins")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -64,8 +66,13 @@ public class CompanyAdminController {
         return new ResponseEntity<>(new CompanyAdminDTO(admin), HttpStatus.OK);
     }
 
+    @GetMapping("/exsists/{id}")    //TODO izbrisati, dodato zbog 2. kt
+    public ResponseEntity<Boolean> doesExsist(@PathVariable Integer id){
+        Optional<CompanyAdmin> optionalCompanyAdmin = companyAdminService.findById(id);
 
-
+        if(optionalCompanyAdmin.isPresent()) return new ResponseEntity<>(true, HttpStatus.OK);
+        else return new ResponseEntity<>(false, HttpStatus.OK);
+    }
 
 
 

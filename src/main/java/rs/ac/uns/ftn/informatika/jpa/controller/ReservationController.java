@@ -28,28 +28,30 @@ public class ReservationController {
     @Autowired
     CompanyAdminService companyAdminService;
 
-    @GetMapping
+    @GetMapping(value = "/{id}")
     public ResponseEntity<List<ReservationDTO>> getAllByDate
             (@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX") Date date,
-             @RequestParam("week") int showWeek) {
+             @RequestParam("week") int showWeek,
+             @PathVariable Integer id) {
         //TODO dodati da se prikazuju samo one rezervacije koje su vezane za tog admina kompanije
 
-        List<ReservationDTO> reservationDTOS = reservationService.getAllByDate(date, showWeek);
+        List<ReservationDTO> reservationDTOS = reservationService.getAllByDate(date, showWeek, id);
 
         return new ResponseEntity<>(reservationDTOS, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/month-overview")
+    @GetMapping(value = "/month-overview/{id}")
     public ResponseEntity<List<Integer>> getReservedDaysInMonth
-            (@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd") Date date) {
+            (@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd") Date date,
+             @PathVariable Integer id) {
 
-        List<Integer> days = reservationService.getAllByMonthAndYear(date);
+        List<Integer> days = reservationService.getAllByMonthAndYear(date, id);
 
         return new ResponseEntity<>(days, HttpStatus.OK);
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<ReservationPremadeDTO> createReservation(@RequestBody ReservationPremadeDTO dto) {
+    public ResponseEntity<ReservationPremadeDTO> createReservation(@RequestBody ReservationPremadeDTO dto){
         System.out.println(dto.getAdminId());
         System.out.println(dto.getSelectedDateTime());
         //ovo nece trebati kada se odradi login, za sada je ovako
