@@ -34,31 +34,26 @@ public class RegisteredUser extends User
     @Column
     private String activationCode;
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT 'False'")
-    private boolean active;
-
     public RegisteredUser() {
         super();
     }
 
     public RegisteredUser(String email, String firstName, String lastName, String password, String telephoneNumber, String occupation) {
-        super(email, firstName, lastName, password);
-        this.telephoneNumber =telephoneNumber;
+        super(email, firstName, lastName, password, false);
+        this.telephoneNumber = telephoneNumber;
         this.penaltyPoints = 0;
         this.points = 0;
         this.occupation = occupation;
         this.activationCode = RandomStringUtils.randomAlphanumeric(32);
-        this.active = false;
     }
 
     public RegisteredUser(RegisteredUserDTO registeredUserDTO) {
-        super(registeredUserDTO.getEmail(), registeredUserDTO.getFirstName(), registeredUserDTO.getLastName(), registeredUserDTO.getPassword());
+        super(registeredUserDTO.getEmail(), registeredUserDTO.getFirstName(), registeredUserDTO.getLastName(), registeredUserDTO.getPassword(), false);
         this.telephoneNumber = registeredUserDTO.getTelephoneNumber();
         this.penaltyPoints = 0;
         this.points = 0;
         this.occupation = registeredUserDTO.getOccupation();
         this.activationCode = RandomStringUtils.randomAlphanumeric(32);
-        this.active = false;
     }
 
     public String getTelephoneNumber() {
@@ -117,13 +112,13 @@ public class RegisteredUser extends User
         this.activationCode = activationCode;
     }
 
-    public boolean isActive() {
-        return this.active;
-    }
+//    public boolean isActive() {
+//        return this.active;
+//    }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+//    public void setActive(boolean active) {
+//        this.active = active;
+//    }
 
     public Location getLocation() {
         return location;

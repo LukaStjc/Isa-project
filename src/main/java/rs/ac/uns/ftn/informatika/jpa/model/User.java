@@ -4,10 +4,24 @@ import javax.persistence.*;
 
 import static javax.persistence.InheritanceType.JOINED;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+// POJO koji implementira Spring Security UserDetails interfejs koji specificira
+// osnovne osobine Spring korisnika (koje role ima, da li je nalog zakljucan, istekao, da li su kredencijali istekli)
 @Entity
 @Inheritance(strategy=JOINED)
 @Table(name="Userr")
-public class User {
+public class User implements UserDetails {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -24,63 +38,134 @@ public class User {
     @Column(name="password")//(nullable = false)
     private String password;
 
-    public User(){
-        super();
-    }
+    @Column(name = "enabled", columnDefinition = "BOOLEAN DEFAULT 'False'")
+    private boolean enabled;
 
-    public User(String email, String firstName, String lastName, String password) {
-        super();
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.password = password;
-    }
+    @Column(name = "last_password_reset_date")
+    private Timestamp lastPasswordResetDate;
 
-    public User(String email, String firstName, String lastName){
-        super();
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.password = "ftn";
-    }
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private List<Role> roles;
+
+//    public User(){
+//        super();
+//    }
+
+    // todo: ali ako korisnik nije registered user, onda enabled treba da bude po default-u true? to su oni ucitani korisnici, ne ovi koji se registruju
+//    public User(String email, String firstName, String lastName, String password, boolean enabled) {
+//        super();
+//        this.email = email;
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//        this.password = password;
+//        this.enabled = enabled;
+//    }
+//
+//    public User(String email, String firstName, String lastName){
+//        super();
+//        this.email = email;
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//        this.password = "ftn";  // resiti
+//    }
 
     public Integer getId() {
         return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        Timestamp now = new Timestamp(new Date().getTime());
+        this.setLastPasswordResetDate(now);
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    @JsonIgnore
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roles;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    public Timestamp getLastPasswordResetDate() {
+        return lastPasswordResetDate;
+    }
+
+    public void setLastPasswordResetDate(Timestamp lastPasswordResetDate) {
+        this.lastPasswordResetDate = lastPasswordResetDate;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
 }
