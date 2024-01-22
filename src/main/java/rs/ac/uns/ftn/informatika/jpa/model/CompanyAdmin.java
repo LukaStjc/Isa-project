@@ -23,7 +23,7 @@ public class CompanyAdmin extends User{
     }
 
     public CompanyAdmin(String email, String firstName, String lastName, String password, Company company) {
-        super(email, firstName, lastName, password);
+        super(email, firstName, lastName, password, true); // po default-u je nalog company admin-a enabled, jer se ne registruje
         this.company = company;
     }
 

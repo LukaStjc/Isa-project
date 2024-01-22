@@ -18,7 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import rs.ac.uns.ftn.informatika.jpa.security.auth.RestAuthenticationEntryPoint;
 import rs.ac.uns.ftn.informatika.jpa.security.auth.TokenAuthenticationFilter;
-import rs.ac.uns.ftn.informatika.jpa.service.impl.CustomUserDetailsService;
+import rs.ac.uns.ftn.informatika.jpa.service.UserService;
 import rs.ac.uns.ftn.informatika.jpa.util.TokenUtils;
 
 
@@ -34,7 +34,7 @@ public class WebSecurityConfig {
 	// Servis koji se koristi za citanje podataka o korisnicima aplikacije
 	@Bean
     public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService();
+        return new UserService();
     }
 	
 	// Implementacija PasswordEncoder-a koriscenjem BCrypt hashing funkcije.
@@ -95,7 +95,8 @@ public class WebSecurityConfig {
 			// .antMatchers("/admin").hasRole("ADMIN") ili .antMatchers("/admin").hasAuthority("ROLE_ADMIN")
 			
 			// za svaki drugi zahtev korisnik mora biti autentifikovan
-			.anyRequest().authenticated().and()
+//			.anyRequest().authenticated()
+				.and()
 			// za development svrhe ukljuci konfiguraciju za CORS iz WebConfig klase
 			.cors().and()
 

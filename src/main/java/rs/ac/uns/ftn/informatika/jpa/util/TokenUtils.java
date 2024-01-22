@@ -17,7 +17,7 @@ import java.util.Date;
 public class TokenUtils {
 
 	// Izdavac tokena
-	@Value("spring-security-example")
+	@Value("isa-project")
 	private String APP_NAME;
 
 	// Tajna koju samo backend aplikacija treba da zna kako bi mogla da generise i proveri JWT https://jwt.io/
@@ -50,13 +50,13 @@ public class TokenUtils {
 	/**
 	 * Funkcija za generisanje JWT tokena.
 	 * 
-	 * @param username Korisničko ime korisnika kojem se token izdaje
+	 * @param email Email korisnika kojem se token izdaje
 	 * @return JWT token
 	 */
-	public String generateToken(String username) {
+	public String generateToken(String email) {
 		return Jwts.builder()
 				.setIssuer(APP_NAME)
-				.setSubject(username)
+				.setSubject(email)
 				.setAudience(generateAudience())
 				.setIssuedAt(new Date())
 				.setExpiration(generateExpirationDate())
@@ -120,23 +120,23 @@ public class TokenUtils {
 	}
 	
 	/**
-	 * Funkcija za preuzimanje vlasnika tokena (korisničko ime).
+	 * Funkcija za preuzimanje vlasnika tokena (email).
 	 * @param token JWT token.
-	 * @return Korisničko ime iz tokena ili null ukoliko ne postoji.
+	 * @return Email iz tokena ili null ukoliko ne postoji.
 	 */
-	public String getUsernameFromToken(String token) {
-		String username;
+	public String getEmailFromToken(String token) {
+		String email;
 		
 		try {
 			final Claims claims = this.getAllClaimsFromToken(token);
-			username = claims.getSubject();
+			email = claims.getSubject();
 		} catch (ExpiredJwtException ex) {
 			throw ex;
 		} catch (Exception e) {
-			username = null;
+			email = null;
 		}
 		
-		return username;
+		return email;
 	}
 
 	/**
@@ -233,12 +233,12 @@ public class TokenUtils {
 	 */
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		User user = (User) userDetails;
-		final String username = getUsernameFromToken(token);
+		final String email = getEmailFromToken(token);
 		final Date created = getIssuedAtDateFromToken(token);
 		
 		// Token je validan kada:
-		return (username != null // korisnicko ime nije null
-			&& username.equals(userDetails.getUsername()) // korisnicko ime iz tokena se podudara sa korisnickom imenom koje pise u bazi
+		return (email != null // korisnicko ime nije null
+			&& email.equals(userDetails.getUsername()) // email iz tokena se podudara sa emailom koje pise u bazi
 			&& !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())); // nakon kreiranja tokena korisnik nije menjao svoju lozinku 
 	}
 	

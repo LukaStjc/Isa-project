@@ -38,7 +38,8 @@ public class User implements UserDetails {
     @Column(name="password")//(nullable = false)
     private String password;
 
-    @Column(name = "enabled", columnDefinition = "BOOLEAN DEFAULT 'False'")
+//    @Column(name = "enabled", columnDefinition = "BOOLEAN DEFAULT 'False'")
+    @Column(name = "enabled")
     private boolean enabled;
 
     @Column(name = "last_password_reset_date")
@@ -50,27 +51,28 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles;
 
-//    public User(){
-//        super();
-//    }
+    public User(){
+        super();
+        enabled = false;    // za sada neka ostane kod user-a false
+    }
 
     // todo: ali ako korisnik nije registered user, onda enabled treba da bude po default-u true? to su oni ucitani korisnici, ne ovi koji se registruju
-//    public User(String email, String firstName, String lastName, String password, boolean enabled) {
-//        super();
-//        this.email = email;
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.password = password;
-//        this.enabled = enabled;
-//    }
-//
-//    public User(String email, String firstName, String lastName){
-//        super();
-//        this.email = email;
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.password = "ftn";  // resiti
-//    }
+    public User(String email, String firstName, String lastName, String password, boolean enabled) {
+        super();
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.enabled = enabled;
+    }
+
+    public User(String email, String firstName, String lastName){
+        super();
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = "ftn";  // resiti
+    }
 
     public Integer getId() {
         return id;
@@ -130,16 +132,17 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
+    // todo: ovde zezalo, jer u UserDetails imas samo za username metode
     @Override
     public String getUsername() {
-        return null;
+        return email;
     }
 
     public Timestamp getLastPasswordResetDate() {
@@ -150,22 +153,22 @@ public class User implements UserDetails {
         this.lastPasswordResetDate = lastPasswordResetDate;
     }
 
+    // todo: ove tri metode mozda trebaju da se ispeglaju
     @JsonIgnore
-    @Override
+    @Override   // logika?
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @JsonIgnore
-    @Override
+    @Override   // ovo sigurno za sada na true, mozda implementirati dodatnu logiku
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @JsonIgnore
-    @Override
+    @Override   // logika?
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
-
 }

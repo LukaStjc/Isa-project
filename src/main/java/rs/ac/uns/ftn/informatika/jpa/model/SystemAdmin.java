@@ -31,11 +31,11 @@ public class SystemAdmin  extends User{
     }
 
     public SystemAdmin(String email, String firstName, String lastName, String password) {
-        super(email, firstName, lastName, password);
+        super(email, firstName, lastName, password, true); // po default-u je nalog system admin-a enabled, jer se ne registruje
     }
 
     public SystemAdmin(String email, String firstName, String lastName, String password, List<LoyaltyProgram> loyaltyPrograms) {
-        super(email, firstName, lastName, password);
+        super(email, firstName, lastName, password, true); // po default-u je nalog system admin-a enabled, jer se ne registruje
         this.loyaltyPrograms = loyaltyPrograms;
     }
 
