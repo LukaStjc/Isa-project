@@ -45,7 +45,8 @@ public class UserController {
 
 
 	@GetMapping("/whoami")
-	@PreAuthorize("hasRole('REGISTERED_USER')")
+	@PreAuthorize("hasAnyRole('REGISTERED_USER', 'SYSTEM_ADMIN', 'COMPANY_ADMIN')")
+//	@PreAuthorize("hasRole('REGISTERED_USER')")
 	public User user(Principal user) {
 		return this.userService.findByEmail(user.getName());
 	}
