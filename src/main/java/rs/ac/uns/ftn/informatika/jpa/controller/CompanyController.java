@@ -45,7 +45,7 @@ public class CompanyController {
         return new ResponseEntity<>(companyBasicDTOS, HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    @Transactional  // posto sam dodao kod company za equipment LAZY, jer u suprotnom ne radi, morao sam ovde da dodam transactional mozda nije najpametnije resenje
+    @Transactional  // vasilije: posto sam dodao kod company za equipment LAZY, jer u suprotnom ne radi, morao sam ovde da dodam transactional mozda nije najpametnije resenje
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id){
         Company company = companyService.findBy(id);
         CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));

@@ -10,7 +10,6 @@ import rs.ac.uns.ftn.informatika.jpa.service.UserService;
 import java.security.Principal;
 import java.util.*;
 
-
 // Primer kontrolera cijim metodama mogu pristupiti samo autorizovani korisnici
 @RestController
 @RequestMapping(value = "/api", produces = MediaType.APPLICATION_JSON_VALUE)

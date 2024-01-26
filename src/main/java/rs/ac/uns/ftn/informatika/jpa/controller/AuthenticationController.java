@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rs.ac.uns.ftn.informatika.jpa.dto.JwtAuthenticationRequestDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.JwtResponseDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.UserTokenStateDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.util.TokenUtils;
 
@@ -57,7 +56,6 @@ public class AuthenticationController {
 				.collect(Collectors.toList());
 
 		// Vrati token kao odgovor na uspesnu autentifikaciju
-		// todo: cuvati token na klijentskoj strani
 //		return ResponseEntity.ok(new UserTokenStateDTO(jwt, expiresIn));
 		return ResponseEntity
 				.ok(new JwtResponseDTO(jwt, user.getId(), user.getEmail(), roles));
