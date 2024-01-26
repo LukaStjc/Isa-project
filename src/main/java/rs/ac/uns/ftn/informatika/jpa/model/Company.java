@@ -18,7 +18,7 @@ public class Company {
     @Column(unique = true)
     private String name;
 
-    @OneToMany(mappedBy="company",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="company",fetch = FetchType.LAZY) // greska sa eager kod spring security-ja
     private List<Equipment> equipment;
 
     @LazyCollection(LazyCollectionOption.FALSE)

@@ -1,22 +1,17 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserDTO;
-import rs.ac.uns.ftn.informatika.jpa.model.Complaint;
-import rs.ac.uns.ftn.informatika.jpa.model.Location;
-import rs.ac.uns.ftn.informatika.jpa.model.LoyaltyProgram;
-import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
+import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.HospitalRepository;
-import rs.ac.uns.ftn.informatika.jpa.repository.LocationRepository;
-import rs.ac.uns.ftn.informatika.jpa.repository.LoyaltyProgramRepository;
-import rs.ac.uns.ftn.informatika.jpa.repository.RegisteredUserRepository;
+
+import java.util.List;
 
 @Service
 public class EmailService {
@@ -42,6 +37,12 @@ public class EmailService {
 	@Autowired
 	private Environment env;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private RoleService roleService;
+
 	public void sendNotificaitionSync(RegisteredUserDTO registeredUserDTO) throws MailException, InterruptedException {
 		System.out.println("Email sending...");
 
@@ -57,6 +58,12 @@ public class EmailService {
 
 		registeredUser.setLocation(location);
 		registeredUser.setHospital(hospitalService.getOne(registeredUserDTO.getHospitalId())); // todo: a better solution will be implemented
+		registeredUser.setPassword(passwordEncoder.encode(registeredUserDTO.getPassword()));
+		registeredUser.setEnabled(false);	// todo: inace treba na false
+
+		List<Role> roles = roleService.findByName("ROLE_REGISTERED_USER");
+		registeredUser.setRoles(roles);
+
 		registeredUserService.save(registeredUser);
 
 		SimpleMailMessage mail = new SimpleMailMessage();

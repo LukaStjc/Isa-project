@@ -5,18 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserDTO;
-import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
+import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.service.EmailService;
 import rs.ac.uns.ftn.informatika.jpa.service.RegisteredUserService;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -34,20 +28,22 @@ public class RegisteredUserController {
 	@PostMapping("/signup")
 	public ResponseEntity<String> signUpSync(@RequestBody RegisteredUserDTO registeredUserDTO){
 
-		if (registeredUserService.getByEmail(registeredUserDTO.getEmail().trim().toLowerCase()) != null)
-		{
-			return new ResponseEntity<>("unsuccessful: email already exists", HttpStatus.BAD_REQUEST);
+		// todo: handle-uj exception?
+		User existUser = registeredUserService.getByEmail(registeredUserDTO.getEmail().trim().toLowerCase());
+
+		if (existUser != null) {
+			return new ResponseEntity<>("Unsuccessful: email already exists", HttpStatus.BAD_REQUEST);
 		}
 
 		try {
-			System.out.println("Thread id: " + Thread.currentThread().getId());
+//				System.out.println("Thread id: " + Thread.currentThread().getId());
 			emailService.sendNotificaitionSync(registeredUserDTO);
 		}catch( Exception e ){
 			logger.info("Error during the email-sending process: " + e.getMessage());
 			return new ResponseEntity<>("unsuccessful", HttpStatus.BAD_REQUEST);
 		}
 
-		return new ResponseEntity<>("successful", HttpStatus.OK);
+		return new ResponseEntity<>("successful", HttpStatus.CREATED);
 	}
 
 	@GetMapping("/activate")
@@ -55,10 +51,10 @@ public class RegisteredUserController {
 
 		RegisteredUser registeredUser = registeredUserService.getByActivationCode(activationCode);
 
-		if (registeredUser == null || registeredUser.isActive() == true)
+		if (registeredUser == null || registeredUser.isEnabled() == true)
 			return new ResponseEntity("Invalid request!", HttpStatus.BAD_REQUEST);
 
-		registeredUser.setActive(true);
+		registeredUser.setEnabled(true);
 
 		registeredUserService.save(registeredUser);
 

@@ -3,25 +3,27 @@ insert into location (city,country, street_name, street_number, longitude, latit
 insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Zajecar' ,'Jase Tomica',33, 20.833549, 46.267136);
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 1);
 
-insert into userr (id, email, first_name, last_name, password) values (5, 'luka2001stajic@gmail.com', 'Marko', 'Markovic', 'pass');
-insert into userr (id, email, first_name, last_name, password) values (6, 'sada2s@gmail.com', 'Parko', 'Parkovic', 'pass');
-insert into userr (id, email, first_name, last_name, password) values (7, 'asjkdgasjk@gmail.com', 'Petar', 'Petric', 'passw');
-insert into userr (id, email, first_name, last_name, password) values (8, 'assadasjkdgasjk@gmail.com', 'Bojan', 'Bojanic', 'passw');
-insert into userr (id, email, first_name, last_name, password) values (9, 'asjkdgasjsasddk@gmail.com', 'Luka', 'Lukic', 'passw');
+-- za sve korisnike ista lozinka: 'pass'
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (5, '2024-01-22', 'luka2001stajic@gmail.com', True, 'Marko', 'Markovic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (6, '2024-01-22', 'parkoparkovic@gmail.com', True, 'Parko', 'Parkovic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (7, '2024-01-22', 'petarpetric@gmail.com', True, 'Petar', 'Petric', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (8, '2024-01-22', 'bojanbojanic@gmail.com', True, 'Bojan', 'Bojanic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (9, '2024-01-22', 'lukalukic@gmail.com', True, 'Luka', 'Lukic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 
 
 insert into system_admin (id) values (7);
 
 
--- insert into registered_user (email, first_name, last_name, password, telephone_number, penalty_points, points) values ('asjkdgasjk@gmail.com', 'Petar', 'Petric', 'passw', '0613241802', 0, 0);
-insert into loyalty_program (id, type,min_points, max_points, admin_id) values (0, 0, 0, 100, 7);
-insert into loyalty_program (id,type,min_points, max_points,  admin_id) values (1, 1, 101, 1000, 7);
-insert into loyalty_program (id,type,min_points, max_points,  admin_id) values (2, 2, 1001, 5000, 7);
+-- insert into registered_user (email, enabled, first_name, last_name, password, telephone_number, penalty_points, points) values ('asjkdgasjk@gmail.com', true, 'Petar', 'Petric', 'passw', '0613241802', 0, 0);
+insert into loyalty_program (id, type, min_points, max_points, admin_id) values (0, 0, 0, 100, 7);
+insert into loyalty_program (id, type, min_points, max_points,  admin_id) values (1, 1, 101, 1000, 7);
+insert into loyalty_program (id, type, min_points, max_points,  admin_id) values (2, 2, 1001, 5000, 7);
 
 -- paziti na loyalty_progra_id i dozvoli neunosenje stranog kljuca
-insert into registered_user (id , telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id, location_id, activation_code) values (5, '0613241802', 0, 0, 'zemljoradnik', 1, 1, 1, 'APwO1SBNEVeJO8xs5zLmvHqGQsjKmgl6');
-insert into registered_user (id , telephone_number, penalty_points, points, occupation,loyalty_program_id, hospital_id, location_id, activation_code) values (8, '0613241802', 0, 0, 'poljoprivrednik',1, 1, 2, 'ZA8hEPFFq4nO2eaHjQYkA2UzPUnukSWK');
--- insert into registered_user (id , telephone_number, penalty_points, points, occupation) values (5, '0613241802', 0, 0, 'zemljoradnik');
+insert into registered_user (id, telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id, location_id, activation_code) values (5, '0613241802', 0, 0, 'zemljoradnik', 1, 1, 1, 'APwO1SBNEVeJO8xs5zLmvHqGQsjKmgl6');
+insert into registered_user (id, telephone_number, penalty_points, points, occupation,loyalty_program_id, hospital_id, location_id, activation_code) values (8, '0651234567', 0, 0, 'poljoprivrednik',1, 1, 2, 'ZA8hEPFFq4nO2eaHjQYkA2UzPUnukSWK');
+insert into registered_user (id, telephone_number, penalty_points, points, occupation,loyalty_program_id, hospital_id, location_id, activation_code) values (9, '0628912666', 0, 0, 'direktor',1, 1, 2, 'XY1hEPFFq4nO2eaHjQYkA2UzPUnukSWK');
+-- insert into registered_user (id, telephone_number, penalty_points, points, occupation) values (5, '0613241802', 0, 0, 'zemljoradnik');
 
 -- TODO promeniti average_score na 0, za kt1 su stavljene neke vrednosti
 insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('Kompanija A','opis1' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 1.8, 1, 7); --id 1
@@ -48,3 +50,17 @@ insert into reservation( user_id, admin_id, hospital_id, status, total_sum, star
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (5, 6, 1, 0, 1000, '2023-12-20 14:00:00', 35);
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35);
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes) values (NULL, 6, 1, 0, 2000, '2024-01-08 13:00:00', 40);
+
+INSERT INTO ROLE (name) VALUES ('ROLE_REGISTERED_USER');
+INSERT INTO ROLE (name) VALUES ('ROLE_COMPANY_ADMIN');
+INSERT INTO ROLE (name) VALUES ('ROLE_SYSTEM_ADMIN');
+
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (5, 1); -- registered user-u dodeljujemo ROLE_REGISTERED_USER
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (8, 1); -- registered user-u dodeljujemo ROLE_REGISTERED_USER
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (9, 1); -- registered user-u dodeljujemo ROLE_REGISTERED_USER
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (6, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
+
+-- todo: system admin ima sve privilegije?
+-- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 1);
+-- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 2);
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 3); -- system admin-u dodeljujemo ROLE_SYSTEM_ADMIN

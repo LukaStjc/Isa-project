@@ -14,6 +14,7 @@ import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +45,7 @@ public class CompanyController {
         return new ResponseEntity<>(companyBasicDTOS, HttpStatus.OK);
     }
     @GetMapping("/{id}")
+    @Transactional  // vasilije: posto sam dodao kod company za equipment LAZY, jer u suprotnom ne radi, morao sam ovde da dodam transactional mozda nije najpametnije resenje
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id){
         Company company = companyService.findBy(id);
         CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));

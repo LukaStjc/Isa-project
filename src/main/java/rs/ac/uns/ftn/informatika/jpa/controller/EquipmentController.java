@@ -12,6 +12,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,7 @@ public class EquipmentController {
     EquipmentService equipmentService;
 
     @GetMapping("/company/{id}")
+    @Transactional // vasilije dodao
     public ResponseEntity<List<EquipmentDTO>> getCompanyEquipment(@PathVariable Integer id) {
 
         Company company =  companyService.findOne(id);
