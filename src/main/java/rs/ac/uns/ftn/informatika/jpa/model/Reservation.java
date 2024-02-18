@@ -16,18 +16,19 @@ public class Reservation {
     public Integer id;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "reservation_id")
-    private Set<ReservationItem> items  = new HashSet<>();
+    private Set<ReservationItem> items  = new HashSet<>(); // private, a vecina ostalih polja je public?
 
     @ManyToOne
     public RegisteredUser user;
 
     @ManyToOne
-    public CompanyAdmin admin;
+    public CompanyAdmin admin;  // preko njega dobavis kompaniju gde radi, 1 admin kompanije radi u najvise 1 kompaniji
 
     @ManyToOne
     public Hospital hospital;
 
     public ReservationStatus status;
+
     public Double totalSum;
 
     private Date startingDate;

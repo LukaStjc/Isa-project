@@ -24,10 +24,14 @@ public class ReservationItem {
     public ReservationItem() {
     }
 
-    public ReservationItem(Integer id, Equipment equipment, Integer quantity) {
-        this.id = id;
+    public ReservationItem(Equipment equipment, Integer quantity) {
         this.equipment = equipment;
         this.quantity = quantity;
+    }
+
+    public ReservationItem(Integer id, Equipment equipment, Integer quantity) {
+        this.id = id;
+
     }
 
     public Integer getId() {

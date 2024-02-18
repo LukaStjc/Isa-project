@@ -1,10 +1,14 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
@@ -12,6 +16,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
+import javax.mail.MessagingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,6 +54,20 @@ public class ReservationController {
 
         return new ResponseEntity<>(days, HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @PostMapping(consumes = "application/json", value = "/create-by-premade-appointment")
+    public ResponseEntity createReservationByPremadeAppointment(@RequestBody ReservationByPremadeAppointmentDTO reservation)
+    {
+        try {
+            reservationService.updateReservationByPremadeAppointment(reservation);
+        } catch (MessagingException | ClassNotFoundException | RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<ReservationPremadeDTO> createReservation(@RequestBody ReservationPremadeDTO dto){

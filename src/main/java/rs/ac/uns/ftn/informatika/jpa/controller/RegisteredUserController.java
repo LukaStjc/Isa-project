@@ -37,8 +37,8 @@ public class RegisteredUserController {
 
 		try {
 //				System.out.println("Thread id: " + Thread.currentThread().getId());
-			emailService.sendNotificaitionSync(registeredUserDTO);
-		}catch( Exception e ){
+			emailService.sendNotificationSync(registeredUserDTO);
+		} catch( Exception e ){
 			logger.info("Error during the email-sending process: " + e.getMessage());
 			return new ResponseEntity<>("unsuccessful", HttpStatus.BAD_REQUEST);
 		}

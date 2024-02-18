@@ -1,13 +1,25 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
+import org.aspectj.apache.bcel.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.mail.MailException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
-import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
-import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
+import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
+import javax.mail.MessagingException;
 import java.util.*;
+
+import static rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus.Ready;
 
 @Service
 public class ReservationService {
@@ -15,6 +27,18 @@ public class ReservationService {
     private ReservationRepository reservationRepository;
 
     @Autowired CompanyAdminService companyAdminService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private EquipmentService equipmentService;
+
+    @Autowired
+    private ReservationItemService reservationItemService;
+
+    @Autowired
+    private EmailService emailService;
 
     public List<ReservationDTO> getAllByDate(Date date, int showWeek, Integer id){
         List<Reservation> reservations = reservationRepository.findAll();
@@ -145,4 +169,65 @@ public class ReservationService {
     public void save(Reservation reservation) {
         reservationRepository.save(reservation);
     }
+
+    // todo: transakcija, konfliktna situacija
+    public void updateReservationByPremadeAppointment(ReservationByPremadeAppointmentDTO reservationDTO) throws DataAccessException, ClassNotFoundException, MailException, MessagingException {
+        Optional<Reservation> optionalReservation = reservationRepository.findById(reservationDTO.getReservationId());
+
+        if (optionalReservation.isPresent()) {
+            Reservation reservation = optionalReservation.get();
+
+            User user = getUserCredentinals();
+            RegisteredUser registeredUser = (RegisteredUser) user;
+
+            reservation.user = registeredUser;
+            reservation.hospital = registeredUser.getHospital();
+            reservation.status = Ready;
+
+            if (reservation.totalSum == null)
+                reservation.totalSum = 0.0;
+
+            for (ReservationItemDTO item : reservationDTO.getReservationItems()) {
+                Equipment equipment = equipmentService.findBy(item.getEquipmentId());
+
+                if (equipment == null)
+                    throw new ClassNotFoundException("Equipment with ID " + item.getEquipmentId() + " not found");
+
+                if (equipment.getQuantity() < item.getQuantity())
+                    throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the possible quantity");
+
+                ReservationItem reservationItem = new ReservationItem(equipment, item.getQuantity());
+                reservation.getItems().add(reservationItem);
+
+                reservation.totalSum += equipment.getPrice() * item.getQuantity();
+            }
+
+            // transakcijski pristup - radim kad sam siguran da je prethodno prosao
+            for (ReservationItem reservationItem : reservation.getItems()) {
+                reservationItemService.save(reservationItem);
+                Integer updatedQuantity = reservationItem.equipment.getQuantity() - reservationItem.getQuantity();
+                equipmentService.updateQuantity(reservationItem.equipment.getId(), updatedQuantity);
+            }
+
+            reservationRepository.save(reservation);
+
+            emailService.sendReservationQRCodeSync(registeredUser, reservation);
+
+        } else {
+            throw new RuntimeException("Reservation with ID " + reservationDTO.getReservationId() + " not found");
+        }
+    }
+
+    // todo: exception ako nije registered user, mada on ako je ulogovan samo vidi to i to sme da radi
+    private RegisteredUser getUserCredentinals() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        RegisteredUser registeredUser = (RegisteredUser) user;
+
+        return registeredUser;
+    }
+
+
 }
