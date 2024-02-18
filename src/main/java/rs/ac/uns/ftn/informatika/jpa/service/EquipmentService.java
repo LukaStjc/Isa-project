@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentDTO;
@@ -8,6 +9,7 @@ import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.repository.EquipmentRepository;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -46,5 +48,9 @@ public class EquipmentService {
 
     public void delete(Equipment equipment) {
         equipmentRepository.delete(equipment);
+    }
+
+    public void updateQuantity(Integer id, Integer quantity) throws DataAccessException {
+        equipmentRepository.updateQuantity(id, quantity);
     }
 }
