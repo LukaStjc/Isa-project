@@ -53,4 +53,5 @@ public class EquipmentService {
     public void updateQuantity(Integer id, Integer quantity) throws DataAccessException {
         equipmentRepository.updateQuantity(id, quantity);
     }
+
 }

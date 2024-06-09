@@ -68,7 +68,6 @@ public class ReservationController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-
     @PostMapping(consumes = "application/json")
     public ResponseEntity<ReservationPremadeDTO> createReservation(@RequestBody ReservationPremadeDTO dto){
         System.out.println(dto.getAdminId());
@@ -104,4 +103,19 @@ public class ReservationController {
         return new ResponseEntity<ReservationPremadeDTO>(dto, HttpStatus.OK);
 
     }
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @PutMapping(value = "cancel/{id}")
+    public ResponseEntity CancelReservation(@PathVariable Integer id) {
+
+        try {
+            reservationService.cancelReservation(id);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 }

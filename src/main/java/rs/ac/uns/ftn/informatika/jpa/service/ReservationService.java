@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
+import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -13,13 +14,19 @@ import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
+import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
 import javax.mail.MessagingException;
+import javax.transaction.Transactional;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
 import java.util.*;
 
-import static rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus.Ready;
+import static rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus.*;
 
 @Service
 public class ReservationService {
@@ -39,6 +46,9 @@ public class ReservationService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private RegisteredUserService registeredUserService;
 
     public List<ReservationDTO> getAllByDate(Date date, int showWeek, Integer id){
         List<Reservation> reservations = reservationRepository.findAll();
@@ -180,6 +190,15 @@ public class ReservationService {
             User user = getUserCredentinals();
             RegisteredUser registeredUser = (RegisteredUser) user;
 
+            // check if the user is forbidden to make a reservation this month
+            if (((RegisteredUser) user).getPenaltyPoints() >= 3)
+                throw new RuntimeException("The user is forbidden from making a new reservation this month since he has canceled many reservations!");
+
+            // check if the user is forbidden to make a reservation since he has already canceled it
+            boolean alreadyCancelled = checkIfUserAlreadyCanceledReservation(user.getId(), reservation.getStartingDate());
+            if (alreadyCancelled)
+                throw new RuntimeException("The user is forbidden from making a new reservation since he has already canceled this reservation!");
+
             reservation.user = registeredUser;
             reservation.hospital = registeredUser.getHospital();
             reservation.status = Ready;
@@ -218,6 +237,22 @@ public class ReservationService {
         }
     }
 
+    private boolean checkIfUserAlreadyCanceledReservation(int userId, Date reservationStartingDate) {
+        List<Reservation> userReservations  = reservationRepository.findAllByUserId(userId);
+
+        if (userReservations != null) {
+            for (Reservation tempReservation : userReservations) {
+                // Maybe date comparison isn't proper
+                if ((tempReservation.status == Cancelled) && (tempReservation.getStartingDate().equals(reservationStartingDate))) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
     // todo: exception ako nije registered user, mada on ako je ulogovan samo vidi to i to sme da radi
     private RegisteredUser getUserCredentinals() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -229,5 +264,47 @@ public class ReservationService {
         return registeredUser;
     }
 
+    // I've added @Transactional since many things can go wrong, and if an error occurs the data should be rolled back
+    @Transactional
+    public void cancelReservation(int id) {
+        // Get the user from the context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        RegisteredUser loggedInUser = (RegisteredUser) user;
+
+        // Check is a registered user creator of the reservation
+        Reservation oldReservation = reservationRepository.findReservationById(id);
+        if (!oldReservation.getUser().getEmail().equals(loggedInUser.getEmail()))
+            throw new IllegalArgumentException("The logged-in user didn't create the reservation with number " + id);
+
+        // Cancel old reservation, deallocate equipment and increase company equipment quantity
+        oldReservation.status = Cancelled;
+        for (ReservationItem tempItem : oldReservation.getItems()) {
+            // Enlarge equipment quantity
+            tempItem.getEquipment().setQuantity(
+                    tempItem.getEquipment().getQuantity() + tempItem.getQuantity());
+            reservationItemService.delete(tempItem);
+        }
+        oldReservation.setItems(null);
+        reservationRepository.save(oldReservation);
+
+        // Penalize the user
+        ZonedDateTime currentDate = ZonedDateTime.now();
+        ZonedDateTime startingDate = ZonedDateTime.ofInstant(oldReservation.getStartingDate().toInstant(), currentDate.getZone());
+        Duration duration = Duration.between(currentDate, startingDate);
+        // Cancelling a reservation within 24 hours before the scheduled shipping time will result in a penalty of 2 points
+        if (duration.toHours() <= 24) loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 2);
+        else loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 1);
+        registeredUserService.save(loggedInUser);
+
+        // Copy of the reservation should be created if other users want to reuse it
+        Reservation newReservation  = new Reservation();
+        newReservation.status = Created;
+        newReservation.admin = oldReservation.admin;
+        newReservation.setDurationMinutes(oldReservation.getDurationMinutes());
+        newReservation.setStartingDate(oldReservation.getStartingDate());
+        newReservation.setHospital(oldReservation.getHospital());
+        reservationRepository.save(newReservation);
+    }
 
 }

@@ -13,4 +13,8 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
     List<Reservation> findByAdminAndUserIsNull(CompanyAdmin admin);
 
+    Reservation findReservationById(int id);
+
+    List<Reservation> findAllByUserId(int id);
+
 }
