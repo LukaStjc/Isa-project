@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.model.ReservationItem;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationItemRepository;
 
+import java.util.List;
+
 @Service
 public class ReservationItemService {
 
@@ -14,4 +16,9 @@ public class ReservationItemService {
     public void save(ReservationItem reservationItem) {
         reservationItemRepository.save(reservationItem);
     }
+
+    public void delete(ReservationItem reservationItem) {
+        reservationItemRepository.delete(reservationItem);
+    }
+
 }
