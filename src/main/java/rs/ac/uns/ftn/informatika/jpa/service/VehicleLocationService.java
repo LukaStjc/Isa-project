@@ -1,9 +1,12 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
+import com.google.gson.Gson;
 import io.nats.client.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.informatika.jpa.dto.RouteRequestDTO;
+
 import java.nio.charset.StandardCharsets;
 
 @Service
@@ -21,6 +24,11 @@ public class VehicleLocationService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendRouteRequest(RouteRequestDTO routeRequest) throws Exception {
+        String json = new Gson().toJson(routeRequest);
+        natsConnection.publish("route.requests", json.getBytes(StandardCharsets.UTF_8));
     }
 
     private void subscribeToVehicleUpdates() {
