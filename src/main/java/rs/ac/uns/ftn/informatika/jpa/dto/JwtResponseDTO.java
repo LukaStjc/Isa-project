@@ -1,12 +1,25 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class JwtResponseDTO {
+  @NotNull(message = "Token cannot be null")
   private String token;
+
+  @NotNull(message = "Token type cannot be null")  // Static value!
   private String type = "Bearer";
+
+  @NotNull(message = "User ID cannot be null")
   private Integer id;
+
+  @NotNull(message = "Email cannot be null")
+  @Email(message = "Invalid email format")
   private String email;
+
+  @NotEmpty(message = "Roles list cannot be empty")
   private List<String> roles;
 
   public JwtResponseDTO(String accessToken, Integer id, String email, List<String> roles) {

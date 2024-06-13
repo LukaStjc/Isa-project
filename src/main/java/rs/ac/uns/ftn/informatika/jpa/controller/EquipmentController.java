@@ -1,5 +1,11 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +25,7 @@ import java.util.List;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
+@Tag(name = "Equipment Controller", description = "Managing equipment for companies.")
 @RestController
 @RequestMapping("api/equipment")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -30,6 +37,14 @@ public class EquipmentController {
     @Autowired
     EquipmentService equipmentService;
 
+    @Operation(summary = "Retrieve equipment for a specific company")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the equipment list!",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EquipmentDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Company not found!",
+                    content = @Content)
+    })
     @GetMapping("/company/{id}")
     @Transactional // vasilije dodao
     public ResponseEntity<List<EquipmentDTO>> getCompanyEquipment(@PathVariable Integer id) {
@@ -51,6 +66,14 @@ public class EquipmentController {
         return new ResponseEntity<>(equipmentDTOS, HttpStatus.OK);
     }
 
+    @Operation(summary = "Retrieve all equipment. Fetches a list of all equipment items available.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved all equipment!",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EquipmentDTO.class))),
+            @ApiResponse(responseCode = "404", description = "No equipment found!",
+                    content = @Content)
+    })
     @GetMapping
     public ResponseEntity<List<EquipmentDTO>> getEquipment() {
 
@@ -69,6 +92,14 @@ public class EquipmentController {
         return new ResponseEntity<>(equipmentDTOS, HttpStatus.OK);
     }
 
+    @Operation(summary = "Searches for equipment based on the provided name substring.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Equipment search results fetched successfully!",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EquipmentDTO.class))),
+            @ApiResponse(responseCode = "404", description = "No equipment matching the search criteria!",
+                    content = @Content)
+    })
     @GetMapping(value = "/search")
     public ResponseEntity<Collection<EquipmentDTO>> searchEquipmentByName(@RequestParam("text") String text) {
         List<Equipment> foundEquipment = (List<Equipment>) equipmentService.findByName(text);
@@ -76,6 +107,10 @@ public class EquipmentController {
         List<EquipmentDTO> equipmentDTOS = new ArrayList<>();
         for (Equipment e : foundEquipment) {
             equipmentDTOS.add(new EquipmentDTO(e));
+        }
+
+        if (foundEquipment.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<Collection<EquipmentDTO>>(equipmentDTOS, HttpStatus.OK);

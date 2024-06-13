@@ -1,5 +1,10 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +17,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.service.EmailService;
 import rs.ac.uns.ftn.informatika.jpa.service.RegisteredUserService;
 
+@Tag(name = "Registered User Controllers", description = "Handles user registration and account activation.")
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("api/")
@@ -25,6 +31,11 @@ public class RegisteredUserController {
 	@Autowired
 	private RegisteredUserService registeredUserService;
 
+	@Operation(summary = "Registers a new user by their email and sends an activation email.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "User registered successfully", content = @Content),
+			@ApiResponse(responseCode = "400", description = "Unsuccessful: email already exists or error during the email sending process", content = @Content)
+	})
 	@PostMapping("/signup")
 	public ResponseEntity<String> signUpSync(@RequestBody RegisteredUserDTO registeredUserDTO){
 
@@ -46,6 +57,11 @@ public class RegisteredUserController {
 		return new ResponseEntity<>("successful", HttpStatus.CREATED);
 	}
 
+	@Operation(summary = "Activates a user's account using a provided activation code.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Account successfully activated!", content = @Content),
+			@ApiResponse(responseCode = "400", description = "Invalid request: either activation code is incorrect, or account is already enabled!", content = @Content)
+	})
 	@GetMapping("/activate")
 	public ResponseEntity activateUser(@RequestParam("text") String activationCode) {
 

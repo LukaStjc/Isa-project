@@ -2,9 +2,22 @@ package rs.ac.uns.ftn.informatika.jpa.dto;
 
 import rs.ac.uns.ftn.informatika.jpa.model.Hospital;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 public class DeliveryHospitalDTO {
+    @NotBlank(message = "Name cannot be blank")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
+
+    @DecimalMin(value = "-90.0", message = "Latitude must be greater than or equal to -90.0")
+    @DecimalMax(value = "90.0", message = "Latitude must be less than or equal to 90.0")
     private double latitude;
+
+    @DecimalMin(value = "-180.0", message = "Longitude must be greater than or equal to -180.0")
+    @DecimalMax(value = "180.0", message = "Longitude must be less than or equal to 180.0")
     private double longitude;
 
     public DeliveryHospitalDTO() {};
