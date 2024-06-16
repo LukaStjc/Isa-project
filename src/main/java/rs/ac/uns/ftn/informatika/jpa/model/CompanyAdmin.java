@@ -27,6 +27,12 @@ public class CompanyAdmin extends User{
         this.company = company;
     }
 
+    public CompanyAdmin(String email, String firstName, String lastName, String password, Company company, SystemAdmin systemAdmin) {
+        super(email, firstName, lastName, password, true); // po default-u je nalog company admin-a enabled, jer se ne registruje
+        this.company = company;
+        this.systemAdmin = systemAdmin;
+    }
+
     public Company getCompany() {
         return company;
     }

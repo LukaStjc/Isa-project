@@ -7,12 +7,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
+import rs.ac.uns.ftn.informatika.jpa.model.SystemAdmin;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
@@ -34,6 +37,7 @@ public class ReservationController {
     CompanyAdminService companyAdminService;
 
     @GetMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ROLE_COMPANY_ADMIN')")
     public ResponseEntity<List<ReservationDTO>> getAllByDate
             (@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX") Date date,
              @RequestParam("week") int showWeek,
@@ -46,6 +50,7 @@ public class ReservationController {
     }
 
     @GetMapping(value = "/month-overview/{id}")
+    @PreAuthorize("hasRole('ROLE_COMPANY_ADMIN')")
     public ResponseEntity<List<Integer>> getReservedDaysInMonth
             (@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, pattern = "yyyy-MM-dd") Date date,
              @PathVariable Integer id) {
@@ -100,8 +105,20 @@ public class ReservationController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-
         return new ResponseEntity<ReservationPremadeDTO>(dto, HttpStatus.OK);
+    }
 
+    @GetMapping(value = "/company-admin-id")
+    @PreAuthorize("hasRole('ROLE_COMPANY_ADMIN')")
+    public ResponseEntity<Integer> getCompanyAdminId(){
+        CompanyAdmin companyAdmin = getUserCredentials();
+
+        return new ResponseEntity<>(companyAdmin.getId(), HttpStatus.OK);
+    }
+
+    private CompanyAdmin getUserCredentials() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (CompanyAdmin) authentication.getPrincipal();
     }
 }

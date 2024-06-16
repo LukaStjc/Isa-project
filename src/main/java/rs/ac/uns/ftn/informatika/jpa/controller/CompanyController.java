@@ -3,6 +3,9 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
@@ -10,6 +13,7 @@ import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
+import rs.ac.uns.ftn.informatika.jpa.model.SystemAdmin;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
@@ -68,10 +72,10 @@ public class CompanyController {
          companyService.save(company);
          return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.OK);
     }
-    @PostMapping(consumes = "application/json")
-    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyLocationDTO companyLocationDTO){
-
-        // TODO dodati proveru da li je korisnik Admin sistema
+    @PostMapping(value = "/create", consumes = "application/json")
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
+    public ResponseEntity<Boolean> createCompany(@RequestBody CompanyLocationDTO companyLocationDTO){
+        SystemAdmin systemAdmin = getUserCredentials();
 
         Location location = new Location(companyLocationDTO.getCountry(), companyLocationDTO.getCity(), companyLocationDTO.getStreetName(),
                 companyLocationDTO.getStreetNumber());
@@ -84,16 +88,16 @@ public class CompanyController {
         }
 
         Company company = new Company(companyLocationDTO.getName(), companyLocationDTO.getDescription(), companyLocationDTO.getOpeningTime(),
-                companyLocationDTO.getClosingTime(), location);
+                companyLocationDTO.getClosingTime(), location, systemAdmin);
         try{
-            company = companyService.save(company);
+            companyService.save(company);
         }
         catch (RuntimeException e){
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.CREATED);
+        return new ResponseEntity<>(true, HttpStatus.CREATED);
     }
 
 
@@ -110,7 +114,7 @@ public class CompanyController {
         return new ResponseEntity<Collection<CompanyDTO>>(companyDTOS, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/names")
+    @GetMapping(value = "/names") //TODO iz nekog razloga ne prikazuje kompanije na frontu a pre je radilo, ima ih u bazi
     public ResponseEntity<String> getCompanyNames(){
         List<Company> companies = companyService.findAll();
 
@@ -134,7 +138,11 @@ public class CompanyController {
         return c != null;
     }
 
+    private SystemAdmin getUserCredentials() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        return (SystemAdmin) authentication.getPrincipal();
+    }
 
 
 }

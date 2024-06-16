@@ -23,7 +23,6 @@ public class CompanyAdminService {
         return companyAdminRepository.findById(id).orElseGet(null);
     }
 
-    //TODO izbrisati, dodato zbog 2. kt
     public Optional<CompanyAdmin> findById(Integer id){
         return companyAdminRepository.findById(id);
     }

@@ -23,6 +23,8 @@ public class SystemAdmin  extends User{
     @OneToMany(mappedBy="systemAdmin")
     private List<CompanyAdmin> companyAdmins;
 
+    //TODO dodati da kad se prvi put loguje da mora da promeni lozinku. neka to bude polje tipa boolean
+
     public SystemAdmin() {
     }
 

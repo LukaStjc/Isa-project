@@ -3,12 +3,14 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
-import rs.ac.uns.ftn.informatika.jpa.model.Company;
-import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
-import rs.ac.uns.ftn.informatika.jpa.model.Location;
+import rs.ac.uns.ftn.informatika.jpa.model.*;
+import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
 
@@ -16,7 +18,9 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
+import static java.lang.System.exit;
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
@@ -29,6 +33,9 @@ public class EquipmentController {
 
     @Autowired
     EquipmentService equipmentService;
+
+    @Autowired
+    CompanyAdminService companyAdminService;
 
     @GetMapping("/company/{id}")
     @Transactional // vasilije dodao
@@ -81,52 +88,113 @@ public class EquipmentController {
         return new ResponseEntity<Collection<EquipmentDTO>>(equipmentDTOS, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/ordering/search")
-    public ResponseEntity<List<EquipmentOrderingDTO>> findByNameAndTypeAndScore(
-            @RequestParam("name") String name,
-            @RequestParam("type") int equipmentType,
-            @RequestParam("score") double averageScore){
-
-        List<Equipment> foundEquipment;
-
-        if(equipmentType <= -1 && averageScore == 0){
-            foundEquipment = equipmentService.findByName(name);
-        }
-        else if(equipmentType <= -1){
-            foundEquipment = equipmentService.
-                    findByNameContainsAndCompany_AverageScoreGreaterThanEquals(name, averageScore);
-        }
-        else if(averageScore == 0){
-            EquipmentType type;
-            try{
-                type = intToEquipmentType(equipmentType);
-            }
-            catch(IllegalStateException e){
-                e.printStackTrace();
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-
-            foundEquipment = equipmentService.
-                    findByNameContainsAndTypeEquals(name, type);
-        }
-        else{
-            foundEquipment = equipmentService.
-                    findByNameContainsAndCompany_AverageScoreGreaterThanEqualsAndTypeEquals(
-                            name, averageScore, equipmentType);
-        }
-
-
-        List<EquipmentOrderingDTO> equipmentOrderingDTOS = new ArrayList<>();
-        for(Equipment e : foundEquipment){
-            equipmentOrderingDTOS.add(new EquipmentOrderingDTO(e));
-        }
-
-        return new ResponseEntity<>(equipmentOrderingDTOS, HttpStatus.OK);
-    }
+//    @GetMapping(value = "/ordering/search")
+//    @PreAuthorize("hasRole('ROLE_REGISTERED_USER') or hasRole('ROLE_COMPANY_ADMIN') or hasRole('ROLE_SYSTEM_ADMIN')")
+//    public ResponseEntity<List<EquipmentOrderingDTO>> findByNameAndTypeAndScore(
+//            @RequestParam("name") String name,
+//            @RequestParam("type") int equipmentType,
+//            @RequestParam("score") double averageScore){
+//
+//        List<Equipment> foundEquipment;
+//
+//        User user = getUserCredentials();
+//        Optional<CompanyAdmin> optionalCompanyAdmin = companyAdminService.findById(user.getId());
+//
+//        // ako ulogovani korisnik nije company admin, prikazuje se sva oprema
+//        if(optionalCompanyAdmin.isEmpty()){
+//            if(equipmentType <= -1 && averageScore == 0){
+//                foundEquipment = equipmentService.findByName(name);
+//            }
+//            else if(equipmentType <= -1){
+//                foundEquipment = equipmentService.
+//                        findByNameContainsAndCompany_AverageScoreGreaterThanEquals(name, averageScore);
+//            }
+//            else if(averageScore == 0){
+//                EquipmentType type;
+//                try{
+//                    type = intToEquipmentType(equipmentType);
+//                }
+//                catch(IllegalStateException e){
+//                    e.printStackTrace();
+//                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//                }
+//
+//                foundEquipment = equipmentService.
+//                        findByNameContainsAndTypeEquals(name, type);
+//            }
+//            else{
+//                foundEquipment = equipmentService.
+//                        findByNameContainsAndCompany_AverageScoreGreaterThanEqualsAndTypeEquals(
+//                                name, averageScore, equipmentType);
+//            }
+//
+//
+//            List<EquipmentOrderingDTO> equipmentOrderingDTOS = new ArrayList<>();
+//            for(Equipment e : foundEquipment){
+//                equipmentOrderingDTOS.add(new EquipmentOrderingDTO(e));
+//            }
+//
+//            return new ResponseEntity<>(equipmentOrderingDTOS, HttpStatus.OK);
+//        }
+//        else{ // ako je ulogovan sistem admin, onda prikazujem samo opremu za njegovu kompaniju
+//            if(equipmentType <= -1 && averageScore == 0){
+//                foundEquipment = equipmentService.findByName(name);
+//            }
+//            else if(equipmentType <= -1){
+//                foundEquipment = equipmentService.
+//                        findByNameContainsAndCompany_AverageScoreGreaterThanEquals(name, averageScore);
+//            }
+//            else if(averageScore == 0){
+//                EquipmentType type;
+//                try{
+//                    type = intToEquipmentType(equipmentType);
+//                }
+//                catch(IllegalStateException e){
+//                    e.printStackTrace();
+//                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//                }
+//
+//                foundEquipment = equipmentService.
+//                        findByNameContainsAndTypeEquals(name, type);
+//            }
+//            else{
+//                foundEquipment = equipmentService.
+//                        findByNameContainsAndCompany_AverageScoreGreaterThanEqualsAndTypeEquals(
+//                                name, averageScore, equipmentType);
+//            }
+//
+//
+//            List<EquipmentOrderingDTO> equipmentOrderingDTOS = new ArrayList<>();
+//            for(Equipment e : foundEquipment){
+//                equipmentOrderingDTOS.add(new EquipmentOrderingDTO(e));
+//            }
+//
+//            return new ResponseEntity<>(equipmentOrderingDTOS, HttpStatus.OK);
+//        }
+//
+//
+//    }
 
     @GetMapping(value = "/ordering")
     public ResponseEntity<List<EquipmentOrderingDTO>> getAll(){
-        List<Equipment> foundEquipment = equipmentService.findAll();
+        RegisteredUser registeredUser = getUserCredentialsRegistered();
+        SystemAdmin systemAdmin = getUserCredentialsSystem();
+        CompanyAdmin companyAdmin = getUserCredentialsCompany();
+
+        if(registeredUser == null && systemAdmin == null && companyAdmin == null){
+            exit(1);
+        }
+
+//        Optional<CompanyAdmin> optionalCompanyAdmin;
+        List<Equipment> foundEquipment;
+
+        if(companyAdmin != null){
+            foundEquipment  = equipmentService.findAll(companyAdmin.getId());
+        }
+        else{
+            foundEquipment = equipmentService.findAll();
+        }
+
 
         List<EquipmentOrderingDTO> equipmentOrderingDTOS = new ArrayList<>();
         for(Equipment e : foundEquipment){
@@ -195,4 +263,19 @@ public class EquipmentController {
         return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.OK);
     }
 
+    private RegisteredUser getUserCredentialsRegistered() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (RegisteredUser) authentication.getPrincipal();
+    }
+    private SystemAdmin getUserCredentialsSystem() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (SystemAdmin) authentication.getPrincipal();
+    }
+    private CompanyAdmin getUserCredentialsCompany() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (CompanyAdmin) authentication.getPrincipal();
+    }
 }

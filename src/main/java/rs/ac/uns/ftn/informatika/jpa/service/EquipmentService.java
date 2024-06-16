@@ -53,4 +53,12 @@ public class EquipmentService {
     public void updateQuantity(Integer id, Integer quantity) throws DataAccessException {
         equipmentRepository.updateQuantity(id, quantity);
     }
+
+    public List<Equipment> findByName(String text, int companyAdminId){
+        return equipmentRepository.findByName(text, companyAdminId);
+    }
+
+    public List<Equipment> findAll(int companyAdminId){
+        return equipmentRepository.findAll(companyAdminId);
+    }
 }

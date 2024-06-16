@@ -68,6 +68,18 @@ public class Company {
         this.averageScore = (double) 0;
     }
 
+    public Company(String name, String description, Date openingTime, Date closingTime, Location location, SystemAdmin systemAdmin) {
+        this.name = name;
+        this.description = description;
+        this.location = location;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
+        this.equipment = new ArrayList<>();
+        this.systemAdmin = systemAdmin;
+
+        this.averageScore = (double) 0;
+    }
+
     public Integer getId() {
         return id;
     }

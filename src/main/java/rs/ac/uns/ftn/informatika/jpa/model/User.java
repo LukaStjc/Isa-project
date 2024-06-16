@@ -7,6 +7,7 @@ import static javax.persistence.InheritanceType.JOINED;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -71,7 +72,9 @@ public class User implements UserDetails {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.password = "ftn";  // resiti
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = passwordEncoder.encode("pass");
     }
 
     public Integer getId() {

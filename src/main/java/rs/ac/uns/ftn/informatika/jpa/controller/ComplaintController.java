@@ -3,6 +3,9 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.ComplaintDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Complaint;
@@ -43,6 +46,7 @@ public class ComplaintController {
 
     //TODO dodati id admina sistema koji je odradio reply na frontu ili samo ovde preko sesije
     @PutMapping(value = "/reply/{id}")
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public ResponseEntity<Void> updateComplaintByReply(@PathVariable Integer id, @RequestBody ComplaintDTO complaintDTO){
         Optional<Complaint> optionalComplaint = complaintService.findById(id);
 
@@ -52,10 +56,8 @@ public class ComplaintController {
 
         complaint.setReply(complaintDTO.getReply().replace('\n', ' '));
 
-        Optional<SystemAdmin> optionalSystemAdmin = systemAdminService.getById(complaintDTO.getId());
-        if(!optionalSystemAdmin.isPresent()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-        complaint.setSystemAdmin(optionalSystemAdmin.get());
+        SystemAdmin systemAdmin = getUserCredentials();
+        complaint.setSystemAdmin(systemAdmin);
 
         try{
             complaintService.save(complaint);
@@ -70,5 +72,11 @@ public class ComplaintController {
 
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private SystemAdmin getUserCredentials() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (SystemAdmin) authentication.getPrincipal();
     }
 }

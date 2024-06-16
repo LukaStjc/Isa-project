@@ -3,15 +3,20 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
+import rs.ac.uns.ftn.informatika.jpa.model.SystemAdmin;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyAdminDTO;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -26,8 +31,13 @@ public class CompanyAdminController {
     @Autowired
     CompanyService companyService;
 
+
     @PostMapping(value = "/create", consumes = "application/json")
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public ResponseEntity<CompanyAdminDTO> createCompanyAdmin(@RequestBody CompanyAdminDTO companyAdminDTO){
+
+        SystemAdmin systemAdmin = getUserCredentials();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         Company c = companyService.findExistingByName(companyAdminDTO.getCompanyName());
         if(c == null){
@@ -35,7 +45,7 @@ public class CompanyAdminController {
         }
 
         CompanyAdmin companyAdmin = new CompanyAdmin(companyAdminDTO.getEmail(), companyAdminDTO.getFirstName(),
-                companyAdminDTO.getLastName(), companyAdminDTO.getPassword(), c);
+                companyAdminDTO.getLastName(), passwordEncoder.encode(companyAdminDTO.getPassword()), c, systemAdmin);
 
         try{
             companyAdminService.save(companyAdmin);
@@ -68,7 +78,7 @@ public class CompanyAdminController {
         return new ResponseEntity<>(adminDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/exsists/{id}")    //TODO izbrisati, dodato zbog 2. kt
+    @GetMapping("/exsists/{id}")
     public ResponseEntity<Boolean> doesExsist(@PathVariable Integer id){
         Optional<CompanyAdmin> optionalCompanyAdmin = companyAdminService.findById(id);
 
@@ -76,11 +86,10 @@ public class CompanyAdminController {
         else return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
+    private SystemAdmin getUserCredentials() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-
-
-
-
-
+        return (SystemAdmin) authentication.getPrincipal();
+    }
 
 }

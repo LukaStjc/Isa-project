@@ -41,4 +41,14 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Integer> {
                     "SET e.quantity = :quantity " +
                     "WHERE e.id = :id")
     void updateQuantity(@Param("id") Integer id, @Param("quantity") Integer quantity) throws DataAccessException;
+
+
+    @Query(value = "select * from equipment e join company_admin ca on e.company_id = ca.company_id " +
+            "where lower(e.name) like LOWER(CONCAT('%', :text, '%')) and ca.id = :companyAdminId", nativeQuery = true)
+    public List<Equipment> findByName(String text, int companyAdminId);
+
+
+    @Query(value = "select * from equipment e join company_admin ca on e.company_id = ca.company_id " +
+            "where ca.id = :companyAdminId", nativeQuery = true)
+    public List<Equipment> findAll(int companyAdminId);
 }
