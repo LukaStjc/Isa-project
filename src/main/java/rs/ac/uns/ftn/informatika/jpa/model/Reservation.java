@@ -35,6 +35,9 @@ public class Reservation {
 
     private int durationMinutes;
 
+    @Version
+    private Integer version;
+
     public Reservation() {
     }
 

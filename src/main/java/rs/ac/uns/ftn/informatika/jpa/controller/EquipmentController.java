@@ -45,6 +45,7 @@ public class EquipmentController {
             @ApiResponse(responseCode = "404", description = "Company not found!",
                     content = @Content)
     })
+
     @GetMapping("/company/{id}")
     @Transactional // vasilije dodao
     public ResponseEntity<List<EquipmentDTO>> getCompanyEquipment(@PathVariable Integer id) {

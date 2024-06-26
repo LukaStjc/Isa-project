@@ -23,6 +23,7 @@ import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import javax.mail.MessagingException;
+import javax.persistence.OptimisticLockException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -79,8 +80,10 @@ public class ReservationController {
     {
         try {
             reservationService.updateReservationByPremadeAppointment(reservation);
+        } catch (OptimisticLockException e) {
+            return new ResponseEntity<>("Sorry, but the predefined appointment, equipment, or equipment quantity becomes unavailable.", HttpStatus.CONFLICT);
         } catch (MessagingException | ClassNotFoundException | RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getStackTrace() + e.getMessage() + e.getSuppressed() + e.getCause(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(HttpStatus.OK);

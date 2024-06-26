@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ReservationItemRepository extends JpaRepository<ReservationItem, Integer> {
 
+    public int countReservationItemsByEquipment_Id(int id);
+
 }

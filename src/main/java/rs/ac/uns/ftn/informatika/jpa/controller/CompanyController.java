@@ -1,9 +1,12 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResourceAccessException;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
@@ -15,10 +18,7 @@ import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "api/companies")
@@ -52,22 +52,32 @@ public class CompanyController {
         companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
-    @PutMapping ("/update/{id}")
-    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Integer id,   @RequestBody CompanyLocationDTO dto){
-        Company company = companyService.findBy(id);
-         company.setName(dto.getName());
-         company.setDescription((dto.getDescription()));
-         Location location = company.getLocation();
-         location.setCountry(dto.getCountry());
-         location.setCity(dto.getCity());
-         location.setStreet(dto.getStreetName());
-         location.setStreetNumber(dto.getStreetNumber());
-        locationService.save(location);
-         company.setLocation(location);
 
-         companyService.save(company);
-         return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.OK);
+    @PutMapping ("/update/{id}")
+    // Vasilije: za sada nisam hteo ovde da stavim transactional, mozda i treba,
+    // ali sam opet imao problem sa duzinom sesije, i pukne program zbog lazyCollection-a
+    // sa transakcijom produzim trajanje sesije i onda ne baca exception da ne moze
+    // da ucita equipment, jer mu vise nije dostupan...
+    @Transactional
+//    @PreAuthorize("hasRole('COMPANY_ADMIN')")
+    // Vasilije: malo sam izmenio funkciju, jer radim pokrivanje konfliktnih situacija
+    // nad njom, kao dodatnu konfliktnu situaciju koju sam pronasao.
+    public HttpEntity<? extends Object> updateCompany(@PathVariable Integer id, @RequestBody CompanyLocationDTO dto){
+
+        Company company;
+
+        try {
+            company = companyService.updateCompany(id, dto);
+            System.out.println("Usao 4 put");
+        } catch (NoSuchElementException e) {
+            System.out.println("Usao 5 put");
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
+        System.out.println("Usao 6 put");
+
+        return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.OK);
     }
+
     @PostMapping(consumes = "application/json")
     public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyLocationDTO companyLocationDTO){
 
