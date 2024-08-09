@@ -3,6 +3,7 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
@@ -46,13 +47,16 @@ public class CompanyController {
     }
     @GetMapping("/{id}")
     @Transactional  // vasilije: posto sam dodao kod company za equipment LAZY, jer u suprotnom ne radi, morao sam ovde da dodam transactional mozda nije najpametnije resenje
+    @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id){
         Company company = companyService.findBy(id);
         CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
         companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
+
     @PutMapping ("/update/{id}")
+    @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Integer id,   @RequestBody CompanyLocationDTO dto){
         Company company = companyService.findBy(id);
          company.setName(dto.getName());
