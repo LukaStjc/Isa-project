@@ -1,30 +1,47 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
 import javax.persistence.Column;
+import javax.validation.constraints.*;
 
 public class RegisteredUserDTO
 {
-
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Password cannot be blank")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
+    @NotBlank(message = "First name cannot be blank")
+    @Size(min = 2, max = 30, message = "First name must be between 2 and 30 characters")
     private String firstName;
 
+    @NotBlank(message = "Last name cannot be blank")
+    @Size(min = 2, max = 30, message = "Last name must be between 2 and 30 characters")
     private String lastName;
 
+    @NotNull(message = "Telephone number cannot be null")
+    @Size(min = 3, max = 30, message = "Telephone number must be between 3 and 30 characters")
+//    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid telephone number")
     private String telephoneNumber;
 
-    private Integer hospitalId; // todo
+    @NotNull(message = "Hospital ID cannot be null")
+    private Integer hospitalId;
 
+    @Size(max = 100, message = "Occupation must be less than 100 characters")
     private String occupation;
 
+    @NotBlank(message = "Country cannot be blank")
     private String country;
 
+    @NotBlank(message = "City cannot be blank")
     private String city;
 
+    @NotBlank(message = "Street name cannot be blank")
     private String streetName;
 
+    @NotBlank(message = "Street number cannot be blank")
     private String streetNumber;
 
     public RegisteredUserDTO() {}

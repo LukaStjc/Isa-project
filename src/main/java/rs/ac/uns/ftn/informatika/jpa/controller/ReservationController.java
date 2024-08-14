@@ -1,5 +1,11 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+@Tag(name = "Reservation Management Controllers", description = "Manages all operations related to reservations.")
 @RestController
 @RequestMapping(value = "api/reservations")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -55,6 +62,17 @@ public class ReservationController {
         return new ResponseEntity<>(days, HttpStatus.OK);
     }
 
+
+    @Operation(summary = "Create a reservation based on a premade appointment!",
+            security = {@SecurityRequirement(name = "bearerAuth")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservation created successfully!",
+                    content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", description = "You made bad request, check data!",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Login with appropriate privileges is required!",
+                    content = @Content)
+    })
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(consumes = "application/json", value = "/create-by-premade-appointment")
     public ResponseEntity createReservationByPremadeAppointment(@RequestBody ReservationByPremadeAppointmentDTO reservation)
@@ -67,6 +85,29 @@ public class ReservationController {
 
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @Operation(summary = "Cancel a reservation!",
+            security = {@SecurityRequirement(name = "bearerAuth")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservation cancelled successfully!",
+                    content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Login with appropriate privileges is required!",
+                    content = @Content)
+    })
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @PutMapping(value = "cancel/{id}")
+    public ResponseEntity CancelReservation(@PathVariable Integer id) {
+
+        try {
+            reservationService.cancelReservation(id);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<ReservationPremadeDTO> createReservation(@RequestBody ReservationPremadeDTO dto){
@@ -104,18 +145,6 @@ public class ReservationController {
 
     }
 
-    @PreAuthorize("hasRole('REGISTERED_USER')")
-    @PutMapping(value = "cancel/{id}")
-    public ResponseEntity CancelReservation(@PathVariable Integer id) {
 
-        try {
-            reservationService.cancelReservation(id);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
-
-        return new ResponseEntity(HttpStatus.OK);
-    }
 
 }

@@ -6,25 +6,38 @@ import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 
 import javax.persistence.Column;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.*;
 
 import static rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType.*;
 
 public class EquipmentDTO {
 
+    @NotNull(message = "ID cannot be null")
     private Integer id;
 
+    @NotBlank(message = "Name cannot be blank")
+    @Size(min = 1, max = 100, message = "Name must be between 1 and 100 characters")
     private String name;
 
+    @Size(max = 500, message = "Description must be less than 500 characters")
     private String description;
 
+    @NotBlank(message = "Equipment type cannot be blank")
+    @Size(min = 1, max = 50, message = "Equipment type must be between 1 and 50 characters")
     private String equipmentType;
 
+    @NotNull(message = "Price cannot be null")
+    @PositiveOrZero(message = "Price must be zero or positive")
     private Double price;
 
+    @NotNull(message = "Quantity cannot be null")
+    @Min(value = 0, message = "Quantity must be at least 0")
     private Integer quantity;
 
+    @Size(max = 100, message = "Company name must be less than 100 characters")
     private String companyName;
 
+    @NotNull(message = "Company ID cannot be null")
     private Integer companyId;
 
     public EquipmentDTO() {

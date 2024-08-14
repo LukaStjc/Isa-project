@@ -1,7 +1,8 @@
-insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Sime Milosevica',11, 19.833549, 45.267136);
-insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Belgrade' ,'Pera Cetkovica',55, 20.833549, 46.267136);
-insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Zajecar' ,'Jase Tomica',33, 20.833549, 46.267136);
-insert into hospital (name,location_id) values ('Bolnica Novi Sad', 1);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Radnička',28,  19.8525275, 45.2503173);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Veselina Masleše',2, 19.81433, 45.25328);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Antona Čehova',1, 19.83055, 45.24880);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.82831, 45.24096);
+insert into hospital (name,location_id) values ('Bolnica Novi Sad', 4);
 
 -- za sve korisnike ista lozinka: 'pass'
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (5, '2024-01-22', 'luka2001stajic@gmail.com', True, 'Marko', 'Markovic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');

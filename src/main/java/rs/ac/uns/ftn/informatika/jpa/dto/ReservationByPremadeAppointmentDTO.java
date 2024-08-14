@@ -2,12 +2,19 @@ package rs.ac.uns.ftn.informatika.jpa.dto;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 public class ReservationByPremadeAppointmentDTO {
 
+    @NotNull(message = "Reservation ID cannot be null!")
     private Integer reservationId;
 
+    @NotNull(message = "Reservation items cannot be null!")
+    @Size(min = 1, message = "At least one reservation item is required!")
+    @Valid
     private List<ReservationItemDTO> reservationItems;
 
     public ReservationByPremadeAppointmentDTO() {
