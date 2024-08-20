@@ -4,6 +4,7 @@ import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
@@ -19,7 +23,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
 import javax.mail.MessagingException;
-import javax.transaction.Transactional;
+import javax.persistence.OptimisticLockException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -29,6 +33,7 @@ import java.util.*;
 import static rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus.*;
 
 @Service
+@Transactional
 public class ReservationService {
     @Autowired
     private ReservationRepository reservationRepository;
@@ -180,61 +185,83 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    // todo: transakcija, konfliktna situacija
-    public void updateReservationByPremadeAppointment(ReservationByPremadeAppointmentDTO reservationDTO) throws DataAccessException, ClassNotFoundException, MailException, MessagingException {
+
+        @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public void updateReservationByPremadeAppointment(ReservationByPremadeAppointmentDTO reservationDTO)
+            throws DataAccessException, ClassNotFoundException, MailException, MessagingException, OptimisticLockException {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationDTO.getReservationId());
 
-        if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-
-            User user = getUserCredentinals();
-            RegisteredUser registeredUser = (RegisteredUser) user;
-
-            // check if the user is forbidden to make a reservation this month
-            if (((RegisteredUser) user).getPenaltyPoints() >= 3)
-                throw new RuntimeException("The user is forbidden from making a new reservation this month since he has canceled many reservations!");
-
-            // check if the user is forbidden to make a reservation since he has already canceled it
-            boolean alreadyCancelled = checkIfUserAlreadyCanceledReservation(user.getId(), reservation.getStartingDate());
-            if (alreadyCancelled)
-                throw new RuntimeException("The user is forbidden from making a new reservation since he has already canceled this reservation!");
-
-            reservation.user = registeredUser;
-            reservation.hospital = registeredUser.getHospital();
-            reservation.status = Ready;
-
-            if (reservation.totalSum == null)
-                reservation.totalSum = 0.0;
-
-            for (ReservationItemDTO item : reservationDTO.getReservationItems()) {
-                Equipment equipment = equipmentService.findBy(item.getEquipmentId());
-
-                if (equipment == null)
-                    throw new ClassNotFoundException("Equipment with ID " + item.getEquipmentId() + " not found");
-
-                if (equipment.getQuantity() < item.getQuantity())
-                    throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the possible quantity");
-
-                ReservationItem reservationItem = new ReservationItem(equipment, item.getQuantity());
-                reservation.getItems().add(reservationItem);
-
-                reservation.totalSum += equipment.getPrice() * item.getQuantity();
-            }
-
-            // transakcijski pristup - radim kad sam siguran da je prethodno prosao
-            for (ReservationItem reservationItem : reservation.getItems()) {
-                reservationItemService.save(reservationItem);
-                Integer updatedQuantity = reservationItem.equipment.getQuantity() - reservationItem.getQuantity();
-                equipmentService.updateQuantity(reservationItem.equipment.getId(), updatedQuantity);
-            }
-
-            reservationRepository.save(reservation);
-
-            emailService.sendReservationQRCodeSync(registeredUser, reservation);
-
-        } else {
+        if (!optionalReservation.isPresent()) {
             throw new RuntimeException("Reservation with ID " + reservationDTO.getReservationId() + " not found");
         }
+
+        Reservation reservation = optionalReservation.get();
+        User user = getUserCredentinals();
+        RegisteredUser registeredUser = (RegisteredUser) user;
+
+        // Other user has already created reservation, since it has an old website version with the same available predefined reservation
+        if (reservation.getItems().isEmpty() == false) throw new RuntimeException();
+
+        // check if the user is forbidden to make a reservation this month
+        if (((RegisteredUser) user).getPenaltyPoints() >= 3) {
+            throw new RuntimeException("The user is forbidden from making a new reservation this month since he has canceled many reservations!");
+        }
+
+        // check if the user is forbidden to make a reservation since he has already canceled it
+        boolean alreadyCancelled = checkIfUserAlreadyCanceledReservation(user.getId(), reservation.getStartingDate());
+        if (alreadyCancelled)
+            throw new RuntimeException("The user is forbidden from making a new reservation since he has already canceled this reservation!");
+
+        reservation.user = registeredUser;
+        reservation.hospital = registeredUser.getHospital();
+        reservation.status = Ready;
+
+        if (reservation.totalSum == null)
+            reservation.totalSum = 0.0;
+        System.out.println("esaeasa 111.");
+
+        for (ReservationItemDTO item : reservationDTO.getReservationItems()) {
+            Equipment equipment = equipmentService.findBy(item.getEquipmentId());
+
+            if (equipment == null)
+                throw new ClassNotFoundException("Equipment with ID " + item.getEquipmentId() + " not found");
+
+            if (equipment.getAvailableQuantity() < item.getQuantity()) {
+                throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the possible quantity");
+            }
+
+            ReservationItem reservationItem = new ReservationItem(equipment, item.getQuantity());
+            reservation.getItems().add(reservationItem);
+
+            reservation.totalSum += equipment.getPrice() * item.getQuantity();
+
+            // TODO: izdvoj?
+            equipment.setAvailableQuantity(equipment.getQuantity() - item.getQuantity());
+            System.out.println("esaeasa 333.");
+
+            // Mozda okine conflict exception.
+            try {
+                equipmentService.save(equipment);
+            } catch (OptimisticLockingFailureException e) {
+                System.out.println("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
+                throw new OptimisticLockingFailureException("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
+            }
+        }
+
+        for (ReservationItem reservationItem : reservation.getItems()) {
+            reservationItemService.save(reservationItem);
+        }
+//        System.out.println("esaeasa 222.");
+
+        // Mozda okine conflict exception.
+        try {
+            reservationRepository.save(reservation);
+        } catch (OptimisticLockingFailureException e) {
+            System.out.println("Sorry, but predefined appointment becomes unavailable. Try again later.");
+            throw new OptimisticLockingFailureException("Sorry, but predefined appointment becomes unavailable. Try again later.");
+        }
+
+        emailService.sendReservationQRCodeASync(registeredUser, reservation);
     }
 
     private boolean checkIfUserAlreadyCanceledReservation(int userId, Date reservationStartingDate) {

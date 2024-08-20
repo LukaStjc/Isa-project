@@ -16,16 +16,39 @@ public class Equipment {
 
     @ManyToOne
     private Company company;
+
     @Column
     private String description;
+
     @Column
     private EquipmentType type;
+
     @Column
     private Double price;
+
     @Column
     private Integer quantity;
 
+    @Version
+    private Integer version;
+
+    // quantity - availableQuantity = reservedQuantity
+    // Kolicina koja je dostupna nakon rezervisanja opreme
+    @Column
+    private Integer availableQuantity;
+
     public Equipment() {
+    }
+
+    public Equipment(Integer id, String name, Company company, String description, EquipmentType type, Double price, Integer quantity, Integer availableQuantity) {
+        this.id = id;
+        this.name = name;
+        this.company = company;
+        this.description = description;
+        this.type = type;
+        this.price = price;
+        this.quantity = quantity;
+        this.availableQuantity = availableQuantity;
     }
 
     public Equipment(Integer id, String name, Company company, String description, EquipmentType type, Double price, Integer quantity) {
@@ -36,6 +59,7 @@ public class Equipment {
         this.type = type;
         this.price = price;
         this.quantity = quantity;
+        this.availableQuantity = quantity;
     }
     public Equipment(EquipmentBasicDTO dto, Company company) {
         this.name = dto.getName();
@@ -44,8 +68,8 @@ public class Equipment {
         this.type = EquipmentType.valueOf(dto.getEquipmentType().replaceAll("\\s", "")); //removing spaces from input JSON
         this.price = dto.getPrice();
         this.quantity = dto.getQuantity();
+        this.availableQuantity = this.quantity;
     }
-
 
     public Integer getId() {
         return id;
@@ -109,5 +133,13 @@ public class Equipment {
         this.type = EquipmentType.valueOf(dto.getEquipmentType().replaceAll("\\s", "")); //removing spaces from input JSON
         this.price = dto.getPrice();
         this.quantity = dto.getQuantity();
+    }
+
+    public Integer getAvailableQuantity() {
+        return availableQuantity;
+    }
+
+    public void setAvailableQuantity(Integer availableQuantity) {
+        this.availableQuantity = availableQuantity;
     }
 }
