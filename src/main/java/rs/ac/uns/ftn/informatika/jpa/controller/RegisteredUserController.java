@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +50,10 @@ public class RegisteredUserController {
 		try {
 //				System.out.println("Thread id: " + Thread.currentThread().getId());
 			emailService.sendNotificationSync(registeredUserDTO);
-		} catch( Exception e ){
+		} catch(PessimisticLockingFailureException e){
+			logger.info("An error occurred while registering the user; please try again. Transactional error." + e.getMessage());
+			return new ResponseEntity<>("unsuccessful", HttpStatus.BAD_REQUEST);
+		} catch( Exception e){
 			logger.info("Error during the email-sending process: " + e.getMessage());
 			return new ResponseEntity<>("unsuccessful", HttpStatus.BAD_REQUEST);
 		}

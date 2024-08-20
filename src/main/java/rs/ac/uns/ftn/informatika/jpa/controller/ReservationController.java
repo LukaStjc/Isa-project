@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,11 +80,15 @@ public class ReservationController {
     @PostMapping(consumes = "application/json", value = "/create-by-premade-appointment")
     public ResponseEntity createReservationByPremadeAppointment(@RequestBody ReservationByPremadeAppointmentDTO reservation)
     {
+        // todo: Vasilije: ovo sa exception-ima treba da sredim
+//        } catch (OptimisticLockException e) {
+//            return new ResponseEntity<>("Sorry, but the predefined appointment, equipment, or equipment quantity becomes unavailable.", HttpStatus.CONFLICT);
+//        } catch (MessagingException | ClassNotFoundException | RuntimeException e) {
         try {
             reservationService.updateReservationByPremadeAppointment(reservation);
-        } catch (OptimisticLockException e) {
-            return new ResponseEntity<>("Sorry, but the predefined appointment, equipment, or equipment quantity becomes unavailable.", HttpStatus.CONFLICT);
-        } catch (MessagingException | ClassNotFoundException | RuntimeException e) {
+        } catch (OptimisticLockException | OptimisticLockingFailureException | StaleStateException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (RuntimeException | MessagingException | ClassNotFoundException  e) {
             return new ResponseEntity<>(e.getStackTrace() + e.getMessage() + e.getSuppressed() + e.getCause(), HttpStatus.BAD_REQUEST);
         }
 

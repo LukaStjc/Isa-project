@@ -59,21 +59,16 @@ public class CompanyController {
     // sa transakcijom produzim trajanje sesije i onda ne baca exception da ne moze
     // da ucita equipment, jer mu vise nije dostupan...
     @Transactional
-//    @PreAuthorize("hasRole('COMPANY_ADMIN')")
-    // Vasilije: malo sam izmenio funkciju, jer radim pokrivanje konfliktnih situacija
-    // nad njom, kao dodatnu konfliktnu situaciju koju sam pronasao.
+    @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public HttpEntity<? extends Object> updateCompany(@PathVariable Integer id, @RequestBody CompanyLocationDTO dto){
 
         Company company;
 
         try {
             company = companyService.updateCompany(id, dto);
-            System.out.println("Usao 4 put");
         } catch (NoSuchElementException e) {
-            System.out.println("Usao 5 put");
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
-        System.out.println("Usao 6 put");
 
         return new ResponseEntity<>(new CompanyDTO(company), HttpStatus.OK);
     }

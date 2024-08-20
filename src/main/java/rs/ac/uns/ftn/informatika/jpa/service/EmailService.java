@@ -4,12 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.*;
@@ -56,7 +60,8 @@ public class EmailService {
 	@Autowired
 	private QRCodeService qrCodeService;
 
-	public void sendNotificationSync(RegisteredUserDTO registeredUserDTO) throws MailException, InterruptedException {
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public void sendNotificationSync(RegisteredUserDTO registeredUserDTO) throws MailException, InterruptedException, PessimisticLockingFailureException {
 		System.out.println("Email sending...");
 
 		// todo: validation
@@ -69,6 +74,7 @@ public class EmailService {
 		Location location = new Location(registeredUserDTO.getCountry(), registeredUserDTO.getCity(), registeredUserDTO.getStreetName(), registeredUserDTO.getStreetNumber(), 0.0, 0.0);
 		locationService.save(location);
 
+		// todo: dodati metodu koja podesavaa registered usera zbog sequence dijagrama
 		registeredUser.setLocation(location);
 		registeredUser.setHospital(hospitalService.getOne(registeredUserDTO.getHospitalId())); // todo: a better solution will be implemented
 		registeredUser.setPassword(passwordEncoder.encode(registeredUserDTO.getPassword()));
@@ -79,17 +85,22 @@ public class EmailService {
 
 		registeredUserService.save(registeredUser);
 
-		SimpleMailMessage mail = new SimpleMailMessage();
-		mail.setTo(registeredUserDTO.getEmail());
-		mail.setFrom(env.getProperty("spring.mail.username"));
-		mail.setSubject("Account activation");
-		mail.setText("Dear " + registeredUserDTO.getFirstName() + ",\n\nPlease click on the link below to complete the account activation process." + "\n\n" + "URL: http://localhost:3000/activate?text=" + registeredUser.getActivationCode() + "\n\n" + "Best regards!");
-		javaMailSender.send(mail);
+		sendActivationCodeEmail(registeredUser);
 
 		System.out.println("Email is sent!");
 	}
 
-	public void sendReservationQRCodeSync(RegisteredUser registeredUser, Reservation reservation) throws MailException, MessagingException {
+	private void sendActivationCodeEmail(RegisteredUser registeredUser) {
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setTo(registeredUser.getEmail());
+		mail.setFrom(env.getProperty("spring.mail.username"));
+		mail.setSubject("Account activation");
+		mail.setText("Dear " + registeredUser.getFirstName() + ",\n\nPlease click on the link below to complete the account activation process." + "\n\n" + "URL: http://localhost:3000/activate?text=" + registeredUser.getActivationCode() + "\n\n" + "Best regards!");
+		javaMailSender.send(mail);
+	}
+
+	@Async
+	public void sendReservationQRCodeASync(RegisteredUser registeredUser, Reservation reservation) throws MailException, MessagingException {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);

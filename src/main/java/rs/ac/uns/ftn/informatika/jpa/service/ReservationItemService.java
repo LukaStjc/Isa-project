@@ -21,9 +21,4 @@ public class ReservationItemService {
         reservationItemRepository.delete(reservationItem);
     }
 
-
-    public int countReservationItemsByEquipmentId(int equipmentId) {
-        return reservationItemRepository.countReservationItemsByEquipment_Id(equipmentId);
-    }
-
 }

@@ -4,6 +4,7 @@ import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -185,7 +186,7 @@ public class ReservationService {
     }
 
 
-    @Transactional(readOnly = false)
+        @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void updateReservationByPremadeAppointment(ReservationByPremadeAppointmentDTO reservationDTO)
             throws DataAccessException, ClassNotFoundException, MailException, MessagingException, OptimisticLockException {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationDTO.getReservationId());
@@ -197,6 +198,9 @@ public class ReservationService {
         Reservation reservation = optionalReservation.get();
         User user = getUserCredentinals();
         RegisteredUser registeredUser = (RegisteredUser) user;
+
+        // Other user has already created reservation, since it has an old website version with the same available predefined reservation
+        if (reservation.getItems().isEmpty() == false) throw new RuntimeException();
 
         // check if the user is forbidden to make a reservation this month
         if (((RegisteredUser) user).getPenaltyPoints() >= 3) {
@@ -214,6 +218,7 @@ public class ReservationService {
 
         if (reservation.totalSum == null)
             reservation.totalSum = 0.0;
+        System.out.println("esaeasa 111.");
 
         for (ReservationItemDTO item : reservationDTO.getReservationItems()) {
             Equipment equipment = equipmentService.findBy(item.getEquipmentId());
@@ -230,27 +235,33 @@ public class ReservationService {
 
             reservation.totalSum += equipment.getPrice() * item.getQuantity();
 
+            // TODO: izdvoj?
             equipment.setAvailableQuantity(equipment.getQuantity() - item.getQuantity());
+            System.out.println("esaeasa 333.");
 
             // Mozda okine conflict exception.
-            equipmentService.save(equipment);
-            System.out.println("Prosaoooooooo 1");
-            System.out.println("Podaci o useru");
-
-
-
+            try {
+                equipmentService.save(equipment);
+            } catch (OptimisticLockingFailureException e) {
+                System.out.println("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
+                throw new OptimisticLockingFailureException("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
+            }
         }
 
         for (ReservationItem reservationItem : reservation.getItems()) {
             reservationItemService.save(reservationItem);
         }
-        System.out.println("Prosaoooooooo 2");
+//        System.out.println("esaeasa 222.");
 
         // Mozda okine conflict exception.
-        reservationRepository.save(reservation);
-        System.out.println("Prosaoooooooo 3");
+        try {
+            reservationRepository.save(reservation);
+        } catch (OptimisticLockingFailureException e) {
+            System.out.println("Sorry, but predefined appointment becomes unavailable. Try again later.");
+            throw new OptimisticLockingFailureException("Sorry, but predefined appointment becomes unavailable. Try again later.");
+        }
 
-        emailService.sendReservationQRCodeSync(registeredUser, reservation);
+        emailService.sendReservationQRCodeASync(registeredUser, reservation);
     }
 
     private boolean checkIfUserAlreadyCanceledReservation(int userId, Date reservationStartingDate) {
