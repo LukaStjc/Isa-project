@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 
 import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
+import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -186,7 +187,7 @@ public class ReservationService {
     }
 
 
-        @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void updateReservationByPremadeAppointment(ReservationByPremadeAppointmentDTO reservationDTO)
             throws DataAccessException, ClassNotFoundException, MailException, MessagingException, OptimisticLockException {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationDTO.getReservationId());
@@ -218,7 +219,6 @@ public class ReservationService {
 
         if (reservation.totalSum == null)
             reservation.totalSum = 0.0;
-        System.out.println("esaeasa 111.");
 
         for (ReservationItemDTO item : reservationDTO.getReservationItems()) {
             Equipment equipment = equipmentService.findBy(item.getEquipmentId());
@@ -237,29 +237,15 @@ public class ReservationService {
 
             // TODO: izdvoj?
             equipment.setAvailableQuantity(equipment.getQuantity() - item.getQuantity());
-            System.out.println("esaeasa 333.");
 
-            // Mozda okine conflict exception.
-            try {
-                equipmentService.save(equipment);
-            } catch (OptimisticLockingFailureException e) {
-                System.out.println("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
-                throw new OptimisticLockingFailureException("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
-            }
+            equipmentService.save(equipment);
         }
 
         for (ReservationItem reservationItem : reservation.getItems()) {
             reservationItemService.save(reservationItem);
         }
-//        System.out.println("esaeasa 222.");
 
-        // Mozda okine conflict exception.
-        try {
-            reservationRepository.save(reservation);
-        } catch (OptimisticLockingFailureException e) {
-            System.out.println("Sorry, but predefined appointment becomes unavailable. Try again later.");
-            throw new OptimisticLockingFailureException("Sorry, but predefined appointment becomes unavailable. Try again later.");
-        }
+        reservationRepository.save(reservation);
 
         emailService.sendReservationQRCodeASync(registeredUser, reservation);
     }
@@ -291,9 +277,8 @@ public class ReservationService {
         return registeredUser;
     }
 
-    // I've added @Transactional since many things can go wrong, and if an error occurs the data should be rolled back
-    @Transactional
-    public void cancelReservation(int id) {
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public void cancelReservation(int id) throws Exception {
         // Get the user from the context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
