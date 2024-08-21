@@ -12,12 +12,16 @@ import javax.persistence.QueryHint;
 @Repository
 public interface RegisteredUserRepository extends JpaRepository<RegisteredUser, Integer> {
 
-    public RegisteredUser getByActivationCode(String activationCode);
+    RegisteredUser getByActivationCode(String activationCode);
 
-    public RegisteredUser getByEmail(String email);
+    RegisteredUser getByEmail(String email);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value ="0")}) // bitno je staviti 0
     public RegisteredUser save(RegisteredUser registeredUser);
+
+    RegisteredUser findRegisteredUserById(Integer Id);
+
+    RegisteredUser findRegisteredUserByEmail(String email);
 
 }
