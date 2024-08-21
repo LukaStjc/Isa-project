@@ -308,8 +308,8 @@ public class ReservationService {
         oldReservation.status = Cancelled;
         for (ReservationItem tempItem : oldReservation.getItems()) {
             // Enlarge equipment quantity
-            tempItem.getEquipment().setQuantity(
-                    tempItem.getEquipment().getQuantity() + tempItem.getQuantity());
+            tempItem.getEquipment().setAvailableQuantity(
+                    tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());
             reservationItemService.delete(tempItem);
         }
         oldReservation.setItems(null);
