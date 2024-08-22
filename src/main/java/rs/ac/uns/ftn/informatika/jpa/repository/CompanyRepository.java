@@ -14,13 +14,15 @@ import java.util.stream.Collectors;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
-    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.country) like LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.city) like LOWER(CONCAT('%', :text, '%'))")
-    List<Company> findByNameContaining(@Param("text") String text);
+    List<Company> findByNameContainingIgnoreCase(String name);
+
+    @Query("SELECT c FROM Company c WHERE LOWER(c.location.country) LIKE LOWER(CONCAT('%', :location, '%')) OR LOWER(c.location.city) like LOWER(CONCAT('%', :location, '%'))")
+    List<Company> findByLocationContainingIgnoreCase(String location);
 
     Company findByName(String name);
 
-    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.country) like LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.city) like LOWER(CONCAT('%', :text, '%'))")
-    List<Company> findByNameOrLocationContaining(@Param("text") String text);
+    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%')) AND (LOWER(c.location.country) like LOWER(CONCAT('%', :location, '%')) OR LOWER(c.location.city) like LOWER(CONCAT('%', :location, '%')))")
+    List<Company> findByNameAndLocationContaining(String name, String location);
 
 
 }

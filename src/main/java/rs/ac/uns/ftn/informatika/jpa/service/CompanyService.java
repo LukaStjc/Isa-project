@@ -38,7 +38,7 @@ public class CompanyService {
     }
 
     public List<Company> findByNameContaining(String text) {
-        return companyRepository.findByNameContaining(text);
+        return companyRepository.findByNameContainingIgnoreCase(text);
     }
 
     public Company findExistingByName(String name){
@@ -66,11 +66,25 @@ public class CompanyService {
 
     }
 
-    public List<CompanyProfileDTO> searchAndFilter(RegisteredUser registeredUser, String text, Double minScore, Double maxDistance){
+    public List<CompanyProfileDTO> searchAndFilter(RegisteredUser registeredUser, String name, String location, Double minScore, Double maxDistance){
 
-        List<Company> companies = companyRepository.findByNameOrLocationContaining(text);
 
+        List<Company> companies = new ArrayList<>();
         List<CompanyProfileDTO> dtos = new ArrayList<>();
+
+
+        if ((name == null || name.isEmpty()) && (location == null || location.isEmpty())) {
+            companies = companyRepository.findAll();
+        } else if (name != null && !name.isEmpty() && (location == null || location.isEmpty())) {
+            companies = companyRepository.findByNameContainingIgnoreCase(name);
+        } else if ((name == null || name.isEmpty()) && location != null && !location.isEmpty()) {
+            companies = companyRepository.findByLocationContainingIgnoreCase(location);
+        } else {
+            companies = companyRepository.findByNameAndLocationContaining(name, location);
+        }
+
+
+
 
         /*if (minScore != null){
             companies = companies.stream()

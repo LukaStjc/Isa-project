@@ -69,3 +69,11 @@ INSERT INTO USER_ROLE (user_id, role_id) VALUES (10, 2); -- company admin-u dode
 -- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 1);
 -- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 2);
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 3); -- system admin-u dodeljujemo ROLE_SYSTEM_ADMIN
+
+insert into Rating( user_id, company_id, score, feedback) values (5, 1, 2, 'komentar1');
+--insert into Rating( user_id, company_id, score, feedback) values (5, 3, 2, 'komentar2');
+insert into Rating( user_id, company_id, score) values (8, 1, 3);
+insert into Rating( user_id, company_id, score, feedback) values (8, 2, 5, 'komentar4');
+
+insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 11, 2);
+--insert into reservation_item(equipment_id, quantity, reservation_id) values (6, 2, 3);

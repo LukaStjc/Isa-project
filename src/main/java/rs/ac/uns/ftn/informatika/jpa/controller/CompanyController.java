@@ -149,7 +149,7 @@ public class CompanyController {
 
 
     @GetMapping("/searchByNameOrLocation")
-    public ResponseEntity<List<CompanyProfileDTO>> searchCompanies(@RequestParam("text") String text, @RequestParam(required = false) Double minScore, @RequestParam(required = false) Double maxDistance){
+    public ResponseEntity<List<CompanyProfileDTO>> searchCompanies(@RequestParam(required = false) String name, @RequestParam(required = false) String location, @RequestParam(required = false) Double minScore, @RequestParam(required = false) Double maxDistance){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -160,7 +160,7 @@ public class CompanyController {
         }
 
 
-        List<CompanyProfileDTO> companies = companyService.searchAndFilter(registeredUser, text, minScore, maxDistance);
+        List<CompanyProfileDTO> companies = companyService.searchAndFilter(registeredUser, name, location, minScore, maxDistance);
 
         return new ResponseEntity<>(companies, HttpStatus.OK);
 

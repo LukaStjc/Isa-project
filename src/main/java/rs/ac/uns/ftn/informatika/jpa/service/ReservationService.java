@@ -334,4 +334,16 @@ public class ReservationService {
         reservationRepository.save(newReservation);
     }
 
+    public boolean existsByUserAndCompany(RegisteredUser registeredUser, Company company){
+        List<Reservation> reservations = reservationRepository.findAllByUserId(registeredUser.getId());
+        for(Reservation reservation : reservations){
+            for(ReservationItem item : reservation.getItems()){
+                if(item.getEquipment().getCompany().getId()==company.getId()){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }
