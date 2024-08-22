@@ -5,19 +5,25 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.CompanyProfileDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
+import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.LocationService;
+import rs.ac.uns.ftn.informatika.jpa.service.RegisteredUserService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import javax.transaction.Transactional;
+import java.security.Principal;
 import java.util.*;
 
 @RestController
@@ -31,6 +37,8 @@ public class CompanyController {
     private LocationService locationService;
     @Autowired
     private ReservationService reservationService;
+    @Autowired
+    private RegisteredUserService registeredUserService;
 
     @GetMapping
     public ResponseEntity<List<CompanyBasicDTO>> getCompanies() {
@@ -137,6 +145,25 @@ public class CompanyController {
         Company c = companyService.findExistingByName(name);
 
         return c != null;
+    }
+
+
+    @GetMapping("/searchByNameOrLocation")
+    public ResponseEntity<List<CompanyProfileDTO>> searchCompanies(@RequestParam("text") String text, @RequestParam(required = false) Double minScore, @RequestParam(required = false) Double maxDistance){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        RegisteredUser registeredUser = null;
+
+        if(authentication!=null && authentication.isAuthenticated()){
+            registeredUser = registeredUserService.findByEmail(authentication.getName());
+        }
+
+
+        List<CompanyProfileDTO> companies = companyService.searchAndFilter(registeredUser, text, minScore, maxDistance);
+
+        return new ResponseEntity<>(companies, HttpStatus.OK);
+
     }
 
 

@@ -14,9 +14,13 @@ import java.util.stream.Collectors;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
-    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :text, '%'))")
+    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.country) like LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.city) like LOWER(CONCAT('%', :text, '%'))")
     List<Company> findByNameContaining(@Param("text") String text);
 
     Company findByName(String name);
+
+    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.country) like LOWER(CONCAT('%', :text, '%')) or LOWER(c.location.city) like LOWER(CONCAT('%', :text, '%'))")
+    List<Company> findByNameOrLocationContaining(@Param("text") String text);
+
 
 }
