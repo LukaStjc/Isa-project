@@ -101,7 +101,7 @@ public class ReservationController {
     })
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PutMapping(value = "cancel/{id}")
-    public ResponseEntity CancelReservation(@PathVariable Integer id) throws Exception {
+    public ResponseEntity cancelReservation(@PathVariable Integer id) throws Exception {
 
         try {
             reservationService.cancelReservation(id);

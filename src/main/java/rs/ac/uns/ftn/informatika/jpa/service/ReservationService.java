@@ -213,12 +213,7 @@ public class ReservationService {
         if (alreadyCancelled)
             throw new RuntimeException("The user is forbidden from making a new reservation since he has already canceled this reservation!");
 
-        reservation.user = registeredUser;
-        reservation.hospital = registeredUser.getHospital();
-        reservation.status = Ready;
-
-        if (reservation.totalSum == null)
-            reservation.totalSum = 0.0;
+        updateReservationDetails(reservation, registeredUser);
 
         for (ReservationItemDTO item : reservationDTO.getReservationItems()) {
             Equipment equipment = equipmentService.findBy(item.getEquipmentId());
@@ -230,13 +225,9 @@ public class ReservationService {
                 throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the possible quantity");
             }
 
-            ReservationItem reservationItem = new ReservationItem(equipment, item.getQuantity());
-            reservation.getItems().add(reservationItem);
+            addReservationItem(reservation, item, equipment);
 
-            reservation.totalSum += equipment.getPrice() * item.getQuantity();
-
-            // TODO: izdvoj?
-            equipment.setAvailableQuantity(equipment.getQuantity() - item.getQuantity());
+            setAvailableQuantity(item, equipment);
 
             equipmentService.save(equipment);
         }
@@ -248,6 +239,26 @@ public class ReservationService {
         reservationRepository.save(reservation);
 
         emailService.sendReservationQRCodeASync(registeredUser, reservation);
+    }
+
+    private void setAvailableQuantity(ReservationItemDTO item, Equipment equipment) {
+        equipment.setAvailableQuantity(equipment.getAvailableQuantity() - item.getQuantity());
+    }
+
+    private void addReservationItem(Reservation reservation, ReservationItemDTO item, Equipment equipment) {
+        ReservationItem reservationItem = new ReservationItem(equipment, item.getQuantity());
+        reservation.getItems().add(reservationItem);
+
+        reservation.totalSum += equipment.getPrice() * item.getQuantity();
+    }
+
+    private void updateReservationDetails(Reservation reservation, RegisteredUser registeredUser) {
+        reservation.user = registeredUser;
+        reservation.hospital = registeredUser.getHospital();
+        reservation.status = Ready;
+
+        if (reservation.totalSum == null)
+            reservation.totalSum = 0.0;
     }
 
     private boolean checkIfUserAlreadyCanceledReservation(int userId, Date reservationStartingDate) {
@@ -290,17 +301,42 @@ public class ReservationService {
             throw new IllegalArgumentException("The logged-in user didn't create the reservation with number " + id);
 
         // Cancel old reservation, deallocate equipment and increase company equipment quantity
-        oldReservation.status = Cancelled;
         for (ReservationItem tempItem : oldReservation.getItems()) {
             // Enlarge equipment quantity
-            tempItem.getEquipment().setAvailableQuantity(
-                    tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());
+            setAvailableQuantityOfEquipment(tempItem);
             reservationItemService.delete(tempItem);
         }
-        oldReservation.setItems(null);
+        updateCancelledReservationDetails(oldReservation);
         reservationRepository.save(oldReservation);
 
         // Penalize the user
+        penalizeUser(loggedInUser, oldReservation);
+
+        // Copy of the reservation should be created if other users want to reuse it
+        Reservation newReservation = createReservationForSameAppointment(oldReservation);
+
+        // It is used to test optimistic locking
+        Thread.sleep(20000);
+
+        reservationRepository.save(newReservation);
+    }
+
+    private Reservation createReservationForSameAppointment(Reservation oldReservation) {
+        Reservation newReservation  = new Reservation();
+        newReservation.status = Created;
+        newReservation.admin = oldReservation.admin;
+        newReservation.setDurationMinutes(oldReservation.getDurationMinutes());
+        newReservation.setStartingDate(oldReservation.getStartingDate());
+        newReservation.setHospital(oldReservation.getHospital());
+        return newReservation;
+    }
+
+    private void updateCancelledReservationDetails(Reservation oldReservation) {
+        oldReservation.status = Cancelled;
+        oldReservation.setItems(null);
+    }
+
+    private void penalizeUser(RegisteredUser loggedInUser, Reservation oldReservation) {
         ZonedDateTime currentDate = ZonedDateTime.now();
         ZonedDateTime startingDate = ZonedDateTime.ofInstant(oldReservation.getStartingDate().toInstant(), currentDate.getZone());
         Duration duration = Duration.between(currentDate, startingDate);
@@ -308,15 +344,11 @@ public class ReservationService {
         if (duration.toHours() <= 24) loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 2);
         else loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 1);
         registeredUserService.save(loggedInUser);
+    }
 
-        // Copy of the reservation should be created if other users want to reuse it
-        Reservation newReservation  = new Reservation();
-        newReservation.status = Created;
-        newReservation.admin = oldReservation.admin;
-        newReservation.setDurationMinutes(oldReservation.getDurationMinutes());
-        newReservation.setStartingDate(oldReservation.getStartingDate());
-        newReservation.setHospital(oldReservation.getHospital());
-        reservationRepository.save(newReservation);
+    private void setAvailableQuantityOfEquipment(ReservationItem tempItem) {
+        tempItem.getEquipment().setAvailableQuantity(
+                tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());
     }
 
 }

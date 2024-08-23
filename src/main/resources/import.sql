@@ -11,6 +11,7 @@ insert into userr (id, last_password_reset_date, email, enabled, first_name, las
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (8, '2024-01-22', 'vasilijezzzz@gmail.com', True, 'Bojan', 'Bojanic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (9, '2024-01-22', 'lukalukic@gmail.com', True, 'Luka', 'Lukic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (10, '2024-01-22', 'dragomire@gmail.com', True, 'Dragomir', 'Espic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (11, '2024-01-22', 'lav@gmail.com', True, 'Lav', 'Lavic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 
 
 insert into system_admin (id) values (7);
@@ -40,11 +41,12 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Mala kamera 3mpx', 'Za snimanje grla', 0, 9000, 25, 3, 25, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za majstorisanje' ,1  , 2500, 30, 3, 30, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za sve' ,1  , 2900, 80, 2, 80, 0);
+insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger veliki','alat za sve' , 1 , 2900, 80, 1, 80, 0);
 
 
 insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);
-insert into company_admin (id,company_id, registered_by_admin) values (10, 1, 7);
-
+insert into company_admin (id,company_id, registered_by_admin) values (10, 2, 7);
+insert into company_admin (id,company_id, registered_by_admin) values (11, 3, 7);
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
 
@@ -53,7 +55,10 @@ insert into reservation( user_id, admin_id, hospital_id, status, total_sum, star
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 0, 30000, '2023-12-19 08:15:00', 25, 0);
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 0, 1000, '2023-12-20 14:00:00', 35, 0);
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2024-01-08 13:00:00', 40, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 11, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-02-08 13:00:00', 40, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-03-08 13:00:00', 40, 0);
 
 INSERT INTO ROLE (name) VALUES ('ROLE_REGISTERED_USER');
 INSERT INTO ROLE (name) VALUES ('ROLE_COMPANY_ADMIN');
