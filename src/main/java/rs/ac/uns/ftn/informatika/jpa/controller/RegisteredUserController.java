@@ -88,7 +88,7 @@ public class RegisteredUserController {
 
 	@PreAuthorize("hasRole('REGISTERED_USER')")
 	@GetMapping("/profile")
-	public ResponseEntity<RegisteredUserProfileDTO> showUserProfile(Principal principal){
+	public ResponseEntity<RegisteredUser> showUserProfile(Principal principal){
 
 		RegisteredUser registeredUser = registeredUserService.findByEmail(principal.getName());
 
@@ -96,19 +96,19 @@ public class RegisteredUserController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
+		//RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
 
-		return ResponseEntity.ok(profile);
+		return ResponseEntity.ok(registeredUser);
 	}
 
 
 	@PreAuthorize("hasRole('REGISTERED_USER')")
 	@PatchMapping("/profile/update")
-	public ResponseEntity<?> updateUserProfile(@RequestBody Map<String, Object> updates, Principal principal){
+	public ResponseEntity<RegisteredUser> updateUserProfile(@RequestBody /*Map<String, Object> updates*/ RegisteredUserProfileDTO updateDTO, Principal principal){
 
-		if (updates.containsKey("email")) {
+		/*if (updates.containsKey("email")) {
 			return new ResponseEntity<>("Updating email is not allowed", HttpStatus.BAD_REQUEST);
-		}
+		}*/
 
 		RegisteredUser registeredUser = registeredUserService.findByEmail(principal.getName());
 
@@ -116,11 +116,11 @@ public class RegisteredUserController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		registeredUserService.updateUserProfile(registeredUser, updates);
+		//registeredUserService.updateUserProfile(registeredUser, updates);
 
-		RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
+		//RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
 
-		return ResponseEntity.ok(profile);
+		return ResponseEntity.ok(registeredUserService.updateUserProfile(registeredUser, updateDTO));
 	}
 
 }

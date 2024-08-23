@@ -14,4 +14,6 @@ public class LocationService {
     public Location save(Location location) {
         return locationRepository.save(location);
     }
+
+    public Location findById(Integer id) { return  locationRepository.findById(id).get(); }
 }
