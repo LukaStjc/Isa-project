@@ -1,11 +1,18 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.authentication.PasswordEncoderParser;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.ftn.informatika.jpa.dto.ChangePasswordDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.security.Principal;
 import java.util.*;
@@ -18,6 +25,10 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 
 	// Za pristup ovoj metodi neophodno je da ulogovani korisnik ima ADMIN ulogu
 	// Ukoliko nema, server ce vratiti gresku 403 Forbidden
@@ -56,4 +67,25 @@ public class UserController {
         fooObj.put("foo", "bar");
         return fooObj;
     }
+
+	@PutMapping("/user/changepassword")
+	@PreAuthorize("hasRole('REGISTERED_USER')")
+	public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO){
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findByEmail(authentication.getName());
+
+		if(passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())){
+			String newPassword = passwordEncoder.encode(changePasswordDTO.getNewPassword());
+			user.setPassword(newPassword);
+			userService.save(user);
+			return new ResponseEntity<>("Password successfully changed!", HttpStatus.OK);
+		}
+
+		return new ResponseEntity<>("Wrong old password!", HttpStatus.BAD_REQUEST);
+
+
+
+	}
+
 }
