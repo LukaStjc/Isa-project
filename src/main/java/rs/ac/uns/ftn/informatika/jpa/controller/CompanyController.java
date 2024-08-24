@@ -55,6 +55,16 @@ public class CompanyController {
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
 
+    @GetMapping("/profile/{id}")
+    @Transactional  // Mora ponovo jer je i ovde isto sto i iznad
+    public ResponseEntity<CompanyDTO> getCompanyForUserById(@PathVariable Integer id){
+        Company company = companyService.findBy(id);
+        CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
+        companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
+        companyDTO.setAdmins(new ArrayList<>());
+        return new ResponseEntity<>(companyDTO, HttpStatus.OK);
+    }
+
     @PutMapping ("/update/{id}")
     @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Integer id,   @RequestBody CompanyLocationDTO dto){
