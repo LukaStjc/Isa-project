@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
@@ -66,21 +67,29 @@ public class CompanyService {
 
     }
 
-    public List<CompanyProfileDTO> searchAndFilter(RegisteredUser registeredUser, String name, String location, Double minScore, Double maxDistance){
+    public List<CompanyProfileDTO> searchAndFilter(RegisteredUser registeredUser, String name, String location, Double minScore, Double maxDistance, String sortBy, String sortDirection){
 
 
         List<Company> companies = new ArrayList<>();
         List<CompanyProfileDTO> dtos = new ArrayList<>();
 
+        Sort sort = null;
+
+        if(!sortBy.equals("name") && !sortBy.equals("location.city") && !sortBy.equals("averageScore")){
+            sortBy = new String("name");
+        }
+
+        sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+
 
         if ((name == null || name.isEmpty()) && (location == null || location.isEmpty())) {
-            companies = companyRepository.findAll();
+            companies = companyRepository.findAll(sort);
         } else if (name != null && !name.isEmpty() && (location == null || location.isEmpty())) {
-            companies = companyRepository.findByNameContainingIgnoreCase(name);
+            companies = companyRepository.findByNameContainingIgnoreCase(name, sort);
         } else if ((name == null || name.isEmpty()) && location != null && !location.isEmpty()) {
-            companies = companyRepository.findByLocationContainingIgnoreCase(location);
+            companies = companyRepository.findByLocationContainingIgnoreCase(location, sort);
         } else {
-            companies = companyRepository.findByNameAndLocationContaining(name, location);
+            companies = companyRepository.findByNameAndLocationContaining(name, location, sort);
         }
 
 

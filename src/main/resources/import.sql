@@ -1,7 +1,7 @@
-insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Radnička',28,  19.84250, 45.25416);
-insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Subotica' ,'Veselina Masleše',2, 19.66555, 46.10027);
-insert into location (city,country, street_name, street_number, longitude, latitude) values ('Italia','Roma' ,'Antona Čehova',1, 12.48277, 41.89333);
-insert into location (city,country, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.84250, 45.25416);
+insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Radnička',28,  19.84250, 45.25416);
+insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Subotica' ,'Veselina Masleše',2, 19.66555, 46.10027);
+insert into location (country,city, street_name, street_number, longitude, latitude) values ('Italia','Aroma' ,'Antona Čehova',1, 12.48277, 41.89333);
+insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.84250, 45.25416);
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 4);
 
 -- za sve korisnike ista lozinka: 'pass'
@@ -28,9 +28,10 @@ insert into registered_user (id, telephone_number, penalty_points, points, occup
 -- insert into registered_user (id, telephone_number, penalty_points, points, occupation) values (5, '0613241802', 0, 0, 'zemljoradnik');
 
 -- TODO promeniti average_score na 0, za kt1 su stavljene neke vrednosti
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('Kompanija A','opis1' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 1.8, 2, 7); --id 1
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('Belmex','kvalitetna medicinska oprema' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.1, 3, 7); -- id 2
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('Neomedica','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 4, 7); -- id 3
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beta','opis1' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.5, 2, 7); --id 1
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('alfa','kvalitetna medicinska oprema' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.1, 3, 7); -- id 2
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('ceta','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 4, 7); -- id 3
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beeee','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 1, 7);
 
 
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za kucu' ,1  , 3000, 100, 1, 100, 0);
@@ -70,10 +71,10 @@ INSERT INTO USER_ROLE (user_id, role_id) VALUES (10, 2); -- company admin-u dode
 -- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 2);
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 3); -- system admin-u dodeljujemo ROLE_SYSTEM_ADMIN
 
-insert into Rating( user_id, company_id, score, feedback) values (5, 1, 2, 'komentar1');
+insert into Rating( user_id, company_id, score, feedback, created_at, updated_at) values (5, 1, 2, 'komentar1', '2024-06-20 16:30:16', '2024-07-15 16:30:16');
 --insert into Rating( user_id, company_id, score, feedback) values (5, 3, 2, 'komentar2');
-insert into Rating( user_id, company_id, score) values (8, 1, 3);
-insert into Rating( user_id, company_id, score, feedback) values (8, 2, 5, 'komentar4');
+insert into Rating( user_id, company_id, score, created_at, updated_at) values (8, 1, 3, '2022-06-20 16:30:16', '2023-09-15 10:30:16');
+insert into Rating( user_id, company_id, score, feedback, created_at, updated_at) values (8, 2, 5, 'komentar4', '2023-02-20 12:30:16', '2023-07-15 16:30:16');
 
 insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 11, 2);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (6, 2, 3);

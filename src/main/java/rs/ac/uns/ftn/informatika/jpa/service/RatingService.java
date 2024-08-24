@@ -53,6 +53,7 @@ public class RatingService {
             rating = existingRating.get();
             rating.setScore(rateCompanyDTO.getScore());
             rating.setFeedback(rateCompanyDTO.getFeedback());
+            rating.setReasons(rateCompanyDTO.getReasons());
         }else{
             //novi rating
             rating = new Rating();
@@ -60,6 +61,7 @@ public class RatingService {
             rating.setCompany(c);
             rating.setScore(rateCompanyDTO.getScore());
             rating.setFeedback(rateCompanyDTO.getFeedback());
+            rating.setReasons(rateCompanyDTO.getReasons());
         }
 
         return save(rating);

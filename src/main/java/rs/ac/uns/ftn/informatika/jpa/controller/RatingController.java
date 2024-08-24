@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ public class RatingController {
     private CompanyService companyService;
 
     @GetMapping
+    @Transactional
     public ResponseEntity<List<RatingDTO>> getRatings() {
 
 
