@@ -17,9 +17,9 @@ insert into system_admin (id) values (7);
 
 
 -- insert into registered_user (email, enabled, first_name, last_name, password, telephone_number, penalty_points, points) values ('asjkdgasjk@gmail.com', true, 'Petar', 'Petric', 'passw', '0613241802', 0, 0);
-insert into loyalty_program (id, type, min_points, max_points, admin_id) values (0, 0, 0, 100, 7);
-insert into loyalty_program (id, type, min_points, max_points,  admin_id) values (1, 1, 101, 1000, 7);
-insert into loyalty_program (id, type, min_points, max_points,  admin_id) values (2, 2, 1001, 5000, 7);
+insert into loyalty_program (id, type, min_points, max_points, admin_id, discount_rate) values (0, 0, 0, 100, 7, 5);
+insert into loyalty_program (id, type, min_points, max_points,  admin_id, discount_rate) values (1, 1, 101, 1000, 7, 10);
+insert into loyalty_program (id, type, min_points, max_points,  admin_id, discount_rate) values (2, 2, 1001, 5000, 7, 20);
 
 -- paziti na loyalty_progra_id i dozvoli neunosenje stranog kljuca
 insert into registered_user (id, telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id, location_id, activation_code) values (5, '0613241802', 0, 0, 'zemljoradnik', 1, 1, 1, 'APwO1SBNEVeJO8xs5zLmvHqGQsjKmgl6');
