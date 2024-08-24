@@ -19,6 +19,10 @@ import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 
 @RestController
 @RequestMapping(value = "api/companies")
@@ -64,20 +68,20 @@ public class CompanyController {
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
 
-    @PutMapping ("/update/{id}")
-    @PreAuthorize("hasRole('COMPANY_ADMIN')")
-    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Integer id,   @RequestBody CompanyLocationDTO dto){
-        Company company = companyService.findBy(id);
-         company.setName(dto.getName());
-         company.setDescription((dto.getDescription()));
-         Location location = company.getLocation();
-         location.setCountry(dto.getCountry());
-         location.setCity(dto.getCity());
-         location.setStreet(dto.getStreetName());
-         location.setStreetNumber(dto.getStreetNumber());
-        locationService.save(location);
-         company.setLocation(location);
-
+//    @PutMapping ("/update/{id}")
+//    @PreAuthorize("hasRole('COMPANY_ADMIN')")
+//    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Integer id,   @RequestBody CompanyLocationDTO dto) {
+//        Company company = companyService.findBy(id);
+//        company.setName(dto.getName());
+//        company.setDescription((dto.getDescription()));
+//        Location location = company.getLocation();
+//        location.setCountry(dto.getCountry());
+//        location.setCity(dto.getCity());
+//        location.setStreet(dto.getStreetName());
+//        location.setStreetNumber(dto.getStreetNumber());
+//        locationService.save(location);
+//        company.setLocation(location);
+//    }
     @PutMapping ("/update/{id}")
     // Vasilije: za sada nisam hteo ovde da stavim transactional, mozda i treba,
     // ali sam opet imao problem sa duzinom sesije, i pukne program zbog lazyCollection-a

@@ -46,6 +46,7 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 
 insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);
 insert into company_admin (id,company_id, registered_by_admin) values (10, 1, 7);
+insert into company_admin (id,company_id, registered_by_admin) values (11, 2, 7)
 insert into company_admin (id,company_id, registered_by_admin) values (12, 2, 7);
 
 
