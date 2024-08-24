@@ -150,6 +150,7 @@
 			<version>5.7.4</version>
 		</dependency>
 
+
 		<dependency>
 			<groupId>io.nats</groupId>
 			<artifactId>jnats</artifactId>

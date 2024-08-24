@@ -11,6 +11,8 @@ insert into userr (id, last_password_reset_date, email, enabled, first_name, las
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (8, '2024-01-22', 'vasilijezzzz@gmail.com', True, 'Bojan', 'Bojanic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (9, '2024-01-22', 'lukalukic@gmail.com', True, 'Luka', 'Lukic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (10, '2024-01-22', 'dragomire@gmail.com', True, 'Dragomir', 'Espic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (11, '2024-01-22', 'pavlekrstic010@gmail.com', True, 'Pavle', 'Krstic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (12, '2024-01-22', 'milosteodosic@gmail.com', True, 'Milos', 'Teodosic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 
 
 insert into system_admin (id) values (7);
@@ -44,6 +46,8 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 
 insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);
 insert into company_admin (id,company_id, registered_by_admin) values (10, 1, 7);
+insert into company_admin (id,company_id, registered_by_admin) values (11, 2, 7)
+insert into company_admin (id,company_id, registered_by_admin) values (12, 2, 7);
 
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
@@ -64,6 +68,8 @@ INSERT INTO USER_ROLE (user_id, role_id) VALUES (8, 1); -- registered user-u dod
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (9, 1); -- registered user-u dodeljujemo ROLE_REGISTERED_USER
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (6, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (10, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (11, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (12, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
 
 -- todo: system admin ima sve privilegije?
 -- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 1);

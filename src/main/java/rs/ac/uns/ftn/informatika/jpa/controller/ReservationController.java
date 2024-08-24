@@ -149,7 +149,6 @@ public class ReservationController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-
         return new ResponseEntity<ReservationPremadeDTO>(dto, HttpStatus.OK);
 
     }
