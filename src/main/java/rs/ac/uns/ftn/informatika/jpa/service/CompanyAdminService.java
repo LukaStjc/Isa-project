@@ -70,7 +70,7 @@ public class CompanyAdminService {
             // Update the fields
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encodedPassword = passwordEncoder.encode(dto.getPassword());
-            admin.setPassword(encodedPassword); // Ensure to hash the password before saving
+            admin.setPassword(encodedPassword);
             admin.setPasswordChanged(true);
 
             // Save the updated entity

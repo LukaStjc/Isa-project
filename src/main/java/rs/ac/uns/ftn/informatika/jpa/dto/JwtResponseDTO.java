@@ -24,6 +24,7 @@ public class JwtResponseDTO {
 
   @NotEmpty(message = "Roles list cannot be empty")
   private List<String> roles;
+  boolean passwordChangeRequired;
 
   public JwtResponseDTO(String accessToken, Integer id, String email, int discount_rate, List<String> roles, boolean passwordChangeRequired) {
     this.token = accessToken;
