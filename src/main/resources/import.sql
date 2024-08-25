@@ -42,7 +42,8 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Mala kamera 3mpx', 'Za snimanje grla', 0, 9000, 25, 3, 25, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za majstorisanje' ,1  , 2500, 30, 3, 30, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za sve' ,1  , 2900, 80, 2, 80, 0);
-insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger veliki','alat za sve' , 1 , 2900, 80, 1, 80, 0);
+insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Skalpel','alat za sve' , 1 , 3000, 80, 1, 80, 0);
+insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('CT skener','alat za sve' , 1 , 10000, 80, 1, 80, 0);
 
 
 insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);

@@ -358,23 +358,25 @@ public class ReservationService {
                 tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());
     }
 
-private void applyDiscountAndUpdateLoyalty(Reservation reservation, RegisteredUser registeredUser) {
-    reservation.setTotalSum((double) Math.round( reservation.totalSum - reservation.totalSum * ((float) registeredUser.getLoyaltyProgram().getDiscount_rate() / 100) ));
-    registeredUser.setPoints(registeredUser.getPoints() + 1);
+    private void applyDiscountAndUpdateLoyalty(Reservation reservation, RegisteredUser registeredUser) {
+        reservation.setTotalSum((double) Math.round( reservation.totalSum - reservation.totalSum * ((float) registeredUser.getLoyaltyProgram().getDiscount_rate() / 100) ));
+        registeredUser.setPoints(registeredUser.getPoints() + 1);
 
-    // Upgrade loyalty program
-    if (registeredUser.getLoyaltyProgram().getMaxPoints() < registeredUser.getPoints()) {
-        LoyaltyProgram oldLoyaltyProgram = registeredUser.getLoyaltyProgram();
+        // Upgrade loyalty program
+        if (registeredUser.getLoyaltyProgram().getMaxPoints() < registeredUser.getPoints()) {
+            LoyaltyProgram oldLoyaltyProgram = registeredUser.getLoyaltyProgram();
 
-        if (oldLoyaltyProgram.getType() == Bronze) {
-            LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Silver);
-            registeredUser.setLoyaltyProgram(newLoyaltyProgram);
+            if (oldLoyaltyProgram.getType() == Bronze) {
+                LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Silver);
+                registeredUser.setLoyaltyProgram(newLoyaltyProgram);
+            }
+
+            if (oldLoyaltyProgram.getType() == Silver){
+                LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Gold);
+                registeredUser.setLoyaltyProgram(newLoyaltyProgram);
+            }
         }
 
-        if (oldLoyaltyProgram.getType() == Silver){
-            LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Gold);
-            registeredUser.setLoyaltyProgram(newLoyaltyProgram);
-        }
     }
-    r
+
 }
