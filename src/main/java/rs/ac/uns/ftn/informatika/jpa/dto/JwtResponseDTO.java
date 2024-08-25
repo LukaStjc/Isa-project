@@ -22,11 +22,13 @@ public class JwtResponseDTO {
   @NotEmpty(message = "Roles list cannot be empty")
   private List<String> roles;
 
-  public JwtResponseDTO(String accessToken, Integer id, String email, List<String> roles) {
+  private boolean passwordChangeRequired;
+  public JwtResponseDTO(String accessToken, Integer id, String email, List<String> roles, boolean passwordChangeRequired) {
     this.token = accessToken;
     this.id = id;
     this.email = email;
     this.roles = roles;
+    this.passwordChangeRequired = passwordChangeRequired;
   }
 
   public String getAccessToken() {
@@ -63,5 +65,13 @@ public class JwtResponseDTO {
 
   public List<String> getRoles() {
     return roles;
+  }
+
+  public boolean isPasswordChangeRequired() {
+    return passwordChangeRequired;
+  }
+
+  public void setPasswordChangeRequired(boolean passwordChangeRequired) {
+    this.passwordChangeRequired = passwordChangeRequired;
   }
 }

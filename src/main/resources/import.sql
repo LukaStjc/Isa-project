@@ -44,10 +44,10 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za sve' ,1  , 2900, 80, 2, 80, 0);
 
 
-insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);
-insert into company_admin (id,company_id, registered_by_admin) values (10, 1, 7);
-insert into company_admin (id,company_id, registered_by_admin) values (11, 2, 7)
-insert into company_admin (id,company_id, registered_by_admin) values (12, 2, 7);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (6, 1, 7, false);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (10, 1, 7, false);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (11, 2, 7, false);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (12, 2, 7, false);
 
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije

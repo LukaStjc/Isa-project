@@ -87,6 +87,12 @@ public class CompanyAdminController {
         return new ResponseEntity<>(companyAdminService.getCompanyAdmins(id), HttpStatus.OK);
     }
 
+    @PutMapping("/change-password")
+    public ResponseEntity<Boolean> changePassword(@RequestBody ChangePasswordDto dto){
+
+        return companyAdminService.changePassword(dto);
+    }
+
 
 
 
