@@ -23,6 +23,7 @@ import rs.ac.uns.ftn.informatika.jpa.util.TokenUtils;
 
 
 
+
 @Configuration
 // Injektovanje bean-a za bezbednost 
 @EnableWebSecurity

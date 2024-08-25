@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import rs.ac.uns.ftn.informatika.jpa.dto.JwtAuthenticationRequestDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.JwtResponseDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
+import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.util.TokenUtils;
 
@@ -82,10 +83,15 @@ public class AuthenticationController {
 				discount_rate = registeredUser.getLoyaltyProgram().getDiscount_rate();
 			}
 
+			boolean passwordChangeRequired = false;
+			if (user instanceof CompanyAdmin) {
+				CompanyAdmin admin = (CompanyAdmin) user;
+				passwordChangeRequired = !admin.isPasswordChanged(); //
+			}
 			// Vrati token kao odgovor na uspesnu autentifikaciju
 			//		return ResponseEntity.ok(new UserTokenStateDTO(jwt, expiresIn));
 			return ResponseEntity
-					.ok(new JwtResponseDTO(jwt, user.getId(), user.getEmail(), discount_rate, roles));
+					.ok(new JwtResponseDTO(jwt, user.getId(), user.getEmail(), discount_rate, roles, passwordChangeRequired));
 		}
 		catch (AuthenticationException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
