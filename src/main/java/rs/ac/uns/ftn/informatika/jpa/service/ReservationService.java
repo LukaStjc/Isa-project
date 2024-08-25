@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 
 import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
+import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -30,6 +31,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.*;
 
+import static rs.ac.uns.ftn.informatika.jpa.enumeration.LoyaltyType.*;
 import static rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus.*;
 
 @Service
@@ -54,6 +56,9 @@ public class ReservationService {
 
     @Autowired
     private RegisteredUserService registeredUserService;
+
+    @Autowired
+    private LoyaltyProgramService loyaltyProgramService;
 
     public List<ReservationDTO> getAllByDate(Date date, int showWeek, Integer id){
         List<Reservation> reservations = reservationRepository.findAll();
@@ -158,7 +163,7 @@ public class ReservationService {
             for(Reservation r : reservations){
 
                 if(companyAdmin.getCompany().getId() == r.getAdmin().getCompany().getId() && r.getStartingDate().getDate() == i && r.getStartingDate().getMonth() == currentMonth
-                    && r.getStartingDate().getYear() == currentYear){
+                        && r.getStartingDate().getYear() == currentYear){
 
                     daysToShow.add(i);
                     break;
@@ -186,7 +191,7 @@ public class ReservationService {
     }
 
 
-        @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void updateReservationByPremadeAppointment(ReservationByPremadeAppointmentDTO reservationDTO)
             throws DataAccessException, ClassNotFoundException, MailException, MessagingException, OptimisticLockException {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationDTO.getReservationId());
@@ -212,13 +217,7 @@ public class ReservationService {
         if (alreadyCancelled)
             throw new RuntimeException("The user is forbidden from making a new reservation since he has already canceled this reservation!");
 
-        reservation.user = registeredUser;
-        reservation.hospital = registeredUser.getHospital();
-        reservation.status = Ready;
-
-        if (reservation.totalSum == null)
-            reservation.totalSum = 0.0;
-        System.out.println("esaeasa 111.");
+        updateReservationDetails(reservation, registeredUser);
 
         for (ReservationItemDTO item : reservationDTO.getReservationItems()) {
             Equipment equipment = equipmentService.findBy(item.getEquipmentId());
@@ -230,38 +229,43 @@ public class ReservationService {
                 throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the possible quantity");
             }
 
-            ReservationItem reservationItem = new ReservationItem(equipment, item.getQuantity());
-            reservation.getItems().add(reservationItem);
+            addReservationItem(reservation, item, equipment);
 
-            reservation.totalSum += equipment.getPrice() * item.getQuantity();
+            setAvailableQuantity(item, equipment);
 
-            // TODO: izdvoj?
-            equipment.setAvailableQuantity(equipment.getQuantity() - item.getQuantity());
-            System.out.println("esaeasa 333.");
-
-            // Mozda okine conflict exception.
-            try {
-                equipmentService.save(equipment);
-            } catch (OptimisticLockingFailureException e) {
-                System.out.println("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
-                throw new OptimisticLockingFailureException("Sorry, but the equipment or equipment quantity becomes unavailable. Try again later.");
-            }
+            equipmentService.save(equipment);
         }
 
         for (ReservationItem reservationItem : reservation.getItems()) {
             reservationItemService.save(reservationItem);
         }
-//        System.out.println("esaeasa 222.");
 
-        // Mozda okine conflict exception.
-        try {
-            reservationRepository.save(reservation);
-        } catch (OptimisticLockingFailureException e) {
-            System.out.println("Sorry, but predefined appointment becomes unavailable. Try again later.");
-            throw new OptimisticLockingFailureException("Sorry, but predefined appointment becomes unavailable. Try again later.");
-        }
+        applyDiscountAndUpdateLoyalty(reservation,registeredUser);
+        registeredUserService.save(registeredUser);
+
+        reservationRepository.save(reservation);
 
         emailService.sendReservationQRCodeASync(registeredUser, reservation);
+    }
+
+    private void setAvailableQuantity(ReservationItemDTO item, Equipment equipment) {
+        equipment.setAvailableQuantity(equipment.getAvailableQuantity() - item.getQuantity());
+    }
+
+    private void addReservationItem(Reservation reservation, ReservationItemDTO item, Equipment equipment) {
+        ReservationItem reservationItem = new ReservationItem(equipment, item.getQuantity());
+        reservation.getItems().add(reservationItem);
+
+        reservation.totalSum += equipment.getPrice() * item.getQuantity();
+    }
+
+    private void updateReservationDetails(Reservation reservation, RegisteredUser registeredUser) {
+        reservation.user = registeredUser;
+        reservation.hospital = registeredUser.getHospital();
+        reservation.status = Ready;
+
+        if (reservation.totalSum == null)
+            reservation.totalSum = 0.0;
     }
 
     private boolean checkIfUserAlreadyCanceledReservation(int userId, Date reservationStartingDate) {
@@ -291,9 +295,8 @@ public class ReservationService {
         return registeredUser;
     }
 
-    // I've added @Transactional since many things can go wrong, and if an error occurs the data should be rolled back
-    @Transactional
-    public void cancelReservation(int id) {
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public void cancelReservation(int id) throws Exception {
         // Get the user from the context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
@@ -305,17 +308,42 @@ public class ReservationService {
             throw new IllegalArgumentException("The logged-in user didn't create the reservation with number " + id);
 
         // Cancel old reservation, deallocate equipment and increase company equipment quantity
-        oldReservation.status = Cancelled;
         for (ReservationItem tempItem : oldReservation.getItems()) {
             // Enlarge equipment quantity
-            tempItem.getEquipment().setAvailableQuantity(
-                    tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());
+            setAvailableQuantityOfEquipment(tempItem);
             reservationItemService.delete(tempItem);
         }
-        oldReservation.setItems(null);
+        updateCancelledReservationDetails(oldReservation);
         reservationRepository.save(oldReservation);
 
         // Penalize the user
+        penalizeUser(loggedInUser, oldReservation);
+
+        // Copy of the reservation should be created if other users want to reuse it
+        Reservation newReservation = createReservationForSameAppointment(oldReservation);
+
+        // It is used to test optimistic locking
+        Thread.sleep(20000);
+
+        reservationRepository.save(newReservation);
+    }
+
+    private Reservation createReservationForSameAppointment(Reservation oldReservation) {
+        Reservation newReservation  = new Reservation();
+        newReservation.status = Created;
+        newReservation.admin = oldReservation.admin;
+        newReservation.setDurationMinutes(oldReservation.getDurationMinutes());
+        newReservation.setStartingDate(oldReservation.getStartingDate());
+        newReservation.setHospital(oldReservation.getHospital());
+        return newReservation;
+    }
+
+    private void updateCancelledReservationDetails(Reservation oldReservation) {
+        oldReservation.status = Cancelled;
+        oldReservation.setItems(null);
+    }
+
+    private void penalizeUser(RegisteredUser loggedInUser, Reservation oldReservation) {
         ZonedDateTime currentDate = ZonedDateTime.now();
         ZonedDateTime startingDate = ZonedDateTime.ofInstant(oldReservation.getStartingDate().toInstant(), currentDate.getZone());
         Duration duration = Duration.between(currentDate, startingDate);
@@ -323,15 +351,32 @@ public class ReservationService {
         if (duration.toHours() <= 24) loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 2);
         else loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 1);
         registeredUserService.save(loggedInUser);
+    }
 
-        // Copy of the reservation should be created if other users want to reuse it
-        Reservation newReservation  = new Reservation();
-        newReservation.status = Created;
-        newReservation.admin = oldReservation.admin;
-        newReservation.setDurationMinutes(oldReservation.getDurationMinutes());
-        newReservation.setStartingDate(oldReservation.getStartingDate());
-        newReservation.setHospital(oldReservation.getHospital());
-        reservationRepository.save(newReservation);
+    private void setAvailableQuantityOfEquipment(ReservationItem tempItem) {
+        tempItem.getEquipment().setAvailableQuantity(
+                tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());
+    }
+
+    private void applyDiscountAndUpdateLoyalty(Reservation reservation, RegisteredUser registeredUser) {
+        reservation.setTotalSum((double) Math.round( reservation.totalSum - reservation.totalSum * ((float) registeredUser.getLoyaltyProgram().getDiscount_rate() / 100) ));
+        registeredUser.setPoints(registeredUser.getPoints() + 1);
+
+        // Upgrade loyalty program
+        if (registeredUser.getLoyaltyProgram().getMaxPoints() < registeredUser.getPoints()) {
+            LoyaltyProgram oldLoyaltyProgram = registeredUser.getLoyaltyProgram();
+
+            if (oldLoyaltyProgram.getType() == Bronze) {
+                LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Silver);
+                registeredUser.setLoyaltyProgram(newLoyaltyProgram);
+            }
+
+            if (oldLoyaltyProgram.getType() == Silver){
+                LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Gold);
+                registeredUser.setLoyaltyProgram(newLoyaltyProgram);
+            }
+        }
+
     }
 
 }

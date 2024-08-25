@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rs.ac.uns.ftn.informatika.jpa.dto.JwtAuthenticationRequestDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.JwtResponseDTO;
+import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.util.TokenUtils;
 
@@ -73,10 +74,18 @@ public class AuthenticationController {
 			List<String> roles = user.getAuthorities().stream().map(item -> item.getAuthority())
 					.collect(Collectors.toList());
 
+
+			int discount_rate = -1;
+			if (roles.contains("ROLE_REGISTERED_USER")) {
+				RegisteredUser registeredUser = (RegisteredUser) user;
+				// Dobaviti loyalty program, zbog prosledjivanja popusta
+				discount_rate = registeredUser.getLoyaltyProgram().getDiscount_rate();
+			}
+
 			// Vrati token kao odgovor na uspesnu autentifikaciju
-//		return ResponseEntity.ok(new UserTokenStateDTO(jwt, expiresIn));
+			//		return ResponseEntity.ok(new UserTokenStateDTO(jwt, expiresIn));
 			return ResponseEntity
-					.ok(new JwtResponseDTO(jwt, user.getId(), user.getEmail(), roles));
+					.ok(new JwtResponseDTO(jwt, user.getId(), user.getEmail(), discount_rate, roles));
 		}
 		catch (AuthenticationException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
