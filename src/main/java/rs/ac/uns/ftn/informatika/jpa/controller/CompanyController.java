@@ -19,6 +19,10 @@ import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 
 @RestController
 @RequestMapping(value = "api/companies")
@@ -46,6 +50,7 @@ public class CompanyController {
     }
     @GetMapping("/{id}")
     @Transactional  // vasilije: posto sam dodao kod company za equipment LAZY, jer u suprotnom ne radi, morao sam ovde da dodam transactional mozda nije najpametnije resenje
+    @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id){
         Company company = companyService.findBy(id);
         CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
@@ -53,6 +58,30 @@ public class CompanyController {
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
 
+    @GetMapping("/profile/{id}")
+    @Transactional  // Mora ponovo jer je i ovde isto sto i iznad
+    public ResponseEntity<CompanyDTO> getCompanyForUserById(@PathVariable Integer id){
+        Company company = companyService.findBy(id);
+        CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
+        companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
+        companyDTO.setAdmins(new ArrayList<>());
+        return new ResponseEntity<>(companyDTO, HttpStatus.OK);
+    }
+
+//    @PutMapping ("/update/{id}")
+//    @PreAuthorize("hasRole('COMPANY_ADMIN')")
+//    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Integer id,   @RequestBody CompanyLocationDTO dto) {
+//        Company company = companyService.findBy(id);
+//        company.setName(dto.getName());
+//        company.setDescription((dto.getDescription()));
+//        Location location = company.getLocation();
+//        location.setCountry(dto.getCountry());
+//        location.setCity(dto.getCity());
+//        location.setStreet(dto.getStreetName());
+//        location.setStreetNumber(dto.getStreetNumber());
+//        locationService.save(location);
+//        company.setLocation(location);
+//    }
     @PutMapping ("/update/{id}")
     // Vasilije: za sada nisam hteo ovde da stavim transactional, mozda i treba,
     // ali sam opet imao problem sa duzinom sesije, i pukne program zbog lazyCollection-a

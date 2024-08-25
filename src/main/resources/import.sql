@@ -11,16 +11,17 @@ insert into userr (id, last_password_reset_date, email, enabled, first_name, las
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (8, '2024-01-22', 'vasilijezzzz@gmail.com', True, 'Bojan', 'Bojanic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (9, '2024-01-22', 'lukalukic@gmail.com', True, 'Luka', 'Lukic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (10, '2024-01-22', 'dragomire@gmail.com', True, 'Dragomir', 'Espic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
-insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (11, '2024-01-22', 'lav@gmail.com', True, 'Lav', 'Lavic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (11, '2024-01-22', 'pavlekrstic010@gmail.com', True, 'Pavle', 'Krstic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
+insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (12, '2024-01-22', 'milosteodosic@gmail.com', True, 'Milos', 'Teodosic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 
 
 insert into system_admin (id) values (7);
 
 
 -- insert into registered_user (email, enabled, first_name, last_name, password, telephone_number, penalty_points, points) values ('asjkdgasjk@gmail.com', true, 'Petar', 'Petric', 'passw', '0613241802', 0, 0);
-insert into loyalty_program (id, type, min_points, max_points, admin_id) values (0, 0, 0, 100, 7);
-insert into loyalty_program (id, type, min_points, max_points,  admin_id) values (1, 1, 101, 1000, 7);
-insert into loyalty_program (id, type, min_points, max_points,  admin_id) values (2, 2, 1001, 5000, 7);
+insert into loyalty_program (id, type, min_points, max_points, admin_id, discount_rate) values (0, 0, 0, 100, 7, 5);
+insert into loyalty_program (id, type, min_points, max_points,  admin_id, discount_rate) values (1, 1, 101, 1000, 7, 10);
+insert into loyalty_program (id, type, min_points, max_points,  admin_id, discount_rate) values (2, 2, 1001, 5000, 7, 20);
 
 -- paziti na loyalty_progra_id i dozvoli neunosenje stranog kljuca
 insert into registered_user (id, telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id, location_id, activation_code) values (5, '0613241802', 0, 0, 'zemljoradnik', 0, 1, 1, 'APwO1SBNEVeJO8xs5zLmvHqGQsjKmgl6');
@@ -45,8 +46,10 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 
 
 insert into company_admin (id,company_id, registered_by_admin) values (6, 1, 7);
-insert into company_admin (id,company_id, registered_by_admin) values (10, 2, 7);
-insert into company_admin (id,company_id, registered_by_admin) values (11, 3, 7);
+insert into company_admin (id,company_id, registered_by_admin) values (10, 1, 7);
+insert into company_admin (id,company_id, registered_by_admin) values (11, 2, 7)
+insert into company_admin (id,company_id, registered_by_admin) values (12, 2, 7);
+
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
 
@@ -69,6 +72,8 @@ INSERT INTO USER_ROLE (user_id, role_id) VALUES (8, 1); -- registered user-u dod
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (9, 1); -- registered user-u dodeljujemo ROLE_REGISTERED_USER
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (6, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (10, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (11, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
+INSERT INTO USER_ROLE (user_id, role_id) VALUES (12, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
 
 -- todo: system admin ima sve privilegije?
 -- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 1);
