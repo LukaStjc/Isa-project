@@ -19,13 +19,17 @@ public class JwtResponseDTO {
   @Email(message = "Invalid email format")
   private String email;
 
+  @NotNull(message = "Email cannot be null")
+  private int discount_rate;
+
   @NotEmpty(message = "Roles list cannot be empty")
   private List<String> roles;
 
-  public JwtResponseDTO(String accessToken, Integer id, String email, List<String> roles) {
+  public JwtResponseDTO(String accessToken, Integer id, String email, int discount_rate, List<String> roles) {
     this.token = accessToken;
     this.id = id;
     this.email = email;
+    this.discount_rate = discount_rate;
     this.roles = roles;
   }
 
@@ -39,6 +43,14 @@ public class JwtResponseDTO {
 
   public String getTokenType() {
     return type;
+  }
+
+  public int getDiscount_rate() {
+    return discount_rate;
+  }
+
+  public void setDiscount_rate(int discount_rate) {
+    this.discount_rate = discount_rate;
   }
 
   public void setTokenType(String tokenType) {
