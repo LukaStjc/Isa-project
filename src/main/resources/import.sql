@@ -50,11 +50,13 @@ insert into company_admin (id,company_id, registered_by_admin) values (10, 1, 7)
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
 
 -- Rezervacije bi trebalo izmeniti, jer nisu vezane za equipmente preko reservationItemsa
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 0, 30000, '2023-12-19 10:55:00', 25, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 0, 30000, '2023-12-19 08:15:00', 25, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 0, 1000, '2023-12-20 14:00:00', 35, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 0, 2000, '2024-01-08 11:00:00', 35, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 1, 30000, '2023-12-19 10:55:00', 25, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 2, 30000, '2023-12-20 15:15:00', 25, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 1, 1000, '2023-12-20 14:00:00', 35, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 2, 2000, '2024-01-08 11:00:00', 35, 0);
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2024-01-08 13:00:00', 40, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 2, 1000, '2024-06-20 14:00:00', 43, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 2, 1000, '2022-12-20 14:00:00', 15, 0);
 
 INSERT INTO ROLE (name) VALUES ('ROLE_REGISTERED_USER');
 INSERT INTO ROLE (name) VALUES ('ROLE_COMPANY_ADMIN');
@@ -78,3 +80,5 @@ insert into Rating( user_id, company_id, score, feedback, created_at, updated_at
 
 insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 11, 2);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (6, 2, 3);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 7, 3);

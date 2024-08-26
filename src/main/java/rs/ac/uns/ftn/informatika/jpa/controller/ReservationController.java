@@ -15,19 +15,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
+import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
+import rs.ac.uns.ftn.informatika.jpa.service.RegisteredUserService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import javax.mail.MessagingException;
 import javax.persistence.OptimisticLockException;
+import javax.transaction.Transactional;
+import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -42,6 +47,8 @@ public class ReservationController {
     ReservationService reservationService;
     @Autowired
     CompanyAdminService companyAdminService;
+    @Autowired
+    private RegisteredUserService registeredUserService;
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<List<ReservationDTO>> getAllByDate
@@ -153,6 +160,49 @@ public class ReservationController {
         return new ResponseEntity<ReservationPremadeDTO>(dto, HttpStatus.OK);
 
     }
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @GetMapping("/history-completed")
+    public ResponseEntity<List<ReservationProfileDTO>> findAllCompleted(
+            @RequestParam(required = false, defaultValue = "startingDate") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection){
+
+        List<ReservationProfileDTO> dtos = new ArrayList<>();
+
+        try {
+            dtos = reservationService.findAllCompleted(sortBy, sortDirection);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(dtos, HttpStatus.OK);
+
+    }
+
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @GetMapping("/ready")
+    public ResponseEntity<List<ReservationProfileDTO>> findAllReady(){
+
+        List<ReservationProfileDTO> dtos = new ArrayList<>();
+
+        try {
+            dtos = reservationService.findAllReady();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(dtos, HttpStatus.OK);
+
+    }
+
+
+
+
+
+
 
 
 

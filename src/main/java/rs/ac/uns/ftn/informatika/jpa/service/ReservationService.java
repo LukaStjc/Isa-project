@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationProfileDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
@@ -345,5 +347,81 @@ public class ReservationService {
         }
         return false;
     }
+
+    public List<ReservationProfileDTO> findAllCompleted(String sortBy, String sortDirection){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        RegisteredUser registeredUser = registeredUserService.findByEmail(authentication.getName());
+
+        Sort sort = null;
+
+        if(!sortBy.equals("startingDate") && !sortBy.equals("totalSum") && !sortBy.equals("durationMinutes")){
+            sortBy = new String("startingDate");
+        }
+
+        sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+
+        List<ReservationProfileDTO> dtos = new ArrayList<>();
+        for(Reservation r:reservationRepository.findAllByUserAndStatus(registeredUser, Completed, sort)){
+            ReservationProfileDTO profile = new ReservationProfileDTO();
+            profile.setId(r.getId());
+            profile.setTotalSum(r.getTotalSum());
+            profile.setAdminName(r.getUser().getFirstName());
+            profile.setAdminLastName(r.getUser().getLastName());
+            profile.setDurationMinutes(r.getDurationMinutes());
+            profile.setStartingDate(r.getStartingDate());
+            List<ReservationItemDTO> resItems = new ArrayList<>();
+            for(ReservationItem ri: r.getItems()){
+                ReservationItemDTO ridto = new ReservationItemDTO();
+                ridto.setEquipmentId(ri.getId());
+                ridto.setQuantity(ri.getQuantity());
+                resItems.add(ridto);
+            }
+            profile.setItems(resItems);
+            dtos.add(profile);
+        }
+
+        return dtos;
+
+    }
+
+
+
+
+    public List<ReservationProfileDTO> findAllReady(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        RegisteredUser registeredUser = registeredUserService.findByEmail(authentication.getName());
+
+
+        List<ReservationProfileDTO> dtos = new ArrayList<>();
+        for(Reservation r:reservationRepository.findAllByUserAndStatus(registeredUser, Ready)){
+            ReservationProfileDTO profile = new ReservationProfileDTO();
+            profile.setId(r.getId());
+            profile.setTotalSum(r.getTotalSum());
+            profile.setAdminName(r.getUser().getFirstName());
+            profile.setAdminLastName(r.getUser().getLastName());
+            profile.setDurationMinutes(r.getDurationMinutes());
+            profile.setStartingDate(r.getStartingDate());
+            List<ReservationItemDTO> resItems = new ArrayList<>();
+            for(ReservationItem ri: r.getItems()){
+                ReservationItemDTO ridto = new ReservationItemDTO();
+                ridto.setEquipmentId(ri.getId());
+                ridto.setQuantity(ri.getQuantity());
+                resItems.add(ridto);
+            }
+            profile.setItems(resItems);
+            dtos.add(profile);
+        }
+
+        return dtos;
+
+    }
+
+
+
+
+
+
 
 }
