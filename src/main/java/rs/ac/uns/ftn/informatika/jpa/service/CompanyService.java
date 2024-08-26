@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
@@ -20,6 +21,7 @@ public class CompanyService {
     @Autowired
     private LocationService locationService;
 
+    @Cacheable("company")
     public List<Company> findAll() {
        return companyRepository.findAll();
     }
@@ -27,19 +29,23 @@ public class CompanyService {
     public Company save(Company company) {
         return companyRepository.save(company);
     }
-    
+
+    @Cacheable("company")
     public Company findOne(Integer id) {
         return companyRepository.findById(id).orElseGet(null);
     }
 
+    @Cacheable("company")
     public List<Company> findByNameContaining(String text) {
         return companyRepository.findByNameContaining(text);
     }
 
+    @Cacheable("company")
     public Company findExistingByName(String name){
         return companyRepository.findByName(name);
     }
 
+    @Cacheable("company")
     public Company findBy(Integer id) throws NoSuchElementException {
         return companyRepository.findById(id).get();
     }
