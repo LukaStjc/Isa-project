@@ -16,7 +16,7 @@ public class ReservationProfileDTO {
     private int durationMinutes;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startingDate;
-    private List<ReservationItemDTO> items;
+    private List<ReservationItemProfileDTO> items;
 
     public ReservationProfileDTO(){
         items = new ArrayList<>();

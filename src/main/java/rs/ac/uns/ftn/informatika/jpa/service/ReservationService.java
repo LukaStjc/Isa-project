@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationProfileDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
@@ -370,10 +367,10 @@ public class ReservationService {
             profile.setAdminLastName(r.getUser().getLastName());
             profile.setDurationMinutes(r.getDurationMinutes());
             profile.setStartingDate(r.getStartingDate());
-            List<ReservationItemDTO> resItems = new ArrayList<>();
+            List<ReservationItemProfileDTO> resItems = new ArrayList<>();
             for(ReservationItem ri: r.getItems()){
-                ReservationItemDTO ridto = new ReservationItemDTO();
-                ridto.setEquipmentId(ri.getId());
+                ReservationItemProfileDTO ridto = new ReservationItemProfileDTO();
+                ridto.setEquipmentName(ri.getEquipment().getName());
                 ridto.setQuantity(ri.getQuantity());
                 resItems.add(ridto);
             }
@@ -403,10 +400,10 @@ public class ReservationService {
             profile.setAdminLastName(r.getUser().getLastName());
             profile.setDurationMinutes(r.getDurationMinutes());
             profile.setStartingDate(r.getStartingDate());
-            List<ReservationItemDTO> resItems = new ArrayList<>();
+            List<ReservationItemProfileDTO> resItems = new ArrayList<>();
             for(ReservationItem ri: r.getItems()){
-                ReservationItemDTO ridto = new ReservationItemDTO();
-                ridto.setEquipmentId(ri.getId());
+                ReservationItemProfileDTO ridto = new ReservationItemProfileDTO();
+                ridto.setEquipmentName(ri.getEquipment().getName());
                 ridto.setQuantity(ri.getQuantity());
                 resItems.add(ridto);
             }

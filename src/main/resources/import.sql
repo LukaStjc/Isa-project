@@ -82,3 +82,7 @@ insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (6, 2, 3);
 insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
 insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 7, 3);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 6);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 6, 6);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 4, 7);
