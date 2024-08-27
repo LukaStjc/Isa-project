@@ -5,6 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+
 /*
  * Hibernate nudi jedan kes (first-level ili L1 cache) kroz koji svi
  * zahtevi moraju proci. Second-level ili L2 cache je opcion i konfigurabilan (i eksterni za Hibernate).
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Bean;
  */
 @SpringBootApplication
 @EnableCaching
+@EnableAsync
 public class JpaExampleApplication {
 
 	@Bean

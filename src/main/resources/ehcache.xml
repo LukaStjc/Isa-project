@@ -43,7 +43,7 @@
 
     <!-- Cache configurations -->
     <cache alias="equipment" uses-template="default">
-        <key-type>java.lang.Object</key-type>
+        <key-type>java.lang.Integer</key-type>
         <value-type>rs.ac.uns.ftn.informatika.jpa.model.Equipment</value-type>
         <resources>
             <heap>2</heap>
@@ -79,6 +79,15 @@
 
     <!-- Cache for list of equipment objects -->
     <cache alias="equipmentList" uses-template="default">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.util.List</value-type>  <!-- Adjusted to cache a list of objects -->
+        <resources>
+            <heap>2</heap>  <!-- Adjust based on expected list size and memory considerations -->
+        </resources>
+    </cache>
+
+    <!-- Cache for list of equipment objects -->
+    <cache alias="companyList" uses-template="default">
         <key-type>java.lang.Object</key-type>
         <value-type>java.util.List</value-type>  <!-- Adjusted to cache a list of objects -->
         <resources>

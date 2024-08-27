@@ -60,7 +60,7 @@ public class EquipmentService {
      * metodom findOne smestaju u kes kolekciju "product"
      * kao i u ehcache.xml konfiguraciji
      */
-    @Cacheable(value = "equipment", keyGenerator = "customKeyGenerator")
+    @Cacheable("equipment")
     public Equipment findBy(Integer id) {
         LOG.info("Equipment with id: " + id + " successfully cached!");
         return equipmentRepository.findById(id).orElseGet(null);

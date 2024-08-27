@@ -21,7 +21,7 @@ public class CompanyService {
     @Autowired
     private LocationService locationService;
 
-    @Cacheable("company")
+    @Cacheable(value="companyList", keyGenerator = "customKeyGenerator")
     public List<Company> findAll() {
        return companyRepository.findAll();
     }
@@ -35,7 +35,7 @@ public class CompanyService {
         return companyRepository.findById(id).orElseGet(null);
     }
 
-    @Cacheable("company")
+    @Cacheable(value="companyList", keyGenerator = "customKeyGenerator")
     public List<Company> findByNameContaining(String text) {
         return companyRepository.findByNameContaining(text);
     }
