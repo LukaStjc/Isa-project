@@ -29,12 +29,15 @@ public class LoyaltyProgram {
     @Column
     private int maxPoints;
 
+    @Column(nullable = false)
+    private int discount_rate;
+
     public LoyaltyProgram(SystemAdmin systemAdmin) {
         super();
         this.systemAdmin = systemAdmin;
     }
 
-    public LoyaltyProgram(Integer id, LoyaltyType type, SystemAdmin systemAdmin, int minPoints, int maxPoints) {
+    public LoyaltyProgram(Integer id, LoyaltyType type, SystemAdmin systemAdmin, int minPoints, int maxPoints, int discount_rate) {
         super();
         this.id = id;
         this.type = type;
@@ -78,5 +81,9 @@ public class LoyaltyProgram {
     public void setMaxPoints(int maxPoints) {
         this.maxPoints = maxPoints;
     }
+
+    public int getDiscount_rate() { return discount_rate; }
+
+    public void setDiscount_rate(int discount_rate) { this.discount_rate = discount_rate; }
 
 }

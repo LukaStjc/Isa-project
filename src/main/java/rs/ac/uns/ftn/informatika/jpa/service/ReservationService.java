@@ -31,6 +31,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.*;
 
+import static rs.ac.uns.ftn.informatika.jpa.enumeration.LoyaltyType.*;
 import static rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus.*;
 
 @Service
@@ -55,6 +56,9 @@ public class ReservationService {
 
     @Autowired
     private RegisteredUserService registeredUserService;
+
+    @Autowired
+    private LoyaltyProgramService loyaltyProgramService;
 
     public List<ReservationDTO> getAllByDate(Date date, int showWeek, Integer id){
         List<Reservation> reservations = reservationRepository.findAll();
@@ -159,7 +163,7 @@ public class ReservationService {
             for(Reservation r : reservations){
 
                 if(companyAdmin.getCompany().getId() == r.getAdmin().getCompany().getId() && r.getStartingDate().getDate() == i && r.getStartingDate().getMonth() == currentMonth
-                    && r.getStartingDate().getYear() == currentYear){
+                        && r.getStartingDate().getYear() == currentYear){
 
                     daysToShow.add(i);
                     break;
@@ -235,6 +239,9 @@ public class ReservationService {
         for (ReservationItem reservationItem : reservation.getItems()) {
             reservationItemService.save(reservationItem);
         }
+
+        applyDiscountAndUpdateLoyalty(reservation,registeredUser);
+        registeredUserService.save(registeredUser);
 
         reservationRepository.save(reservation);
 
@@ -349,6 +356,27 @@ public class ReservationService {
     private void setAvailableQuantityOfEquipment(ReservationItem tempItem) {
         tempItem.getEquipment().setAvailableQuantity(
                 tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());
+    }
+
+    private void applyDiscountAndUpdateLoyalty(Reservation reservation, RegisteredUser registeredUser) {
+        reservation.setTotalSum((double) Math.round( reservation.totalSum - reservation.totalSum * ((float) registeredUser.getLoyaltyProgram().getDiscount_rate() / 100) ));
+        registeredUser.setPoints(registeredUser.getPoints() + 1);
+
+        // Upgrade loyalty program
+        if (registeredUser.getLoyaltyProgram().getMaxPoints() < registeredUser.getPoints()) {
+            LoyaltyProgram oldLoyaltyProgram = registeredUser.getLoyaltyProgram();
+
+            if (oldLoyaltyProgram.getType() == Bronze) {
+                LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Silver);
+                registeredUser.setLoyaltyProgram(newLoyaltyProgram);
+            }
+
+            if (oldLoyaltyProgram.getType() == Silver){
+                LoyaltyProgram newLoyaltyProgram = loyaltyProgramService.findByType(Gold);
+                registeredUser.setLoyaltyProgram(newLoyaltyProgram);
+            }
+        }
+
     }
 
 }

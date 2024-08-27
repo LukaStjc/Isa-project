@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -13,6 +14,9 @@ public class CompanyAdmin extends User{
     @ManyToOne
     @JoinColumn(name = "registered_by_admin")
     private SystemAdmin systemAdmin;
+
+    @Column
+    private boolean passwordChanged = false;
 
     //polje sa listom slobnodnih termina
     public CompanyAdmin() {
@@ -33,5 +37,13 @@ public class CompanyAdmin extends User{
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public boolean isPasswordChanged() {
+        return passwordChanged;
+    }
+
+    public void setPasswordChanged(boolean passwordChanged) {
+        this.passwordChanged = passwordChanged;
     }
 }
