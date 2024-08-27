@@ -55,6 +55,36 @@ public class RegisteredUserService {
             }
         });
 
+        save(user);*/
+
+        if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
+        if (dto.getLastName() != null) user.setLastName(dto.getLastName());
+        if (dto.getTelephoneNumber() != null) user.setTelephoneNumber(dto.getTelephoneNumber());
+
+
+        if (dto.getOccupation() != null) user.setOccupation(dto.getOccupation());
+        Location loc = locationService.findById(user.getLocation().getId());
+        if(dto.getCountry() != null) {
+            loc.setCountry(dto.getCountry());
+            user.setLocation(loc);
+        }
+
+        if(dto.getCity() != null) {
+            loc.setCity(dto.getCity());
+            user.setLocation(loc);
+        }
+
+        if(dto.getStreetName() != null) {
+            loc.setStreet(dto.getStreetName());
+            user.setLocation(loc);
+        }
+
+        if(dto.getStreetNumber() != null) {
+            loc.setStreetNumber(dto.getStreetNumber());
+            user.setLocation(loc);
+        }
+
+        locationService.save(loc);
         save(user);
     }*/
 

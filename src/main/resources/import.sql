@@ -1,6 +1,6 @@
 insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Radnička',28,  19.84250, 45.25416);
 insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Subotica' ,'Veselina Masleše',2, 19.66555, 46.10027);
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Italia','Aroma' ,'Antona Čehova',1, 12.48277, 41.89333);
+insert into location (country,city, street_name, street_number, longitude, latitude) values ('Italia','Roma' ,'Antona Čehova',1, 12.48277, 41.89333);
 insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.84250, 45.25416);
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 4);
 

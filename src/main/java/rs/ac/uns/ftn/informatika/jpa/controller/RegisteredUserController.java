@@ -117,6 +117,7 @@ public class RegisteredUserController {
 		}
 
 		//registeredUserService.updateUserProfile(registeredUser, updateDTO);
+		//registeredUserService.updateUserProfile(registeredUser, updates);
 
 		//RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
 
