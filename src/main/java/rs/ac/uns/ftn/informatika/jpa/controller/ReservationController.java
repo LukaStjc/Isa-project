@@ -85,18 +85,14 @@ public class ReservationController {
     })
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(consumes = "application/json", value = "/create-by-premade-appointment")
-    public ResponseEntity createReservationByPremadeAppointment(@RequestBody ReservationByPremadeAppointmentDTO reservation)
+    public ResponseEntity createReservationByPremadeAppointment(@RequestBody ReservationByPremadeAppointmentDTO reservation) throws Exception
     {
-        // todo: Vasilije: ovo sa exception-ima treba da sredim
-//        } catch (OptimisticLockException e) {
-//            return new ResponseEntity<>("Sorry, but the predefined appointment, equipment, or equipment quantity becomes unavailable.", HttpStatus.CONFLICT);
-//        } catch (MessagingException | ClassNotFoundException | RuntimeException e) {
         try {
             reservationService.updateReservationByPremadeAppointment(reservation);
         } catch (OptimisticLockException | OptimisticLockingFailureException | StaleStateException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            return new ResponseEntity<>("Sorry, we're unable to confirm the availability of the selected appointment or equipment at the moment. Please try again.", HttpStatus.CONFLICT);
         } catch (RuntimeException | MessagingException | ClassNotFoundException  e) {
-            return new ResponseEntity<>(e.getStackTrace() + e.getMessage() + e.getSuppressed() + e.getCause(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(HttpStatus.OK);
@@ -112,12 +108,13 @@ public class ReservationController {
     })
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PutMapping(value = "cancel/{id}")
-    public ResponseEntity CancelReservation(@PathVariable Integer id) {
+    public ResponseEntity cancelReservation(@PathVariable Integer id) throws Exception {
 
         try {
             reservationService.cancelReservation(id);
+        } catch (OptimisticLockException | OptimisticLockingFailureException | StaleStateException e) {
+            return new ResponseEntity<>("Sorry, we're unable to confirm the availability of the equipment after cancellation. Please try again later.", HttpStatus.CONFLICT);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
 

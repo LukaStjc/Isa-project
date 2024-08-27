@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
@@ -190,7 +191,9 @@ public class EquipmentController {
 
         return equipmentType;
     }
+
     @PostMapping(consumes = "application/json")
+    @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<EquipmentBasicDTO> createEquipment(@RequestBody EquipmentBasicDTO dto){
 
         // TODO dodati proveru da li je korisnik Admin sistema
@@ -207,12 +210,15 @@ public class EquipmentController {
         return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.CREATED);
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('COMPANY_ADMIN')")
+
     public ResponseEntity<String> deleteEquipment(@PathVariable Integer id){
         Equipment equipment = equipmentService.findBy(id);
         equipmentService.delete(equipment);
         return new ResponseEntity<>("Equipment succesfully deleted", HttpStatus.OK);
     }
     @PutMapping ("/update/{id}")
+    @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<EquipmentDTO> updateEquipment(@PathVariable Integer id, @RequestBody EquipmentBasicDTO dto){
         Equipment equipment = equipmentService.findBy(id);
         equipment.updateProperties(dto);

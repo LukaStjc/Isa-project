@@ -3,16 +3,17 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyAdminDTO;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -76,6 +77,21 @@ public class CompanyAdminController {
         else return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
+    @GetMapping("/company/{id}")
+    public ResponseEntity<Integer> getCompanyIdBy(@PathVariable Integer id) {
+        return new ResponseEntity<>(companyAdminService.findCompanyIdBy(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/all/{id}")
+    public ResponseEntity<List<CompanyAdminBasicDTO>> getCompanyAdmins(@PathVariable Integer id){
+        return new ResponseEntity<>(companyAdminService.getCompanyAdmins(id), HttpStatus.OK);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Boolean> changePassword(@RequestBody ChangePasswordDto dto){
+
+        return companyAdminService.changePassword(dto);
+    }
 
 
 
