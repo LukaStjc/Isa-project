@@ -46,7 +46,7 @@ public class RegisteredUserService {
 
     public RegisteredUser findByEmail(String email) { return  registeredUserRepository.findRegisteredUserByEmail(email); }
 
-    public RegisteredUser updateUserProfile(RegisteredUser user, RegisteredUserProfileDTO dto) {
+    public RegisteredUser updateUserProfile(RegisteredUser user, /*Map<String, Object> updates*/RegisteredUserProfileDTO dto){
         /*updates.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(RegisteredUser.class, key);
             if (field != null) {
@@ -86,39 +86,7 @@ public class RegisteredUserService {
 
         locationService.save(loc);
         save(user);
-    }*/
-
-        if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
-        if (dto.getLastName() != null) user.setLastName(dto.getLastName());
-        if (dto.getTelephoneNumber() != null) user.setTelephoneNumber(dto.getTelephoneNumber());
-
-
-        if (dto.getOccupation() != null) user.setOccupation(dto.getOccupation());
-        Location loc = locationService.findById(user.getLocation().getId());
-        if(dto.getCountry() != null) {
-            loc.setCountry(dto.getCountry());
-            user.setLocation(loc);
-        }
-
-        if(dto.getCity() != null) {
-            loc.setCity(dto.getCity());
-            user.setLocation(loc);
-        }
-
-        if(dto.getStreetName() != null) {
-            loc.setStreet(dto.getStreetName());
-            user.setLocation(loc);
-        }
-
-        if(dto.getStreetNumber() != null) {
-            loc.setStreetNumber(dto.getStreetNumber());
-            user.setLocation(loc);
-        }
-
-        locationService.save(loc);
-        save(user);
         return user;
-
     }
 
 
