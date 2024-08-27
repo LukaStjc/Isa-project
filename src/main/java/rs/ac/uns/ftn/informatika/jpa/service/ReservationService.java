@@ -435,12 +435,6 @@ public class ReservationService {
     }
 
 
-
-
-
-
-
-}
     private void setAvailableQuantityOfEquipment(ReservationItem tempItem) {
         tempItem.getEquipment().setAvailableQuantity(
                 tempItem.getEquipment().getAvailableQuantity() + tempItem.getQuantity());

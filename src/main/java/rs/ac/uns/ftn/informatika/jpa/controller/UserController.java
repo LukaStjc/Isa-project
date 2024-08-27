@@ -9,7 +9,7 @@ import org.springframework.security.config.authentication.PasswordEncoderParser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.informatika.jpa.dto.ChangePasswordDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.ChangePasswordProfileDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -70,7 +70,7 @@ public class UserController {
 
 	@PutMapping("/user/changepassword")
 	@PreAuthorize("hasRole('REGISTERED_USER')")
-	public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO){
+	public ResponseEntity<String> changePassword(@RequestBody ChangePasswordProfileDTO changePasswordDTO){
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findByEmail(authentication.getName());

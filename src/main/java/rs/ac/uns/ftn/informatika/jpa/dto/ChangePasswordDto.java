@@ -28,4 +28,3 @@ public class ChangePasswordDto {
         this.password = password;
     }
 }
-
