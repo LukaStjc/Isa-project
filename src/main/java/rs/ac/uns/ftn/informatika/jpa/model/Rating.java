@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -35,6 +37,7 @@ public class Rating {
     @ElementCollection
     @CollectionTable(name = "rating_reasons", joinColumns = @JoinColumn(name = "rating_id"))
     @Column(name = "reason")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<String> reasons;
 
     @Column(nullable = true, length = 500)

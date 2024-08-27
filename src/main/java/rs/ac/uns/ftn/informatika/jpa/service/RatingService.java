@@ -2,6 +2,8 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.dto.RateCompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
@@ -23,6 +25,9 @@ public class RatingService {
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private RegisteredUserService registeredUserService;
 
     public List<Rating> findAll() {
         return ratingRepository.findAll();
@@ -65,6 +70,31 @@ public class RatingService {
         }
 
         return save(rating);
+
+    }
+
+
+    public Boolean canUserRate(Integer companyId){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        RegisteredUser registeredUser = registeredUserService.findByEmail(authentication.getName());
+
+        Company company = companyService.findBy(companyId);
+
+        return reservationService.existsByUserAndCompany(registeredUser, company);
+    }
+
+    public Optional<Rating> findByCompany(Integer companyId){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        RegisteredUser registeredUser = registeredUserService.findByEmail(authentication.getName());
+
+        Company company = companyService.findBy(companyId);
+
+        Optional<Rating> existingRating = ratingRepository.findByUserAndCompany(registeredUser, company);
+        return existingRating;
+
+
 
     }
 

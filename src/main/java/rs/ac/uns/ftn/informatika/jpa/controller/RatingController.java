@@ -5,6 +5,7 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.RateCompanyDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.RatingDTO;
@@ -21,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,6 +48,7 @@ public class RatingController {
         return new ResponseEntity<>(ratingDTOs, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping("/rate")
     public ResponseEntity<RatingDTO> rateCompany(@RequestBody RateCompanyDTO rateCompanyDTO){
 
@@ -59,4 +62,40 @@ public class RatingController {
 
 
     }
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @GetMapping("/canUserRate/{companyId}")
+    public ResponseEntity<Boolean> canUserRate(@PathVariable Integer companyId){
+
+        Boolean canUserRate;
+
+        try {
+            canUserRate = ratingService.canUserRate(companyId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity(canUserRate, HttpStatus.OK);
+
+    }
+
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @GetMapping("/findRating/{companyId}")
+    public ResponseEntity<RatingDTO> findRating(@PathVariable Integer companyId){
+
+        Optional<Rating> existingRating = ratingService.findByCompany(companyId);
+        if(existingRating.isPresent()){
+            RatingDTO dto = new RatingDTO(existingRating.get());
+            return new ResponseEntity(dto, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
+
+
 }
