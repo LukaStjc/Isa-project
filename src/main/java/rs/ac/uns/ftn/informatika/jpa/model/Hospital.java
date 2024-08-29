@@ -1,6 +1,10 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Hospital {
@@ -10,6 +14,9 @@ public class Hospital {
     @Column
     private String name;
 
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy="hospital")
+    private List<RegisteredUser> registeredUsers;
     @OneToOne
     private Location location;
 

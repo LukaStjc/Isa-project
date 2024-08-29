@@ -1,11 +1,12 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
-import org.hibernate.validator.constraints.br.CPF;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserDTO;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name="registered_user")
@@ -18,20 +19,41 @@ public class RegisteredUser extends User
 
     @ManyToOne
     private LoyaltyProgram loyaltyProgram;
+
+    @ManyToOne
+    private Hospital hospital;
     @Column
     private Integer points;
 
     @Column
     private String occupation;
 
-    //loyalty nesto
+    @ManyToOne
+    private Location location;
 
+    @Column
+    private String activationCode;
 
     public RegisteredUser() {
+        super();
     }
 
-    public RegisteredUser(Integer id, String email, String firstName, String lastName, String password, String occupation) {
-        super(email, firstName, lastName, password);
+    public RegisteredUser(String email, String firstName, String lastName, String password, String telephoneNumber, String occupation) {
+        super(email, firstName, lastName, password, false);
+        this.telephoneNumber = telephoneNumber;
+        this.penaltyPoints = 0;
+        this.points = 0;
+        this.occupation = occupation;
+        this.activationCode = RandomStringUtils.randomAlphanumeric(32);
+    }
+
+    public RegisteredUser(RegisteredUserDTO registeredUserDTO) {
+        super(registeredUserDTO.getEmail(), registeredUserDTO.getFirstName(), registeredUserDTO.getLastName(), registeredUserDTO.getPassword(), false);
+        this.telephoneNumber = registeredUserDTO.getTelephoneNumber();
+        this.penaltyPoints = 0;
+        this.points = 0;
+        this.occupation = registeredUserDTO.getOccupation();
+        this.activationCode = RandomStringUtils.randomAlphanumeric(32);
     }
 
     public String getTelephoneNumber() {
@@ -65,4 +87,46 @@ public class RegisteredUser extends User
     public void setOccupation(String occupation) {
         this.occupation = occupation;
     }
+
+    public LoyaltyProgram getLoyaltyProgram() {
+        return loyaltyProgram;
+    }
+
+    public void setLoyaltyProgram(LoyaltyProgram loyaltyProgram) {
+        this.loyaltyProgram = loyaltyProgram;
+    }
+
+    public Hospital getHospital() {
+        return hospital;
+    }
+
+    public void setHospital(Hospital hospital) {
+        this.hospital = hospital;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
+    }
+
+//    public boolean isActive() {
+//        return this.active;
+//    }
+
+//    public void setActive(boolean active) {
+//        this.active = active;
+//    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+
 }
