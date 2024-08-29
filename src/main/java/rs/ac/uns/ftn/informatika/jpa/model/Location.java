@@ -1,8 +1,15 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class Location {
 
     @Id
@@ -22,6 +29,9 @@ public class Location {
     @Column
     private Double latitude; //Duzina
 
+    @OneToMany(mappedBy="location",fetch = FetchType.LAZY)
+    private List<RegisteredUser> registeredUsers;
+
     public Location() {
     }
 
@@ -34,6 +44,22 @@ public class Location {
         this.streetNumber = streetNumber;
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    public Location(String country, String city, String streetName, String streetNumber, Double longitude, Double latitude) {
+        this.country = country;
+        this.city = city;
+        this.streetName = streetName;
+        this.streetNumber = streetNumber;
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
+
+    public Location(String country, String city, String streetName, String streetNumber) {
+        this.country = country;
+        this.city = city;
+        this.streetName = streetName;
+        this.streetNumber = streetNumber;
     }
 
     public Integer getId() {

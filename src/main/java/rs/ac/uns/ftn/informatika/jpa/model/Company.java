@@ -1,26 +1,45 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.hibernate.annotations.Cache;
 
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
+    @Column(unique = true)
     private String name;
 
-    @OneToMany(mappedBy="company",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy="company",fetch = FetchType.LAZY) // greska sa eager kod spring security-ja
     private List<Equipment> equipment;
+
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy="company")
+    private List<CompanyAdmin> companyAdmins;   //maybe refactor to Admins
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_admin")
+    private SystemAdmin systemAdmin;
+
     @Column
     private String description;
 
     @OneToOne
+    @JoinColumn(unique = true)
     private Location location;
+
     @Column
     private Date openingTime;
 
@@ -40,6 +59,17 @@ public class Company {
         this.openingTime = openingTime;
         this.closingTime = closingTime;
         this.averageScore = averageScore;
+    }
+
+    public Company(String name, String description, Date openingTime, Date closingTime, Location location) {
+        this.name = name;
+        this.description = description;
+        this.location = location;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
+        this.equipment = new ArrayList<>();
+
+        this.averageScore = (double) 0;
     }
 
     public Integer getId() {
@@ -88,5 +118,34 @@ public class Company {
 
     public void setAverageScore(Double averageScore) {
         this.averageScore = averageScore;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+    public List<Equipment> getEquipment() {
+        return equipment;
+    }
+    public void setEquipment(List<Equipment> equipment) {
+        this.equipment = equipment;
+    }
+
+    public List<CompanyAdmin> getCompanyAdmins() {
+        return companyAdmins;
+    }
+
+    public void setCompanyAdmins(List<CompanyAdmin> companyAdmins) {
+        this.companyAdmins = companyAdmins;
+    }
+
+    public SystemAdmin getSystemAdmin() {
+        return systemAdmin;
+    }
+
+    public void setSystemAdmin(SystemAdmin systemAdmin) {
+        this.systemAdmin = systemAdmin;
     }
 }
