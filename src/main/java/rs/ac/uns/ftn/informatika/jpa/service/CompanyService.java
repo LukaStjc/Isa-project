@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -26,6 +27,7 @@ public class CompanyService {
 
     private static final double EARTH_RADIUS_KM = 6371.0;
 
+    @Cacheable(value="companyList", keyGenerator = "customKeyGenerator")
     public List<Company> findAll() {
        return companyRepository.findAll();
     }
@@ -33,7 +35,8 @@ public class CompanyService {
     public Company save(Company company) {
         return companyRepository.save(company);
     }
-    
+
+    @Cacheable(value="company", keyGenerator = "customKeyGenerator")
     public Company findOne(Integer id) {
         return companyRepository.findById(id).orElseGet(null);
     }
@@ -46,6 +49,7 @@ public class CompanyService {
         return companyRepository.findByName(name);
     }
 
+    @Cacheable(value="company", keyGenerator = "customKeyGenerator")
     public Company findBy(Integer id) throws NoSuchElementException {
         return companyRepository.findById(id).get();
     }
