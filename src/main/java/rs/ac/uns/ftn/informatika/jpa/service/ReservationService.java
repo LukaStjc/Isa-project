@@ -9,6 +9,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,6 +59,9 @@ public class ReservationService {
 
     @Autowired
     private LoyaltyProgramService loyaltyProgramService;
+
+    @Autowired
+    private QRCodeService qrCodeService;
 
     public List<ReservationDTO> getAllByDate(Date date, int showWeek, Integer id){
         List<Reservation> reservations = reservationRepository.findAll();
@@ -459,6 +463,37 @@ public class ReservationService {
             }
         }
 
+    }
+
+    @Scheduled(cron = "0 0 0 1 * ?")
+    public void resetPenaltyPoints() {
+        List<RegisteredUser> users = registeredUserService.findAll();
+        users.forEach(user -> user.setPenaltyPoints(0));
+        for (RegisteredUser ru : users){
+            registeredUserService.save(ru);
+        }
+    }
+
+    public List<Reservation> findAll(RegisteredUser registeredUser){
+        return reservationRepository.findAllByUser(registeredUser);
+    }
+
+    public List<String> getQRcodes(){
+
+        List<String> qrCodes = new ArrayList<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        RegisteredUser registeredUser = registeredUserService.findByEmail(authentication.getName());
+
+        List<Reservation> reservations = findAll(registeredUser);
+
+        for(Reservation r:reservations){
+            String qrCodeContent = emailService.getQRCodeContent(r);
+            byte[] qrCodeImage = qrCodeService.generateQRCodeImage(qrCodeContent, 200, 200);
+            String encodedImage = Base64.getEncoder().encodeToString(qrCodeImage);
+            qrCodes.add(encodedImage);
+        }
+
+        return qrCodes;
     }
 
 }

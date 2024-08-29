@@ -89,6 +89,10 @@ public class RegisteredUserService {
         return user;
     }
 
+    public List<RegisteredUser> findAll(){
+        return registeredUserRepository.findAll();
+    }
+
 
 
 

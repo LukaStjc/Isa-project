@@ -122,7 +122,7 @@ public class EmailService {
 		helper.setText("Dear " + registeredUser.getFirstName() + ",\n\nWe are sending you reservation details in the following QR code." + "\n\n" + "Best regards!");
 	}
 
-	private String getQRCodeContent(Reservation reservation) {
+	public String getQRCodeContent(Reservation reservation) {
 		StringBuilder stringBuilder = new StringBuilder();
 
 		stringBuilder.append("Reservation id: ").append(reservation.getId());

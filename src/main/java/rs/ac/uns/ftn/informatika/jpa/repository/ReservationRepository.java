@@ -24,4 +24,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
 
     List<Reservation> findAllByUserAndStatus(RegisteredUser registeredUser, ReservationStatus status);
 
+    List<Reservation> findAllByUser(RegisteredUser registeredUser);
+
 }
