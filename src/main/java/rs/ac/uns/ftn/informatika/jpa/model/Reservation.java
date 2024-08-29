@@ -43,6 +43,7 @@ public class Reservation {
     private Integer version;
 
     public Reservation() {
+        items = new HashSet<>();
     }
 
     public Reservation(Integer id, Set<ReservationItem> items, RegisteredUser user, CompanyAdmin admin, Hospital hospital,

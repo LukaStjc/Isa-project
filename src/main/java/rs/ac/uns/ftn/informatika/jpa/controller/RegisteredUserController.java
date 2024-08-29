@@ -11,17 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserProfileDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.service.EmailService;
 import rs.ac.uns.ftn.informatika.jpa.service.RegisteredUserService;
 
+import java.security.Principal;
+import java.util.Map;
+
 @Tag(name = "Registered User Controllers", description = "Handles user registration and account activation.")
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("api/")
+@RequestMapping("/api")
 public class RegisteredUserController {
 
 	private Logger logger = LoggerFactory.getLogger(RegisteredUserController.class);
@@ -79,6 +84,44 @@ public class RegisteredUserController {
 		registeredUserService.save(registeredUser);
 
 		return new ResponseEntity("You have successfully activated the account!", HttpStatus.OK);
+	}
+
+	@PreAuthorize("hasRole('REGISTERED_USER')")
+	@GetMapping("/profile")
+	public ResponseEntity<RegisteredUser> showUserProfile(Principal principal){
+
+		RegisteredUser registeredUser = registeredUserService.findByEmail(principal.getName());
+
+		if (registeredUser == null){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		//RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
+
+		return ResponseEntity.ok(registeredUser);
+	}
+
+
+	@PreAuthorize("hasRole('REGISTERED_USER')")
+	@PatchMapping("/profile/update")
+	public ResponseEntity<RegisteredUser> updateUserProfile(@RequestBody /*Map<String, Object> updates*/ RegisteredUserProfileDTO updateDTO, Principal principal){
+
+		/*if (updates.containsKey("email")) {
+			return new ResponseEntity<>("Updating email is not allowed", HttpStatus.BAD_REQUEST);
+		}*/
+
+		RegisteredUser registeredUser = registeredUserService.findByEmail(principal.getName());
+
+		if (registeredUser == null){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		//registeredUserService.updateUserProfile(registeredUser, updateDTO);
+		//registeredUserService.updateUserProfile(registeredUser, updates);
+
+		//RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
+
+		return ResponseEntity.ok(registeredUserService.updateUserProfile(registeredUser, updateDTO));
 	}
 
 }

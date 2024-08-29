@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.repository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,9 +15,17 @@ import java.util.stream.Collectors;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
-    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :text, '%'))")
-    List<Company> findByNameContaining(@Param("text") String text);
+    List<Company> findByNameContainingIgnoreCase(String name);
+
+    List<Company> findByNameContainingIgnoreCase(String name, Sort sort);
+
+    @Query("SELECT c FROM Company c WHERE LOWER(c.location.country) LIKE LOWER(CONCAT('%', :location, '%')) OR LOWER(c.location.city) like LOWER(CONCAT('%', :location, '%'))")
+    List<Company> findByLocationContainingIgnoreCase(String location, Sort sort);
 
     Company findByName(String name);
+
+    @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%')) AND (LOWER(c.location.country) like LOWER(CONCAT('%', :location, '%')) OR LOWER(c.location.city) like LOWER(CONCAT('%', :location, '%')))")
+    List<Company> findByNameAndLocationContaining(String name, String location, Sort sort);
+
 
 }
