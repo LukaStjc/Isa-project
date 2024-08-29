@@ -323,7 +323,7 @@ public class ReservationService {
         Reservation newReservation = createReservationForSameAppointment(oldReservation);
 
         // It is used to test optimistic locking
-        Thread.sleep(20000);
+//        Thread.sleep(20000);
 
         reservationRepository.save(newReservation);
     }
