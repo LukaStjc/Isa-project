@@ -1,11 +1,15 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 
 import javax.persistence.*;
+import org.hibernate.annotations.Cache;
 
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

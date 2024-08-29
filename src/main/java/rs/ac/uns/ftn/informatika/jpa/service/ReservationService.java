@@ -4,6 +4,7 @@ import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
 import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -174,6 +175,8 @@ public class ReservationService {
         return daysToShow;
     }
 
+    
+    @Cacheable(value="reservationList", keyGenerator = "customKeyGenerator")
     public List<ReservationDTO> getAllPredefinedByCompanyAdmin(List<CompanyAdmin> companyAdmins) {
         List<ReservationDTO> reservationDTOS = new ArrayList<>();
         List<Reservation> reservations = new ArrayList<>();

@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class Location {
 

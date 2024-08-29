@@ -99,7 +99,8 @@ public class ReservationController {
             @ApiResponse(responseCode = "401", description = "Unauthorized: Login with appropriate privileges is required!",
                     content = @Content)
     })
-//    @PreAuthorize("hasRole('REGISTERED_USER')")
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(value = "/cancel/{id}")
     public ResponseEntity cancelReservation(@PathVariable Integer id) throws Exception {
 

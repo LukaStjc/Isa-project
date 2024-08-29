@@ -30,22 +30,20 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
-    @Cacheable("company")
+    @Cacheable(value="company", keyGenerator = "customKeyGenerator")
     public Company findOne(Integer id) {
         return companyRepository.findById(id).orElseGet(null);
     }
 
-    @Cacheable(value="companyList", keyGenerator = "customKeyGenerator")
     public List<Company> findByNameContaining(String text) {
         return companyRepository.findByNameContaining(text);
     }
 
-    @Cacheable("company")
     public Company findExistingByName(String name){
         return companyRepository.findByName(name);
     }
 
-    @Cacheable("company")
+    @Cacheable(value="company", keyGenerator = "customKeyGenerator")
     public Company findBy(Integer id) throws NoSuchElementException {
         return companyRepository.findById(id).get();
     }

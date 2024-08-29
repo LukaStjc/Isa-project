@@ -54,15 +54,8 @@ public class EquipmentService {
         return equipmentRepository.save(equipment);
     }
 
-    /*
-     * Anotacijom @Cacheable i nazivom "product"
-     * naznaceno je da se objekti tipa Product koji se dobave
-     * metodom findOne smestaju u kes kolekciju "product"
-     * kao i u ehcache.xml konfiguraciji
-     */
-    @Cacheable("equipment")
+    // Nije kesirano, jer se ne koristi nigde gde bi imalo smisla
     public Equipment findBy(Integer id) {
-        LOG.info("Equipment with id: " + id + " successfully cached!");
         return equipmentRepository.findById(id).orElseGet(null);
     }
 
