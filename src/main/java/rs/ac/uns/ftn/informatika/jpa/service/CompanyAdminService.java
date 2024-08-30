@@ -60,21 +60,18 @@ public class CompanyAdminService {
     }
 
     public ResponseEntity<Boolean> changePassword(ChangePasswordDto dto) {
-        // Fetch the CompanyAdmin entity by ID
         Optional<CompanyAdmin> optionalAdmin = companyAdminRepository.findById(dto.getId());
 
-        // Check if the entity exists
         if (optionalAdmin.isPresent()) {
             CompanyAdmin admin = optionalAdmin.get();
 
-            // Update the fields
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encodedPassword = passwordEncoder.encode(dto.getPassword());
             admin.setPassword(encodedPassword);
             admin.setPasswordChanged(true);
 
-            // Save the updated entity
             companyAdminRepository.save(admin);
+
 
             return ResponseEntity.ok(Boolean.TRUE);
         } else {

@@ -9,6 +9,7 @@ import rs.ac.uns.ftn.informatika.jpa.repository.RegisteredUserRepository;
 
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
+import java.util.List;
 
 @Service
 public class RegisteredUserService {
@@ -28,4 +29,18 @@ public class RegisteredUserService {
         return registeredUserRepository.getByEmail(email);
     }
 
+    public void penalizeUsers(List<Integer> usersForPenalties) {
+
+        List<RegisteredUser> users = registeredUserRepository.findAllById(usersForPenalties);
+
+        for (RegisteredUser user : users) {
+            if (user != null) {
+                int newPenaltyPoints = user.getPenaltyPoints() + 2;
+                user.setPenaltyPoints(newPenaltyPoints);
+            }
+        }
+
+        registeredUserRepository.saveAll(users);
+
+    }
 }
