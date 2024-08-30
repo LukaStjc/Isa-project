@@ -11,6 +11,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
@@ -23,5 +24,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     List<Reservation> findAllByUserAndStatus(RegisteredUser registeredUser, ReservationStatus status, Sort sort);
 
     List<Reservation> findAllByUserAndStatus(RegisteredUser registeredUser, ReservationStatus status);
+    @Query("SELECT r.user FROM Reservation r WHERE r.admin.id = :adminId")
+    List<RegisteredUser> findUniqueUsersByAdminId(@Param("adminId") Integer adminId);
+
+    @Query("SELECT r FROM Reservation r WHERE r.admin.id = :adminId AND r.status = :status")
+    List<Reservation> findByAdminIdAndStatus(@Param("adminId") Integer adminId, @Param("status") ReservationStatus status);
+
 
 }

@@ -67,4 +67,7 @@ public class EquipmentService {
         equipmentRepository.updateQuantity(id, quantity);
     }
 
+    public void saveAll(List<Equipment> equipmentList) {
+        equipmentRepository.saveAll(equipmentList);
+    }
 }

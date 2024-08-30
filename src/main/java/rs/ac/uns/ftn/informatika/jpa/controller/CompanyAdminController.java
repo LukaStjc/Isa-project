@@ -12,6 +12,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyAdminService;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +63,7 @@ public class CompanyAdminController {
         return new ResponseEntity<>(new CompanyAdminDTO(companyAdmin), HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<CompanyAdminDTO> findById(@PathVariable Integer id){
+    public ResponseEntity<CompanyAdminDTO> Id(@PathVariable Integer id){
         CompanyAdmin admin = companyAdminService.findBy(id);
         CompanyAdminDTO adminDTO = new CompanyAdminDTO(admin);
         adminDTO.setCompanyId(admin.getCompany().getId().toString());
@@ -87,6 +88,7 @@ public class CompanyAdminController {
         return new ResponseEntity<>(companyAdminService.getCompanyAdmins(id), HttpStatus.OK);
     }
 
+    @Transactional
     @PutMapping("/change-password")
     public ResponseEntity<Boolean> changePassword(@RequestBody ChangePasswordDto dto){
 
