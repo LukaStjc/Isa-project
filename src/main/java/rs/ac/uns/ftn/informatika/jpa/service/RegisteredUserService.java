@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
+import java.util.List;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -92,4 +93,18 @@ public class RegisteredUserService {
 
 
 
+    public void penalizeUsers(List<Integer> usersForPenalties) {
+
+        List<RegisteredUser> users = registeredUserRepository.findAllById(usersForPenalties);
+
+        for (RegisteredUser user : users) {
+            if (user != null) {
+                int newPenaltyPoints = user.getPenaltyPoints() + 2;
+                user.setPenaltyPoints(newPenaltyPoints);
+            }
+        }
+
+        registeredUserRepository.saveAll(users);
+
+    }
 }

@@ -19,6 +19,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
@@ -202,6 +206,20 @@ public class ReservationController {
 
 
 
+    @GetMapping("/get-users/{id}")
+    public ResponseEntity<List<UserDTO>> getAllUsersByCompanyAdmin(@PathVariable Integer id){
 
+        return new ResponseEntity<>(reservationService.getAllUsersByCompany(id), HttpStatus.OK);
+    }
 
+    @GetMapping("/available/{id}")
+    public ResponseEntity<List<ReservationDTO>> getAvailableReservations(@PathVariable Integer id){
+
+        return new ResponseEntity<>(reservationService.getAvailableReservations(id), HttpStatus.OK);
+    }
+    @PutMapping("/mark-completed/{id}")
+    public ResponseEntity<Boolean> markReservationCompleted(@PathVariable Integer id){
+
+        return new ResponseEntity<>(reservationService.markReservationCompleted(id), HttpStatus.OK);
+    }
 }
