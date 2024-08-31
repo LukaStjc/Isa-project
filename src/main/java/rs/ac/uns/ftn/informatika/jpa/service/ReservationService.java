@@ -63,6 +63,9 @@ public class ReservationService {
     @Autowired
     private QRCodeService qrCodeService;
 
+    @Autowired
+    private CompanyService companyService;
+
     public List<ReservationDTO> getAllByDate(Date date, int showWeek, Integer id){
         List<Reservation> reservations = reservationRepository.findAll();
 
@@ -248,7 +251,7 @@ public class ReservationService {
 
         reservationRepository.save(reservation);
 
-        emailService.sendReservationQRCodeASync(registeredUser, reservation);
+        //emailService.sendReservationQRCodeASync(registeredUser, reservation);
     }
 
     private void setAvailableQuantity(ReservationItemDTO item, Equipment equipment) {
@@ -478,13 +481,25 @@ public class ReservationService {
         return reservationRepository.findAllByUser(registeredUser);
     }
 
-    public List<String> getQRcodes(){
+    public List<String> getQRcodes(String status) throws IllegalArgumentException, NullPointerException{
 
         List<String> qrCodes = new ArrayList<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         RegisteredUser registeredUser = registeredUserService.findByEmail(authentication.getName());
 
-        List<Reservation> reservations = findAll(registeredUser);
+        //List<Reservation> reservations = findAll(registeredUser);
+        List<Reservation> reservations = new ArrayList<>();
+
+            try{
+                reservations = reservationRepository.findAllByUserAndStatus(registeredUser, ReservationStatus.valueOf(status));
+            }catch (NullPointerException e1){
+                reservations = reservationRepository.findAllByUser(registeredUser);
+            } catch (IllegalArgumentException e2){
+                throw new IllegalArgumentException("Invalid status value: "+ status);
+
+            }
+            //reservations = reservationRepository.findAllByUser(registeredUser);
+
 
         for(Reservation r:reservations){
             String qrCodeContent = emailService.getQRCodeContent(r);
@@ -495,5 +510,74 @@ public class ReservationService {
 
         return qrCodes;
     }
+
+    public List<Date> showAvailableAppointmentsOnDate(Date date, Integer companyId){
+
+        List<Date> availableSlots = new ArrayList<>();
+        Company company = companyService.findBy(companyId);
+        Date openingTime = company.getOpeningTime();
+        Date closingTime = company.getClosingTime();
+
+        Calendar calendarDate = Calendar.getInstance();
+        calendarDate.setTime(date);
+
+        Calendar start = Calendar.getInstance();
+        start.setTime(openingTime);
+        start.set(Calendar.YEAR, calendarDate.get(Calendar.YEAR));
+        start.set(Calendar.MONTH, calendarDate.get(Calendar.MONTH));
+        start.set(Calendar.DAY_OF_MONTH, calendarDate.get(Calendar.DAY_OF_MONTH));
+
+        Calendar end = Calendar.getInstance();
+        end.setTime(closingTime);
+        end.set(Calendar.YEAR, calendarDate.get(Calendar.YEAR));
+        end.set(Calendar.MONTH, calendarDate.get(Calendar.MONTH));
+        end.set(Calendar.DAY_OF_MONTH, calendarDate.get(Calendar.DAY_OF_MONTH));
+
+        List<CompanyAdmin> admins = company.getCompanyAdmins();
+
+        while(start.getTime().before(end.getTime())){
+            Date currentSlot = start.getTime();
+            boolean isAvailable = false;
+            for(CompanyAdmin admin: admins){
+                if(isAdminFree(admin, currentSlot, 60)){
+                    isAvailable = true;
+                    break;
+                }
+            }
+
+            if (isAvailable){
+                availableSlots.add(currentSlot);
+            }
+
+            start.add(Calendar.HOUR_OF_DAY, 1);
+        }
+        return availableSlots;
+    }
+
+    private boolean isAdminFree(CompanyAdmin admin, Date slot, int slotDurationMinutes){
+
+        List<Reservation> reservations = reservationRepository.findAllByAdmin(admin);
+        return reservations.stream().noneMatch(reservation -> overlaps(reservation, slot, slotDurationMinutes));
+    }
+
+    private boolean overlaps(Reservation reservation, Date slot, int slotDurationMinutes) {
+        // Calculate the end time of the slot
+        Date slotEndTime = addMinutesToDate(slot, slotDurationMinutes);
+
+        // Calculate the end time of the reservation
+        Date reservationEndTime = addMinutesToDate(reservation.getStartingDate(), reservation.getDurationMinutes());
+
+        // Check for overlap
+        return reservation.getStartingDate().before(slotEndTime) && reservationEndTime.after(slot);
+    }
+
+    private Date addMinutesToDate(Date date, int minutes) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, minutes);
+        return calendar.getTime();
+    }
+
+
 
 }

@@ -30,7 +30,7 @@ insert into registered_user (id, telephone_number, penalty_points, points, occup
 -- insert into registered_user (id, telephone_number, penalty_points, points, occupation) values (5, '0613241802', 0, 0, 'zemljoradnik');
 
 -- TODO promeniti average_score na 0, za kt1 su stavljene neke vrednosti
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beta','opis1' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.5, 2, 7); --id 1
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beta','opis1' ,'2025-01-08 09:00:00','2025-01-08 17:00:00', 2.5, 2, 7); --id 1
 insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('alfa','kvalitetna medicinska oprema' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.1, 3, 7); -- id 2
 insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('ceta','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 4, 7); -- id 3
 insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beeee','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 1, 7);
@@ -49,24 +49,27 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 
 insert into company_admin (id,company_id, registered_by_admin, password_changed) values (6, 1, 7, false);
 insert into company_admin (id,company_id, registered_by_admin, password_changed) values (10, 1, 7, false);
-insert into company_admin (id,company_id, registered_by_admin, password_changed) values (11, 2, 7, false);
-insert into company_admin (id,company_id, registered_by_admin, password_changed) values (12, 2, 7, false);
+--insert into company_admin (id,company_id, registered_by_admin, password_changed) values (11, 2, 7, false);
+--insert into company_admin (id,company_id, registered_by_admin, password_changed) values (12, 2, 7, false);
 
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
 
 -- Rezervacije bi trebalo izmeniti, jer nisu vezane za equipmente preko reservationItemsa
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 1, 30000, '2023-12-19 10:55:00', 25, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 2, 30000, '2023-12-20 15:15:00', 25, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 1, 1000, '2023-12-20 14:00:00', 35, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 1, 30000, '2025-01-10 15:15:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 1, 1000, '2025-01-10 14:00:00', 60, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 2, 2000, '2024-01-08 11:00:00', 35, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2024-01-08 13:00:00', 40, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 2, 1000, '2024-06-20 14:00:00', 43, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 10:45:00', 60, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 2, 1000, '2022-12-20 14:00:00', 15, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 11, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-02-08 13:00:00', 40, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-03-08 13:00:00', 40, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 10:30:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 13:00:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 15:20:00', 60, 0);
 
 INSERT INTO ROLE (name) VALUES ('ROLE_REGISTERED_USER');
 INSERT INTO ROLE (name) VALUES ('ROLE_COMPANY_ADMIN');
@@ -102,4 +105,4 @@ insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 
 insert into reservation_item(equipment_id, quantity, reservation_id) values (3, 1, 2);
 insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 1, 2);
 insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 1, 1);
-insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 3);
+--insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 3);

@@ -3,6 +3,7 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,6 +12,7 @@ import rs.ac.uns.ftn.informatika.jpa.service.QRCodeService;
 import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Hidden // Vasilije: mislim da ne treba da se vidi u dokumentaciji
@@ -31,11 +33,18 @@ public class QRCodeController {
 
 	@PreAuthorize("hasRole('REGISTERED_USER')")
 	@GetMapping(value = "/qrcode/reservations")
-	public List<String> getQRCodesReservations(
+	public ResponseEntity<List<String>> getQRCodesReservations(
 			@RequestParam(defaultValue = "200") int width,
-			@RequestParam(defaultValue = "200") int height){
+			@RequestParam(defaultValue = "200") int height,
+			@RequestParam(required = false) String status){
 
-		return reservationService.getQRcodes();
+
+		try{
+			List<String> qrCodes = reservationService.getQRcodes(status);
+			return ResponseEntity.ok(qrCodes);
+		}catch (IllegalArgumentException e){
+			return ResponseEntity.badRequest().body(Collections.singletonList("Invalid status parameter"));
+		}
 	}
 
 }

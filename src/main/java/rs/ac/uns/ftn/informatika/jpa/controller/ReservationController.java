@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Tag(name = "Reservation Management Controllers", description = "Manages all operations related to reservations.")
 @RestController
@@ -192,6 +193,30 @@ public class ReservationController {
         }
 
         return new ResponseEntity(dtos, HttpStatus.OK);
+
+    }
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @GetMapping("/showAvailableAppointmentsOnDate")
+    public ResponseEntity showAvailableAppointmentsOnDate(
+            @RequestParam String dateString,
+            @RequestParam Integer companyId
+            ){
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date date = formatter.parse(dateString);
+            List<Date> dates = new ArrayList<>();
+            dates = reservationService.showAvailableAppointmentsOnDate(date, companyId);
+            List<String> formattedDates = dates.stream()
+                    .map(date1 -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date1))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(formattedDates);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("GRESKA!");
+        }
+
+
 
     }
 
