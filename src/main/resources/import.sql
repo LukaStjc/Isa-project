@@ -1,7 +1,7 @@
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Radnička',28,  19.84250, 45.25416);
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Subotica' ,'Veselina Masleše',2, 19.66555, 46.10027);
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Italia','Roma' ,'Antona Čehova',1, 12.48277, 41.89333);
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.84250, 45.25416);
+insert into location (country, city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Radnička',28,  19.8525275, 45.2503173);
+insert into location (country, city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Veselina Masleše',2, 19.81433, 45.25328);
+insert into location (country, city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Antona Čehova',1, 19.83055, 45.24880);
+insert into location (country, city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.82831, 45.24096);
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 4);
 
 -- za sve korisnike ista lozinka: 'pass'
