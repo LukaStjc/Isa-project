@@ -8,6 +8,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +27,8 @@ import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
 import javax.mail.MessagingException;
 import javax.persistence.OptimisticLockException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -511,9 +515,9 @@ public class ReservationService {
         return qrCodes;
     }
 
-    public List<Date> showAvailableAppointmentsOnDate(Date date, Integer companyId){
+    public List<DateAndAdminDTO> showAvailableAppointmentsOnDate(Date date, Integer companyId){
 
-        List<Date> availableSlots = new ArrayList<>();
+        List<DateAndAdminDTO> availableSlots = new ArrayList<>();
         Company company = companyService.findBy(companyId);
         Date openingTime = company.getOpeningTime();
         Date closingTime = company.getClosingTime();
@@ -535,18 +539,24 @@ public class ReservationService {
 
         List<CompanyAdmin> admins = company.getCompanyAdmins();
 
+
+
         while(start.getTime().before(end.getTime())){
+            DateAndAdminDTO dateAndAdminDTO = new DateAndAdminDTO();
+            dateAndAdminDTO.setAvailableAdminId(null);
             Date currentSlot = start.getTime();
             boolean isAvailable = false;
             for(CompanyAdmin admin: admins){
                 if(isAdminFree(admin, currentSlot, 60)){
                     isAvailable = true;
+                    dateAndAdminDTO.setAvailableAdminId(admin.getId());
                     break;
                 }
             }
 
             if (isAvailable){
-                availableSlots.add(currentSlot);
+                dateAndAdminDTO.setDateSlot(currentSlot.toString());
+                availableSlots.add(dateAndAdminDTO);
             }
 
             start.add(Calendar.HOUR_OF_DAY, 1);
@@ -576,6 +586,71 @@ public class ReservationService {
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE, minutes);
         return calendar.getTime();
+    }
+
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public void createReservationByExtraOrdinaryAppointment(ReservationByExtraOrdinaryAppointmentDTO dto)
+            throws DataAccessException, ClassNotFoundException, MailException, MessagingException, OptimisticLockException {
+
+        //Reservation reservation = optionalReservation.get();
+        User user = getUserCredentinals();
+        RegisteredUser registeredUser = (RegisteredUser) user;;
+
+        // check if the user is forbidden to make a reservation this month
+        if (((RegisteredUser) user).getPenaltyPoints() >= 3) {
+            throw new RuntimeException("The user is forbidden from making a new reservation this month since he has canceled many reservations!");
+        }
+
+
+        String dateString = dto.getSelectedDateTime(); // Assuming dto.getStartingTime() returns "2023-12-16T03:00:00.000Z"
+
+        // Parse the date string into a java.util.Date object
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Set the timezone to UTC if your date is in UTC
+        Date parsedDate;
+        try {
+            parsedDate = dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            System.out.println("Error parsing date: " + e.getMessage());
+            throw new RuntimeException("Wrong date");
+        }
+
+        Reservation reservation = new Reservation();
+        reservation.setStartingDate(parsedDate);
+        reservation.setDurationMinutes(60);
+        reservation.setStatus(Created);
+        reservation.setAdmin(companyAdminService.findBy(dto.getAvailableAdminId()));
+
+        updateReservationDetails(reservation, registeredUser);
+
+        for (ReservationItemDTO item : dto.getReservationItems()) {
+            Equipment equipment = equipmentService.findBy(item.getEquipmentId());
+
+            if (equipment == null)
+                throw new ClassNotFoundException("Equipment with ID " + item.getEquipmentId() + " not found");
+
+            if (equipment.getAvailableQuantity() < item.getQuantity()) {
+                throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the possible quantity");
+            }
+
+            addReservationItem(reservation, item, equipment);
+
+            setAvailableQuantity(item, equipment);
+
+            equipmentService.save(equipment);
+        }
+
+        for (ReservationItem reservationItem : reservation.getItems()) {
+            reservationItemService.save(reservationItem);
+        }
+
+        applyDiscountAndUpdateLoyalty(reservation,registeredUser);
+        registeredUserService.save(registeredUser);
+
+        reservationRepository.save(reservation);
+
+        //emailService.sendReservationQRCodeASync(registeredUser, reservation);
     }
 
 

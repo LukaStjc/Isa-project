@@ -205,19 +205,31 @@ public class ReservationController {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         try {
             Date date = formatter.parse(dateString);
-            List<Date> dates = new ArrayList<>();
-            dates = reservationService.showAvailableAppointmentsOnDate(date, companyId);
-            List<String> formattedDates = dates.stream()
-                    .map(date1 -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date1))
-                    .collect(Collectors.toList());
+            List<DateAndAdminDTO> datesAndAdmin = new ArrayList<>();
+            datesAndAdmin = reservationService.showAvailableAppointmentsOnDate(date, companyId);
 
-            return ResponseEntity.ok(formattedDates);
+            return ResponseEntity.ok(datesAndAdmin);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("GRESKA!");
         }
 
 
 
+    }
+
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @PostMapping(consumes = "application/json", value = "/create-by-extraordinary-appointment")
+    public ResponseEntity createReservationByExtraOrdinaryAppointment(@RequestBody ReservationByExtraOrdinaryAppointmentDTO dto) throws Exception
+    {
+        try {
+            reservationService.createReservationByExtraOrdinaryAppointment(dto);
+        } catch (OptimisticLockException | OptimisticLockingFailureException | StaleStateException e) {
+            return new ResponseEntity<>("Sorry, we're unable to confirm the availability of the selected appointment or equipment at the moment. Please try again.", HttpStatus.CONFLICT);
+        } catch (RuntimeException | MessagingException | ClassNotFoundException  e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 

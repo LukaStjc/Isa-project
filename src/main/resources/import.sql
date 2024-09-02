@@ -57,19 +57,17 @@ insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 
 
 -- Rezervacije bi trebalo izmeniti, jer nisu vezane za equipmente preko reservationItemsa
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 1, 30000, '2023-12-19 10:55:00', 25, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 1, 30000, '2025-01-10 15:15:00', 60, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 1, 1000, '2025-01-10 14:00:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 1, 30000, '2025-01-08 10:30:00', 60, 0);
+--insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 10, 1, 1, 1000, '2025-01-10 14:00:00', 60, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 2, 2000, '2024-01-08 11:00:00', 35, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2024-01-08 13:00:00', 40, 0);
 insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 10:45:00', 60, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 2, 1000, '2022-12-20 14:00:00', 15, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
 --insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 11, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-02-08 13:00:00', 40, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-03-08 13:00:00', 40, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 10:30:00', 60, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 13:00:00', 60, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 15:20:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 09:20:00', 40, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 13:15:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 13:05:00', 60, 0);
 
 INSERT INTO ROLE (name) VALUES ('ROLE_REGISTERED_USER');
 INSERT INTO ROLE (name) VALUES ('ROLE_COMPANY_ADMIN');
@@ -93,16 +91,16 @@ insert into Rating( user_id, company_id, score, feedback, created_at, updated_at
 insert into Rating( user_id, company_id, score, created_at, updated_at) values (8, 1, 3, '2022-06-20 16:30:16', '2023-09-15 10:30:16');
 --insert into Rating( user_id, company_id, score, feedback, created_at, updated_at) values (5, 3, 5, 'komentar4', '2023-02-20 12:30:16', '2023-07-15 16:30:16');
 
---insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 11, 2);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (6, 2, 3);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 5, 1);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 2, 1);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 7, 3);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 6);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 6, 6);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 4, 7);
-insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 1, 1);
-insert into reservation_item(equipment_id, quantity, reservation_id) values (3, 1, 2);
-insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 1, 2);
-insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 1, 1);
+--insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 1, 1);
+--insert into reservation_item(equipment_id, quantity, reservation_id) values (3, 1, 2);
+--insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 1, 2);
+--insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 1, 1);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 3);
