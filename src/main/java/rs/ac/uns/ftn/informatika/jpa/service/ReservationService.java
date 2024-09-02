@@ -25,6 +25,7 @@ import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
+import rs.ac.uns.ftn.informatika.jpa.exception.ReservationConflictException;
 import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
@@ -194,7 +195,23 @@ public class ReservationService {
         return reservationDTOS;
     }
 
+    @Transactional
     public void save(Reservation reservation) {
+        // Calculate the end time of the new reservation
+        Date endDate = new Date(reservation.getStartingDate().getTime() + reservation.getDurationMinutes() * 60 * 1000);
+
+        reservationRepository.lockAllReservations();
+        // Fetch upcoming reservations
+        List<Reservation> allReservations = reservationRepository.findAll();
+
+        // Check for conflicts
+        for (Reservation existingReservation : allReservations) {
+            Date existingEndDate = new Date(existingReservation.getStartingDate().getTime() + existingReservation.getDurationMinutes() * 60 * 1000);
+
+            if (reservation.getStartingDate().before(existingEndDate) && endDate.after(existingReservation.getStartingDate())) {
+                throw new ReservationConflictException("Conflicting reservation exists for the selected time slot.");            }
+        }
+        // Save the new reservation
         reservationRepository.save(reservation);
     }
 

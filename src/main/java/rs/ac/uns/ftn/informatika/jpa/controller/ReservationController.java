@@ -23,6 +23,7 @@ import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
+import rs.ac.uns.ftn.informatika.jpa.exception.ReservationConflictException;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
@@ -128,17 +129,15 @@ public class ReservationController {
 
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<ReservationPremadeDTO> createReservation(@RequestBody ReservationPremadeDTO dto){
+    public ResponseEntity<?> createReservation(@RequestBody ReservationPremadeDTO dto) {
         System.out.println(dto.getAdminId());
         System.out.println(dto.getSelectedDateTime());
-        //ovo nece trebati kada se odradi login, za sada je ovako
+
         CompanyAdmin admin = companyAdminService.findBy(Integer.parseInt(dto.getAdminId()));
 
-        String dateString = dto.getSelectedDateTime(); // Assuming dto.getStartingTime() returns "2023-12-16T03:00:00.000Z"
-
-        // Parse the date string into a java.util.Date object
+        String dateString = dto.getSelectedDateTime();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Set the timezone to UTC if your date is in UTC
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date parsedDate;
         try {
             parsedDate = dateFormat.parse(dateString);
@@ -149,19 +148,19 @@ public class ReservationController {
 
         Reservation reservation = new Reservation();
         reservation.setDurationMinutes(Integer.parseInt(dto.getDurationMinutes()));
-        reservation.setStartingDate(parsedDate); // Set the parsed date
+        reservation.setStartingDate(parsedDate);
         reservation.setAdmin(admin);
-        try{
+
+        try {
             reservationService.save(reservation);
-        } catch(RuntimeException e){
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok("Reservation created successfully.");
+        } catch (ReservationConflictException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the reservation.");
         }
-
-
-        return new ResponseEntity<ReservationPremadeDTO>(dto, HttpStatus.OK);
-
     }
+
 
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping("/history-completed")
