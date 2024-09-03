@@ -1,11 +1,13 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
+import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
@@ -67,7 +69,24 @@ public class EquipmentService {
         equipmentRepository.updateQuantity(id, quantity);
     }
 
+    @Transactional
     public void saveAll(List<Equipment> equipmentList) {
-        equipmentRepository.saveAll(equipmentList);
+        try {
+            equipmentRepository.saveAll(equipmentList);
+        } catch (StaleStateException e) {
+            // Handle the stale state exception
+            System.err.println("Stale state exception occurred: " + e.getMessage());
+            // You can also log this exception or notify the user
+//            throw new CustomException("One or more equipment items have been modified by another user. Please refresh and try again.");
+        } catch (Exception e) {
+            // Handle other exceptions
+            System.err.println("An error occurred: " + e.getMessage());
+//            throw new CustomException("An error occurred while saving the equipment list. Please try again.");
+        }
+    }
+
+    @Transactional
+    public Equipment findByIdAndLock(Integer id) {
+        return equipmentRepository.findByIdAndLock(id);
     }
 }

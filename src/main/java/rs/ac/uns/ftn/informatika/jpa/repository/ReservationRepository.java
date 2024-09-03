@@ -45,6 +45,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     @Query("SELECT r FROM Reservation r")
     List<Reservation> lockAllReservations();
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Reservation r WHERE r.admin.id = :adminId AND r.status = :status")
+    List<Reservation> findAllReservationsByAdminId(@Param("adminId") Integer adminId, ReservationStatus status);
 
 
 

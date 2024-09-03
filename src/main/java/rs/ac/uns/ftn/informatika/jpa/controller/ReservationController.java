@@ -10,6 +10,7 @@ import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,9 @@ import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
+import rs.ac.uns.ftn.informatika.jpa.exception.CustomRetryableException;
 import rs.ac.uns.ftn.informatika.jpa.exception.ReservationConflictException;
+import rs.ac.uns.ftn.informatika.jpa.exception.ReservationLockedException;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
@@ -217,8 +220,18 @@ public class ReservationController {
         return new ResponseEntity<>(reservationService.getAvailableReservations(id), HttpStatus.OK);
     }
     @PutMapping("/mark-completed/{id}")
-    public ResponseEntity<Boolean> markReservationCompleted(@PathVariable Integer id){
-
-        return new ResponseEntity<>(reservationService.markReservationCompleted(id), HttpStatus.OK);
+    public ResponseEntity<String> markReservationCompleted(@PathVariable Integer id) {
+        try {
+            reservationService.markReservationCompleted(id);
+            return new ResponseEntity<>("Reservation marked as completed.", HttpStatus.OK);
+        } catch (PessimisticLockingFailureException e) {
+            return new ResponseEntity<>("Reservation is locked by another transaction. Please try again.", HttpStatus.CONFLICT);
+        } catch (CustomRetryableException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (ReservationLockedException e) {
+            return new ResponseEntity<>("Reservation is locked. Please try again.", HttpStatus.CONFLICT);
+        }
     }
+
+
 }

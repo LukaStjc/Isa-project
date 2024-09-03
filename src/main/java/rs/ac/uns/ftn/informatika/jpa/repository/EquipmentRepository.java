@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.informatika.jpa.repository;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 
+import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -41,4 +43,8 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Integer> {
                     "SET e.quantity = :quantity " +
                     "WHERE e.id = :id")
     void updateQuantity(@Param("id") Integer id, @Param("quantity") Integer quantity) throws DataAccessException;
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Equipment e WHERE e.id = :id")
+    Equipment findByIdAndLock(@Param("id") Integer id);
 }

@@ -40,7 +40,7 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Rendgen aprat x021','uredjaj za snimanje grudnog kosa', 2, 600000, 5, 1, 5, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Magnetna rezonanca p442','uredjaj za snimanje glave', 0, 700000, 6, 2, 6, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Kamerica 2mpx', 'Za snimanje creva', 0, 10000, 10, 2, 10, 0);
-insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Mala kamera 3mpx', 'Za snimanje grla', 0, 9000, 25, 3, 25, 0);
+insert into equipment (name,description, type, price, qua   ntity, company_id, available_quantity, version) values ('Mala kamera 3mpx', 'Za snimanje grla', 0, 9000, 25, 3, 25, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za majstorisanje' ,1  , 2500, 30, 3, 30, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za sve' ,1  , 2900, 80, 2, 80, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Skalpel','alat za sve' , 1 , 3000, 80, 1, 80, 0);
@@ -96,5 +96,15 @@ insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 7, 3);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
 --insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 6);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 6, 6);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 4, 7);
+
+
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 11, 1, 1, 30000, '2024-09-09 13:00:00', 40, 0);
+
+insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 6, 10);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 4, 10);
+
+
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 11, 1, 1, 29000, '2024-09-09 13:00:00', 40, 0);
+
+insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 4, 11);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 6, 11);
