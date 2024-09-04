@@ -4,6 +4,7 @@ import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
 import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -21,6 +22,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
@@ -29,6 +34,7 @@ import javax.mail.MessagingException;
 import javax.persistence.OptimisticLockException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import javax.print.attribute.DateTimeSyntax;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -184,6 +190,8 @@ public class ReservationService {
         return daysToShow;
     }
 
+    
+    @Cacheable(value="reservationList", keyGenerator = "customKeyGenerator")
     public List<ReservationDTO> getAllPredefinedByCompanyAdmin(List<CompanyAdmin> companyAdmins) {
         List<ReservationDTO> reservationDTOS = new ArrayList<>();
         List<Reservation> reservations = new ArrayList<>();
@@ -333,7 +341,7 @@ public class ReservationService {
         Reservation newReservation = createReservationForSameAppointment(oldReservation);
 
         // It is used to test optimistic locking
-        Thread.sleep(20000);
+//        Thread.sleep(20000);
 
         reservationRepository.save(newReservation);
     }
@@ -655,4 +663,66 @@ public class ReservationService {
 
 
 
+    public List<UserDTO> getAllUsersByCompany(Integer adminId) {
+//        List<Reservation> reservations = reservationRepository.findAllByCompanyAd
+        List<RegisteredUser> users=  reservationRepository.findUniqueUsersByAdminId(adminId);
+        List<UserDTO> dtos = new ArrayList<>();
+        for (RegisteredUser user: users) {
+            UserDTO dto = new UserDTO();
+            dto.setFirstName(user.getFirstName());
+            dto.setLastName(user.getLastName());
+            dto.setEmail(user.getEmail());
+            dtos.add(dto);
+        }
+
+        return  dtos;
+    }
+
+
+    public List<ReservationDTO> getAvailableReservations(Integer id) {
+
+        List<Reservation> reservations = reservationRepository.findByAdminIdAndStatus(id, ReservationStatus.Ready);
+        List<Reservation> reservationsForUpdate = new ArrayList<>();
+        List<ReservationDTO> dtos = new ArrayList<>();
+        Date currentTime = new Date();
+        List<Integer> usersForPenalties = new ArrayList<>();
+        for (Reservation reservation: reservations) {
+            if(currentTime.after(reservation.getStartingDate())){
+                usersForPenalties.add(reservation.getUser().getId());
+                reservation.setStatus(Cancelled);
+                reservationsForUpdate.add(reservation);
+
+            }else{
+                ReservationDTO dto = new ReservationDTO(reservation);
+                dtos.add(dto);
+            }
+        }
+        registeredUserService.penalizeUsers(usersForPenalties);
+
+        reservationRepository.saveAll(reservationsForUpdate);
+
+        return dtos;
+    }
+
+    public Boolean markReservationCompleted(Integer id) {
+        Reservation reservation = reservationRepository.findReservationById(id);
+        reservation.setStatus(Completed);
+        reservationRepository.save(reservation);
+
+        Set<ReservationItem> items = reservation.getItems();
+
+        List<Equipment> equipmentList = new ArrayList<>();
+        // Iterate through each reservation item to get the equipment
+        for (ReservationItem item : items) {
+            Equipment equipment = item.getEquipment(); // Assuming ReservationItem has a method to get Equipment
+            if (equipment != null) {
+                equipment.setQuantity(equipment.getQuantity() - item.getQuantity());
+                equipmentList.add(equipment);
+            }
+        }
+        equipmentService.saveAll(equipmentList);
+        emailService.sendReservationCompletedConfirmation(reservation);
+
+        return true;
+    }
 }

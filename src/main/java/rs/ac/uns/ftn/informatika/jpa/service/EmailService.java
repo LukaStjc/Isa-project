@@ -162,4 +162,23 @@ public class EmailService {
 		javaMailSender.send(mail);
 	}
 
+	public void sendReservationCompletedConfirmation(Reservation reservation){
+		RegisteredUser user = reservation.getUser();
+
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setTo(user.getEmail());
+		mail.setFrom(env.getProperty("spring.mail.username"));
+		mail.setSubject("Reservation Completed");
+
+		String message = "Dear " + user.getFirstName() + ",\n\n"
+				+ "We are pleased to inform you that your reservation with ID " + reservation.getId() + " has been successfully completed.\n\n"
+				+ "Thank you for choosing our services.\n\n"
+				+ "Best regards,\n"
+				+ "Hospital Management";
+
+		mail.setText(message);
+
+		javaMailSender.send(mail);
+
+	}
 }

@@ -1,6 +1,9 @@
 package rs.ac.uns.ftn.informatika.jpa.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
@@ -17,6 +20,15 @@ public class EquipmentService {
     @Autowired
     private EquipmentRepository equipmentRepository;
 
+    private final Logger LOG = LoggerFactory.getLogger(Equipment.class);
+
+    /*
+     * Anotacijom @Cacheable i nazivom "product"
+     * naznaceno je da se objekti tipa Product koji se dobave
+     * metodom findOne smestaju u kes kolekciju "product"
+     * kao i u ehcache.xml konfiguraciji
+     */
+    @Cacheable(value = "equipmentList", keyGenerator = "customKeyGenerator")
     public List<Equipment> findAll() {
         return equipmentRepository.findAll();
     }
@@ -42,6 +54,7 @@ public class EquipmentService {
         return equipmentRepository.save(equipment);
     }
 
+    // Nije kesirano, jer se ne koristi nigde gde bi imalo smisla
     public Equipment findBy(Integer id) {
         return equipmentRepository.findById(id).orElseGet(null);
     }
@@ -54,4 +67,7 @@ public class EquipmentService {
         equipmentRepository.updateQuantity(id, quantity);
     }
 
+    public void saveAll(List<Equipment> equipmentList) {
+        equipmentRepository.saveAll(equipmentList);
+    }
 }

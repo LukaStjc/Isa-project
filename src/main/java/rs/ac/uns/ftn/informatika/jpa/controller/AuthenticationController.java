@@ -70,7 +70,7 @@ public class AuthenticationController {
 			// Kreiraj token za tog korisnika
 			User user = (User) authentication.getPrincipal();
 			String jwt = tokenUtils.generateToken(user.getEmail());
-			int expiresIn = tokenUtils.getExpiredIn();
+			long expiresIn = tokenUtils.getExpiredIn();
 
 			List<String> roles = user.getAuthorities().stream().map(item -> item.getAuthority())
 					.collect(Collectors.toList());
