@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.informatika.jpa.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -164,6 +165,12 @@ public class ReservationController {
 
     }
 
+    @Operation(summary = "Retrieve completed reservations from your history")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of your history completed reservations!", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationProfileDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Reservations not found!", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Login with appropriate privileges is required!", content = @Content)
+    })
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping("/history-completed")
     public ResponseEntity<List<ReservationProfileDTO>> findAllCompleted(
@@ -184,6 +191,12 @@ public class ReservationController {
     }
 
 
+    @Operation(summary = "Retrieve reservations that are ready to be collected")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of your upcoming reservations!", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationProfileDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Reservations not found!", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Login with appropriate privileges is required!", content = @Content)
+    })
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping("/ready")
     public ResponseEntity<List<ReservationProfileDTO>> findAllReady(){
@@ -229,7 +242,7 @@ public class ReservationController {
         try {
             reservationService.createReservationByExtraOrdinaryAppointment(dto);
         } catch (OptimisticLockException | OptimisticLockingFailureException | StaleStateException e) {
-            return new ResponseEntity<>("Sorry, we're unable to confirm the availability of the selected appointment or equipment at the moment. Please try again.", HttpStatus.CONFLICT);
+            return new ResponseEntity<>("This slot has just been booked by another user. Please try another slot.", HttpStatus.CONFLICT);
         } catch (RuntimeException | MessagingException | ClassNotFoundException  e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

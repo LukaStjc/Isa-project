@@ -1,5 +1,11 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -9,10 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyBasicDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.CompanyProfileDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
@@ -177,6 +180,14 @@ public class CompanyController {
     }
 
 
+    @Operation(summary = "Retrieves all companies that satisfy requested criteria")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the company list!",
+                    content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CompanyProfileDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Login with appropriate privileges is required!",
+                    content = @Content)
+    })
     @GetMapping("/searchByNameOrLocation")
     public ResponseEntity<List<CompanyProfileDTO>> searchCompanies(
             @RequestParam(required = false) String name,

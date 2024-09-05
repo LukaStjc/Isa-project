@@ -1,6 +1,11 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +36,15 @@ public class QRCodeController {
 		return qrCodeService.generateQRCodeImage(text, width, height);
 	}
 
+
+	@Operation(summary = "Get QR codes for reservations", description = "Retrieves a list of QR codes for reservations, optionally filtered by status.",
+			security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponse(responseCode = "200", description = "List of QR codes successfully retrieved",
+			content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = String.class)))
+	@ApiResponse(responseCode = "400", description = "Invalid status parameter provided")
+	@ApiResponse(responseCode = "401", description = "Unauthorized if the user is not authenticated")
+	@ApiResponse(responseCode = "403", description = "Forbidden if the user does not have the role REGISTERED_USER")
 	@PreAuthorize("hasRole('REGISTERED_USER')")
 	@GetMapping(value = "/qrcode/reservations")
 	public ResponseEntity<List<String>> getQRCodesReservations(

@@ -77,10 +77,13 @@ public class AuthenticationController {
 
 
 			int discount_rate = -1;
+			Integer penaltyPoints = null;
 			if (roles.contains("ROLE_REGISTERED_USER")) {
 				RegisteredUser registeredUser = (RegisteredUser) user;
 				// Dobaviti loyalty program, zbog prosledjivanja popusta
 				discount_rate = registeredUser.getLoyaltyProgram().getDiscount_rate();
+				penaltyPoints = registeredUser.getPenaltyPoints();
+
 			}
 
 			boolean passwordChangeRequired = false;
@@ -91,7 +94,7 @@ public class AuthenticationController {
 			// Vrati token kao odgovor na uspesnu autentifikaciju
 			//		return ResponseEntity.ok(new UserTokenStateDTO(jwt, expiresIn));
 			return ResponseEntity
-					.ok(new JwtResponseDTO(jwt, user.getId(), user.getEmail(), discount_rate, roles, passwordChangeRequired));
+					.ok(new JwtResponseDTO(jwt, user.getId(), user.getEmail(), discount_rate, roles, passwordChangeRequired, penaltyPoints));
 		}
 		catch (AuthenticationException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

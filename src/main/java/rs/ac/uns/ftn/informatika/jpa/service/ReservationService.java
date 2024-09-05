@@ -601,7 +601,8 @@ public class ReservationService {
     public void createReservationByExtraOrdinaryAppointment(ReservationByExtraOrdinaryAppointmentDTO dto)
             throws DataAccessException, ClassNotFoundException, MailException, MessagingException, OptimisticLockException {
 
-        //Reservation reservation = optionalReservation.get();
+
+
         User user = getUserCredentinals();
         RegisteredUser registeredUser = (RegisteredUser) user;;
 
@@ -614,8 +615,8 @@ public class ReservationService {
         String dateString = dto.getSelectedDateTime(); // Assuming dto.getStartingTime() returns "2023-12-16T03:00:00.000Z"
 
         // Parse the date string into a java.util.Date object
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Set the timezone to UTC if your date is in UTC
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+        //dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Set the timezone to UTC if your date is in UTC
         Date parsedDate;
         try {
             parsedDate = dateFormat.parse(dateString);

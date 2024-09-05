@@ -26,13 +26,16 @@ public class JwtResponseDTO {
   private List<String> roles;
   boolean passwordChangeRequired;
 
-  public JwtResponseDTO(String accessToken, Integer id, String email, int discount_rate, List<String> roles, boolean passwordChangeRequired) {
+  private Integer penaltyPoints;
+
+  public JwtResponseDTO(String accessToken, Integer id, String email, int discount_rate, List<String> roles, boolean passwordChangeRequired, Integer penaltyPoints) {
     this.token = accessToken;
     this.id = id;
     this.email = email;
     this.discount_rate = discount_rate;
     this.roles = roles;
     this.passwordChangeRequired = passwordChangeRequired;
+    this.penaltyPoints = penaltyPoints;
   }
 
   public String getAccessToken() {
@@ -86,4 +89,8 @@ public class JwtResponseDTO {
   public void setPasswordChangeRequired(boolean passwordChangeRequired) {
     this.passwordChangeRequired = passwordChangeRequired;
   }
+
+  public Integer getPenaltyPoints(){ return penaltyPoints; }
+
+  public void setPenaltyPoints(Integer penaltyPoints) { this.penaltyPoints = penaltyPoints; }
 }
