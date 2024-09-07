@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -35,9 +36,7 @@ import javax.persistence.OptimisticLockException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.print.attribute.DateTimeSyntax;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.Temporal;
 import java.util.*;
 
@@ -372,7 +371,7 @@ public class ReservationService {
     }
 
     public boolean existsByUserAndCompany(RegisteredUser registeredUser, Company company){
-        List<Reservation> reservations = reservationRepository.findAllByUserId(registeredUser.getId());
+        List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(registeredUser.getId(), Completed);
         for(Reservation reservation : reservations){
             for(ReservationItem item : reservation.getItems()){
                 if(item.getEquipment().getCompany().getId()==company.getId()){
@@ -523,79 +522,62 @@ public class ReservationService {
         return qrCodes;
     }
 
-    public List<DateAndAdminDTO> showAvailableAppointmentsOnDate(Date date, Integer companyId){
+    public LocalDateTime convertDateToLocalDateTime(Date date) {
+        // First convert Date to Instant
+        Instant instant = date.toInstant();
+
+        // Then convert Instant to LocalDateTime
+        LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        // Now extract LocalTime
+        return localDateTime;
+    }
+
+    public List<DateAndAdminDTO> showAvailableAppointmentsOnDate(LocalDate date, Integer companyId){
 
         List<DateAndAdminDTO> availableSlots = new ArrayList<>();
         Company company = companyService.findBy(companyId);
-        Date openingTime = company.getOpeningTime();
-        Date closingTime = company.getClosingTime();
-
-        Calendar calendarDate = Calendar.getInstance();
-        calendarDate.setTime(date);
-
-        Calendar start = Calendar.getInstance();
-        start.setTime(openingTime);
-        start.set(Calendar.YEAR, calendarDate.get(Calendar.YEAR));
-        start.set(Calendar.MONTH, calendarDate.get(Calendar.MONTH));
-        start.set(Calendar.DAY_OF_MONTH, calendarDate.get(Calendar.DAY_OF_MONTH));
-
-        Calendar end = Calendar.getInstance();
-        end.setTime(closingTime);
-        end.set(Calendar.YEAR, calendarDate.get(Calendar.YEAR));
-        end.set(Calendar.MONTH, calendarDate.get(Calendar.MONTH));
-        end.set(Calendar.DAY_OF_MONTH, calendarDate.get(Calendar.DAY_OF_MONTH));
-
-        List<CompanyAdmin> admins = company.getCompanyAdmins();
+        LocalTime start = convertDateToLocalDateTime(company.getOpeningTime()).toLocalTime();
+        LocalTime end = convertDateToLocalDateTime(company.getClosingTime()).toLocalTime();
 
 
-
-        while(start.getTime().before(end.getTime())){
+        while(start.plusHours(1).isBefore(end)){
             DateAndAdminDTO dateAndAdminDTO = new DateAndAdminDTO();
-            dateAndAdminDTO.setAvailableAdminId(null);
-            Date currentSlot = start.getTime();
             boolean isAvailable = false;
-            for(CompanyAdmin admin: admins){
-                if(isAdminFree(admin, currentSlot, 60)){
+            for(CompanyAdmin companyAdmin:company.getCompanyAdmins()){
+                if(isAdminFree(companyAdmin, date, start, start.plusHours(1))){
                     isAvailable = true;
-                    dateAndAdminDTO.setAvailableAdminId(admin.getId());
+                    dateAndAdminDTO.setAvailableAdminId(companyAdmin.getId());
                     break;
                 }
             }
 
-            if (isAvailable){
-                dateAndAdminDTO.setDateSlot(currentSlot.toString());
+            if(isAvailable){
+                LocalDateTime dateTime = LocalDateTime.of(date, start);
+                dateAndAdminDTO.setDateSlot(dateTime);
                 availableSlots.add(dateAndAdminDTO);
             }
 
-            start.add(Calendar.HOUR_OF_DAY, 1);
+            start = start.plusHours(1);
         }
+
         return availableSlots;
     }
 
-    private boolean isAdminFree(CompanyAdmin admin, Date slot, int slotDurationMinutes){
+    private boolean isAdminFree(CompanyAdmin admin, LocalDate date, LocalTime startTime, LocalTime endTime){
 
-        List<Reservation> reservations = reservationRepository.findAllByAdmin(admin);
-        return reservations.stream().noneMatch(reservation -> overlaps(reservation, slot, slotDurationMinutes));
+        List<Reservation> reservations = getReservationsByAdminAndDate(admin, date);//dodati da vraca samo statusom Created i Ready
+        return reservations.stream().noneMatch(reservation ->
+                convertDateToLocalDateTime(reservation.getStartingDate()).toLocalTime().isBefore(endTime) && convertDateToLocalDateTime(reservation.getEndTime()).toLocalTime().isAfter(startTime));
     }
 
-    private boolean overlaps(Reservation reservation, Date slot, int slotDurationMinutes) {
-        // Calculate the end time of the slot
-        Date slotEndTime = addMinutesToDate(slot, slotDurationMinutes);
+    public List<Reservation> getReservationsByAdminAndDate(CompanyAdmin admin, LocalDate date) {
+        ZoneId systemTimeZone = ZoneId.systemDefault();
+        Date startOfDay = Date.from(date.atStartOfDay(systemTimeZone).toInstant());
+        Date endOfDay = Date.from(date.plusDays(1).atStartOfDay(systemTimeZone).toInstant());
 
-        // Calculate the end time of the reservation
-        Date reservationEndTime = addMinutesToDate(reservation.getStartingDate(), reservation.getDurationMinutes());
-
-        // Check for overlap
-        return reservation.getStartingDate().before(slotEndTime) && reservationEndTime.after(slot);
+        return reservationRepository.findAllByAdminAndDayAndCreatedOrReady(admin, startOfDay, endOfDay);
     }
-
-    private Date addMinutesToDate(Date date, int minutes) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.MINUTE, minutes);
-        return calendar.getTime();
-    }
-
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void createReservationByExtraOrdinaryAppointment(ReservationByExtraOrdinaryAppointmentDTO dto)
@@ -610,25 +592,18 @@ public class ReservationService {
         if (((RegisteredUser) user).getPenaltyPoints() >= 3) {
             throw new RuntimeException("The user is forbidden from making a new reservation this month since he has canceled many reservations!");
         }
-
-
-        String dateString = dto.getSelectedDateTime(); // Assuming dto.getStartingTime() returns "2023-12-16T03:00:00.000Z"
-
-        // Parse the date string into a java.util.Date object
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
-        //dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Set the timezone to UTC if your date is in UTC
         Date parsedDate;
-        try {
-            parsedDate = dateFormat.parse(dateString);
-        } catch (ParseException e) {
-            System.out.println("Error parsing date: " + e.getMessage());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try{
+            parsedDate = formatter.parse(dto.getSelectedDateTime());
+        }catch(ParseException e){
             throw new RuntimeException("Wrong date");
         }
+
 
         Reservation reservation = new Reservation();
         reservation.setStartingDate(parsedDate);
         reservation.setDurationMinutes(60);
-        reservation.setStatus(Created);
         reservation.setAdmin(companyAdminService.findBy(dto.getAvailableAdminId()));
 
         updateReservationDetails(reservation, registeredUser);
@@ -659,7 +634,7 @@ public class ReservationService {
 
         reservationRepository.save(reservation);
 
-        //emailService.sendReservationQRCodeASync(registeredUser, reservation);
+        emailService.sendReservationQRCodeASync(registeredUser, reservation);
     }
 
 

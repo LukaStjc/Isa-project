@@ -45,7 +45,7 @@ public class RatingService {
         //proveravamo da li user ima rezervaciju
         boolean hasReservations = reservationService.existsByUserAndCompany(registeredUser, c);
         if (!hasReservations) {
-            throw new IllegalArgumentException("User must have at least one reservation to rate the company."); //ispise ovo samo kako handlovati bude 500eror
+            throw new IllegalArgumentException("User must have at least one completed reservation to rate the company."); //ispise ovo samo handlovati bude 500eror
         }
 
         //proveravamo da li user ima vec ocenu za ovu kompaniju

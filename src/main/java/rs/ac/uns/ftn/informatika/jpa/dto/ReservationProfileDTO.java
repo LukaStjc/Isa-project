@@ -14,7 +14,7 @@ public class ReservationProfileDTO {
     private String adminName;
     private String adminLastName;
     private int durationMinutes;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Europe/Budapest")
     private Date startingDate;
     private List<ReservationItemProfileDTO> items;
 

@@ -5,6 +5,7 @@ import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 
 import javax.persistence.*;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -139,5 +140,12 @@ public class Reservation {
 
     public void setDurationMinutes(int durationMinutes) {
         this.durationMinutes = durationMinutes;
+    }
+
+    public Date getEndTime(){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startingDate);
+        cal.add(Calendar.MINUTE, durationMinutes);
+        return cal.getTime();
     }
 }

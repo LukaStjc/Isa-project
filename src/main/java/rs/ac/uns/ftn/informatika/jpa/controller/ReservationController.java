@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,6 +19,7 @@ import org.springframework.mail.MailException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
@@ -34,13 +36,12 @@ import rs.ac.uns.ftn.informatika.jpa.service.ReservationService;
 import javax.mail.MessagingException;
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Tag(name = "Reservation Management Controllers", description = "Manages all operations related to reservations.")
@@ -186,7 +187,9 @@ public class ReservationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity(dtos, HttpStatus.OK);
+        System.out.println("Current JVM Timezone: " + TimeZone.getDefault().getID());
+        return ResponseEntity.ok(dtos);
+
 
     }
 
@@ -210,19 +213,17 @@ public class ReservationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity(dtos, HttpStatus.OK);
+        return ResponseEntity.ok(dtos);
 
     }
 
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping("/showAvailableAppointmentsOnDate")
     public ResponseEntity showAvailableAppointmentsOnDate(
-            @RequestParam String dateString,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam Integer companyId
             ){
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            Date date = formatter.parse(dateString);
             List<DateAndAdminDTO> datesAndAdmin = new ArrayList<>();
             datesAndAdmin = reservationService.showAvailableAppointmentsOnDate(date, companyId);
 
@@ -230,14 +231,11 @@ public class ReservationController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("GRESKA!");
         }
-
-
-
     }
 
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(consumes = "application/json", value = "/create-by-extraordinary-appointment")
-    public ResponseEntity createReservationByExtraOrdinaryAppointment(@RequestBody ReservationByExtraOrdinaryAppointmentDTO dto) throws Exception
+    public ResponseEntity createReservationByExtraOrdinaryAppointment(@RequestBody @Valid ReservationByExtraOrdinaryAppointmentDTO dto) throws Exception
     {
         try {
             reservationService.createReservationByExtraOrdinaryAppointment(dto);
@@ -249,12 +247,6 @@ public class ReservationController {
 
         return new ResponseEntity(HttpStatus.OK);
     }
-
-
-
-
-
-
 
     @GetMapping("/get-users/{id}")
     public ResponseEntity<List<UserDTO>> getAllUsersByCompanyAdmin(@PathVariable Integer id){
@@ -272,4 +264,14 @@ public class ReservationController {
 
         return new ResponseEntity<>(reservationService.markReservationCompleted(id), HttpStatus.OK);
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        return errors;
+    }
+
 }

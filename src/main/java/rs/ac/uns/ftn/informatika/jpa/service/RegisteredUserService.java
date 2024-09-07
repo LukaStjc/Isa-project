@@ -47,16 +47,7 @@ public class RegisteredUserService {
 
     public RegisteredUser findByEmail(String email) { return  registeredUserRepository.findRegisteredUserByEmail(email); }
 
-    public RegisteredUser updateUserProfile(RegisteredUser user, /*Map<String, Object> updates*/RegisteredUserProfileDTO dto){
-        /*updates.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(RegisteredUser.class, key);
-            if (field != null) {
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, user, value);
-            }
-        });
-
-        save(user);*/
+    public RegisteredUser updateUserProfile(RegisteredUser user, RegisteredUserProfileDTO dto){
 
         if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
         if (dto.getLastName() != null) user.setLastName(dto.getLastName());

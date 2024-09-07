@@ -23,9 +23,6 @@ import rs.ac.uns.ftn.informatika.jpa.model.User;
 import rs.ac.uns.ftn.informatika.jpa.service.EmailService;
 import rs.ac.uns.ftn.informatika.jpa.service.RegisteredUserService;
 
-import java.security.Principal;
-import java.util.Map;
-
 @Tag(name = "Registered User Controllers", description = "Handles user registration and account activation.")
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -118,24 +115,17 @@ public class RegisteredUserController {
 	})
 	@PreAuthorize("hasRole('REGISTERED_USER')")
 	@PatchMapping("/profile/update")
-	public ResponseEntity<RegisteredUser> updateUserProfile(@RequestBody /*Map<String, Object> updates*/ RegisteredUserProfileDTO updateDTO, Principal principal){
+	public ResponseEntity<RegisteredUser> updateUserProfile(@RequestBody RegisteredUserProfileDTO updateDTO){
 
-		/*if (updates.containsKey("email")) {
-			return new ResponseEntity<>("Updating email is not allowed", HttpStatus.BAD_REQUEST);
-		}*/
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		RegisteredUser registeredUser = registeredUserService.findByEmail(authentication.getName());
 
-		RegisteredUser registeredUser = registeredUserService.findByEmail(principal.getName());
-
-		if (registeredUser == null){
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		if (registeredUser == null) {
+			return ResponseEntity.notFound().build();
 		}
 
-		//registeredUserService.updateUserProfile(registeredUser, updateDTO);
-		//registeredUserService.updateUserProfile(registeredUser, updates);
-
-		//RegisteredUserProfileDTO profile = new RegisteredUserProfileDTO(registeredUser);
-
-		return ResponseEntity.ok(registeredUserService.updateUserProfile(registeredUser, updateDTO));
+		RegisteredUser updatedUser = registeredUserService.updateUserProfile(registeredUser, updateDTO);
+		return ResponseEntity.ok(updatedUser);
 	}
 
 }

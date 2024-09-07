@@ -1,7 +1,8 @@
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Radnička',28,  19.84250, 45.25416);
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Subotica' ,'Veselina Masleše',2, 19.66555, 46.10027);
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Italia','Roma' ,'Antona Čehova',1, 12.48277, 41.89333);
-insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.84250, 45.25416);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Novi Sad','Serbia' ,'Radnička',28,  19.8525275, 45.2503173);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Novi Sad','Serbia' ,'Veselina Masleše',2, 19.81433, 45.25328);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Novi Sad','Serbia' ,'Antona Čehova',1, 19.83055, 45.24880);
+insert into location (city,country, street_name, street_number, longitude, latitude) values ('Novi Sad','Serbia' ,'Bulevar cara Lazara',96, 19.82831, 45.24096);
+
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 4);
 
 -- za sve korisnike ista lozinka: 'pass'
@@ -24,16 +25,14 @@ insert into loyalty_program (id, type, min_points, max_points,  admin_id, discou
 insert into loyalty_program (id, type, min_points, max_points,  admin_id, discount_rate) values (2, 2, 1001, 5000, 7, 20);
 
 -- paziti na loyalty_progra_id i dozvoli neunosenje stranog kljuca
-insert into registered_user (id, telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id, location_id, activation_code) values (5, '0613241802', 0, 0, 'zemljoradnik', 0, 1, 1, 'APwO1SBNEVeJO8xs5zLmvHqGQsjKmgl6');
+insert into registered_user (id, telephone_number, penalty_points, points, occupation, loyalty_program_id, hospital_id, location_id, activation_code) values (5, '0613241802', 2, 0, 'zemljoradnik', 0, 1, 1, 'APwO1SBNEVeJO8xs5zLmvHqGQsjKmgl6');
 insert into registered_user (id, telephone_number, penalty_points, points, occupation,loyalty_program_id, hospital_id, location_id, activation_code) values (8, '0651234567', 0, 0, 'poljoprivrednik',0, 1, 2, 'ZA8hEPFFq4nO2eaHjQYkA2UzPUnukSWK');
 insert into registered_user (id, telephone_number, penalty_points, points, occupation,loyalty_program_id, hospital_id, location_id, activation_code) values (9, '0628912666', 0, 0, 'direktor',0, 1, 2, 'XY1hEPFFq4nO2eaHjQYkA2UzPUnukSWK');
--- insert into registered_user (id, telephone_number, penalty_points, points, occupation) values (5, '0613241802', 0, 0, 'zemljoradnik');
 
 -- TODO promeniti average_score na 0, za kt1 su stavljene neke vrednosti
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beta','opis1' ,'2025-01-08 09:00:00','2025-01-08 17:00:00', 2.5, 2, 7); --id 1
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('alfa','kvalitetna medicinska oprema' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.1, 3, 7); -- id 2
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('ceta','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 4, 7); -- id 3
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beeee','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 1, 7);
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('AKompanija','opis1' ,'2025-01-08 09:00:00','2025-01-08 17:00:00', 2.5, 2, 7); --id 1
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('BKompanija','kvalitetna medicinska oprema' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.1, 3, 7); -- id 2
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('CKompanija','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 4, 7); -- id 3
 
 
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za kucu' ,1  , 3000, 100, 1, 100, 0);
@@ -49,25 +48,21 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 
 insert into company_admin (id,company_id, registered_by_admin, password_changed) values (6, 1, 7, false);
 insert into company_admin (id,company_id, registered_by_admin, password_changed) values (10, 1, 7, false);
---insert into company_admin (id,company_id, registered_by_admin, password_changed) values (11, 2, 7, false);
---insert into company_admin (id,company_id, registered_by_admin, password_changed) values (12, 2, 7, false);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (11, 2, 7, false);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (12, 2, 7, false);
 
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije
 
 -- Rezervacije bi trebalo izmeniti, jer nisu vezane za equipmente preko reservationItemsa
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 1, 30000, '2023-12-19 10:55:00', 25, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 1, 30000, '2025-01-08 10:30:00', 60, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 10, 1, 1, 1000, '2025-01-10 14:00:00', 60, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (8, 6, 1, 2, 2000, '2024-01-08 11:00:00', 35, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2024-01-08 13:00:00', 40, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 10:45:00', 60, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 2, 1000, '2022-12-20 14:00:00', 15, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
---insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 11, 1, 0, NULL, '2025-01-08 13:00:00', 40, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 09:20:00', 40, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-01-08 13:15:00', 60, 0);
-insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2025-01-08 13:05:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-10-15 10:30:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 6, 1, 0, NULL, '2025-11-10 10:45:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (NULL, 10, 1, 0, NULL, '2024-09-20 13:20:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 2, 30000, '2025-08-01 10:00:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 10, 1, 2, 12000, '2025-07-20 10:00:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 1, 50000, '2025-09-25 10:00:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 1, 32000, '2024-09-20 13:00:00', 60, 0);
+insert into reservation( user_id, admin_id, hospital_id, status, total_sum, starting_date, duration_minutes, version) values (5, 6, 1, 1, 15000, '2024-09-20 9:30:00', 60, 0);
 
 INSERT INTO ROLE (name) VALUES ('ROLE_REGISTERED_USER');
 INSERT INTO ROLE (name) VALUES ('ROLE_COMPANY_ADMIN');
@@ -80,27 +75,14 @@ INSERT INTO USER_ROLE (user_id, role_id) VALUES (6, 2); -- company admin-u dodel
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (10, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (11, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (12, 2); -- company admin-u dodeljujemo ROLE_COMPANY_ADMIN
-
--- todo: system admin ima sve privilegije?
--- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 1);
--- INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 2);
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (7, 3); -- system admin-u dodeljujemo ROLE_SYSTEM_ADMIN
 
 insert into Rating( user_id, company_id, score, feedback, created_at, updated_at) values (5, 1, 2, 'komentar1', '2024-06-20 16:30:16', '2024-07-15 16:30:16');
---insert into Rating( user_id, company_id, score, feedback) values (5, 3, 2, 'komentar2');
-insert into Rating( user_id, company_id, score, created_at, updated_at) values (8, 1, 3, '2022-06-20 16:30:16', '2023-09-15 10:30:16');
---insert into Rating( user_id, company_id, score, feedback, created_at, updated_at) values (5, 3, 5, 'komentar4', '2023-02-20 12:30:16', '2023-07-15 16:30:16');
 
-insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 5, 1);
-insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 2, 1);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 7, 3);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 10, 3);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 6);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 6, 6);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 4, 7);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 1, 1);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (3, 1, 2);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (4, 1, 2);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 1, 1);
---insert into reservation_item(equipment_id, quantity, reservation_id) values (5, 1, 3);
+
+insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 5, 4);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (1, 1, 5);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (2, 2, 6);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (8, 4, 7);
+insert into reservation_item(equipment_id, quantity, reservation_id) values (8, 3, 8);
+
