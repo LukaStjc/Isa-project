@@ -10,6 +10,7 @@ public class EquipmentBasicDTO {
     private String equipmentType;
     private Double price;
     private Integer quantity;
+    private Integer version = 0;
 
     public EquipmentBasicDTO() {
     }
@@ -29,6 +30,7 @@ public class EquipmentBasicDTO {
         this.equipmentType = equipment.getType().toString();
         this.price = equipment.getPrice();
         this.quantity = equipment.getQuantity();
+        this.version = equipment.getVersion();
 
     }
     public String getName() {
@@ -77,5 +79,13 @@ public class EquipmentBasicDTO {
 
     public void setCompanyId(Integer companyId) {
         this.companyId = companyId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

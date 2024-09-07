@@ -3,6 +3,7 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
 import org.hibernate.StaleStateException;
+import org.hibernate.tool.schema.spi.CommandAcceptanceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
@@ -589,6 +590,12 @@ public class ReservationService {
         } catch (InsufficientEquipmentException e) {
             // Notify the front end about the insufficient equipment
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (CommandAcceptanceException e) {
+            // Handle the CommandAcceptanceException
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            // Handle any other exceptions that may occur
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred: " + e.getMessage());
         }
 
     reservation.setStatus(Completed);

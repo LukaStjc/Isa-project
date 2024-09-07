@@ -58,7 +58,7 @@ public class EquipmentService {
 
     // Nije kesirano, jer se ne koristi nigde gde bi imalo smisla
     public Equipment findBy(Integer id) {
-        return equipmentRepository.findById(id).orElseGet(null);
+        return equipmentRepository.findById(id).orElse(null);
     }
 
     public void delete(Equipment equipment) {
@@ -89,4 +89,6 @@ public class EquipmentService {
     public Equipment findByIdAndLock(Integer id) {
         return equipmentRepository.findByIdAndLock(id);
     }
+
+
 }

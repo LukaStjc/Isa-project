@@ -40,6 +40,8 @@ public class EquipmentDTO {
     @NotNull(message = "Company ID cannot be null")
     private Integer companyId;
 
+    @NotNull(message = "Equipment version cannot be null")
+    private Integer version;
     public EquipmentDTO() {
     }
 
@@ -57,6 +59,7 @@ public class EquipmentDTO {
         this.quantity = e.getQuantity();
         this.companyName = e.getCompany().getName();
         this.companyId = e.getCompany().getId();
+        this.version = e.getVersion();
     }
 
     public EquipmentDTO(Integer id, String name, String description, String equipmentType, Double price, Integer quantity, String companyName, Integer companyId) {
@@ -133,4 +136,13 @@ public class EquipmentDTO {
     public void setCompanyId(Integer companyId) {
         this.companyId = companyId;
     }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 }
+
