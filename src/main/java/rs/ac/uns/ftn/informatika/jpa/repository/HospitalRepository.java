@@ -6,4 +6,5 @@ import rs.ac.uns.ftn.informatika.jpa.model.Hospital;
 
 @Repository
 public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
+    Hospital findByName(String name);
 }

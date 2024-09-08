@@ -20,4 +20,8 @@ public class HospitalService {
     public List<Hospital> findAll() {
         return hospitalRepository.findAll();
     }
+
+    public Hospital findByName(String name) {
+        return hospitalRepository.findByName(name);
+    }
 }

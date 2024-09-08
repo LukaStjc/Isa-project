@@ -14,6 +14,7 @@ import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.repository.EquipmentRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -91,4 +92,9 @@ public class EquipmentService {
     }
 
 
+    public Equipment findByNameMQ(String name) {
+
+        return equipmentRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("Equipment not found with name: " + name));
+    }
 }

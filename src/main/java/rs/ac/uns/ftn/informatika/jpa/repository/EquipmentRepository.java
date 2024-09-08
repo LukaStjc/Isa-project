@@ -13,6 +13,7 @@ import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EquipmentRepository extends JpaRepository<Equipment, Integer> {
@@ -47,4 +48,8 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Integer> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Equipment e WHERE e.id = :id")
     Equipment findByIdAndLock(@Param("id") Integer id);
+
+    @Query("SELECT e FROM Equipment e WHERE LOWER(e.name) = LOWER(:name)")
+    Optional<Equipment> findByName(@Param("name") String name);
+
 }
