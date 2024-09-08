@@ -116,7 +116,6 @@ public class ReservationController {
             @ApiResponse(responseCode = "401", description = "Unauthorized: Login with appropriate privileges is required!",
                     content = @Content)
     })
-
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(value = "/cancel/{id}")
     public ResponseEntity cancelReservation(@PathVariable Integer id) throws Exception {
@@ -132,7 +131,13 @@ public class ReservationController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-
+    @Operation(summary = "Create a new reservation", description = "Creates a new reservation for a company admin based on the provided details.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservation created successfully", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "409", description = "Reservation conflict", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = String.class)))
+    })
     @PostMapping(consumes = "application/json")
     public ResponseEntity<?> createReservation(@RequestBody ReservationPremadeDTO dto) {
         System.out.println(dto.getAdminId());

@@ -1,15 +1,21 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
-public class ChangePasswordDto {
-    private Integer id;
-    private String password;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-    public ChangePasswordDto(Integer id, String password) {
+@Schema(description = "Data Transfer Object for changing a password")
+public class ChangePasswordDTO {
+
+    @Schema(description = "The ID of the user whose password is to be changed", example = "123")
+    private Integer id;
+
+    @Schema(description = "The new password for the user", example = "newSecurePassword123")
+    private String password;
+    public ChangePasswordDTO(Integer id, String password) {
         this.id = id;
         this.password = password;
     }
 
-    public ChangePasswordDto() {
+    public ChangePasswordDTO() {
     }
 
     public Integer getId() {

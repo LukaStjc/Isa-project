@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import rs.ac.uns.ftn.informatika.jpa.dto.ChangePasswordDto;
+import rs.ac.uns.ftn.informatika.jpa.dto.ChangePasswordDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyAdminBasicDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
@@ -14,8 +14,6 @@ import rs.ac.uns.ftn.informatika.jpa.repository.CompanyAdminRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class CompanyAdminService {
@@ -59,7 +57,7 @@ public class CompanyAdminService {
         return dtos;
     }
 
-    public ResponseEntity<Boolean> changePassword(ChangePasswordDto dto) {
+    public ResponseEntity<Boolean> changePassword(ChangePasswordDTO dto) {
         Optional<CompanyAdmin> optionalAdmin = companyAdminRepository.findById(dto.getId());
 
         if (optionalAdmin.isPresent()) {

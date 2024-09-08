@@ -1,15 +1,30 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 
+@Schema(description = "DTO for basic equipment details.")
 public class EquipmentBasicDTO {
 
+    @Schema(description = "Name of the equipment", example = "Drill")
     private String name;
+
+    @Schema(description = "Description of the equipment", example = "A high-quality drill")
     private String description;
+
+    @Schema(description = "ID of the company that owns the equipment", example = "1")
     private Integer companyId;
+
+    @Schema(description = "Type of the equipment", example = "Power Tool")
     private String equipmentType;
+
+    @Schema(description = "Price of the equipment", example = "299.99")
     private Double price;
+
+    @Schema(description = "Quantity of the equipment available", example = "10")
     private Integer quantity;
+
+    @Schema(description = "Version of the equipment for optimistic locking", example = "1")
     private Integer version = 0;
 
     public EquipmentBasicDTO() {
