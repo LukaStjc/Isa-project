@@ -146,4 +146,8 @@ public class Equipment {
     public void setAvailableQuantity(Integer availableQuantity) {
         this.availableQuantity = availableQuantity;
     }
+
+    public Integer getVersion() {
+        return version;
+    }
 }

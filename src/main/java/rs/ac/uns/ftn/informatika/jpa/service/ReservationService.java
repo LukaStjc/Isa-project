@@ -3,12 +3,15 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
 import org.hibernate.StaleStateException;
+import org.hibernate.tool.schema.spi.CommandAcceptanceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
@@ -21,16 +24,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
+import rs.ac.uns.ftn.informatika.jpa.exception.CustomRetryableException;
+import rs.ac.uns.ftn.informatika.jpa.exception.InsufficientEquipmentException;
+import rs.ac.uns.ftn.informatika.jpa.exception.ReservationConflictException;
 import rs.ac.uns.ftn.informatika.jpa.model.*;
 import rs.ac.uns.ftn.informatika.jpa.repository.ReservationRepository;
 
 import javax.mail.MessagingException;
+import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -204,7 +212,23 @@ public class ReservationService {
         return reservationDTOS;
     }
 
+    @Transactional
     public void save(Reservation reservation) {
+        // Calculate the end time of the new reservation
+        Date endDate = new Date(reservation.getStartingDate().getTime() + reservation.getDurationMinutes() * 60 * 1000);
+
+        reservationRepository.lockAllReservations();
+        // Fetch upcoming reservations
+        List<Reservation> allReservations = reservationRepository.findAll();
+
+        // Check for conflicts
+        for (Reservation existingReservation : allReservations) {
+            Date existingEndDate = new Date(existingReservation.getStartingDate().getTime() + existingReservation.getDurationMinutes() * 60 * 1000);
+
+            if (reservation.getStartingDate().before(existingEndDate) && endDate.after(existingReservation.getStartingDate())) {
+                throw new ReservationConflictException("Conflicting reservation exists for the selected time slot.");            }
+        }
+        // Save the new reservation
         reservationRepository.save(reservation);
     }
 
@@ -705,25 +729,122 @@ public class ReservationService {
         return dtos;
     }
 
+//    @Transactional
+//    public Boolean markReservationCompleted(Integer id) {
+//
+//        Reservation reservation = reservationRepository.findReservationById(id);
+//
+//        //Only locking the reservations so the admin can't access them at the same time
+//        List<Reservation> companyReservations = reservationRepository.findAllReservationsByAdminId(id, Ready);
+//
+//
+//        reservation.setStatus(Completed);
+//        reservationRepository.save(reservation);
+//
+//        List<Equipment> equipmentList = getEquipment(reservation);
+//
+//        equipmentService.saveAll(equipmentList);
+//
+////        emailService.sendReservationCompletedConfirmation(reservation);
+//
+//        return true;
+//    }
+//
+//    private static List<Equipment> getEquipment(Reservation reservation) {
+//        Set<ReservationItem> items = reservation.getItems();
+//
+//        List<Equipment> equipmentList = new ArrayList<>();
+//        // Iterate through each reservation item to get the equipment
+//        for (ReservationItem item : items) {
+//            Equipment equipment = item.getEquipment(); // Assuming ReservationItem has a method to get Equipment
+//            if (equipment != null) {
+//                int updatedQuantity = equipment.getQuantity() - item.getQuantity();
+//                if (updatedQuantity < 0) {
+//                    // Set the quantity to 0 and log a warning message
+//                    System.out.println("Warning: Quantity for equipment " + equipment.getName() + " would go below 0. Setting quantity to 0.");
+//                    equipment.setQuantity(0);
+//                } else {
+//                    equipment.setQuantity(updatedQuantity);
+//                }
+//                equipmentList.add(equipment);
+//            }
+//        }
+//        return equipmentList;
+//    }
+    @Transactional
     public Boolean markReservationCompleted(Integer id) {
         Reservation reservation = reservationRepository.findReservationById(id);
-        reservation.setStatus(Completed);
-        reservationRepository.save(reservation);
 
-        Set<ReservationItem> items = reservation.getItems();
+        List<Reservation> companyReservations = reservationRepository.findAllReservationsByAdminId(id, Ready);
 
-        List<Equipment> equipmentList = new ArrayList<>();
-        // Iterate through each reservation item to get the equipment
-        for (ReservationItem item : items) {
-            Equipment equipment = item.getEquipment(); // Assuming ReservationItem has a method to get Equipment
-            if (equipment != null) {
-                equipment.setQuantity(equipment.getQuantity() - item.getQuantity());
-                equipmentList.add(equipment);
-            }
+        // Check and lock equipment
+        List<Equipment> equipmentList;
+        try {
+            equipmentList = fetchAndLockEquipment(reservation);
+        } catch (InsufficientEquipmentException e) {
+            // Notify the front end about the insufficient equipment
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (CommandAcceptanceException e) {
+            // Handle the CommandAcceptanceException
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            // Handle any other exceptions that may occur
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred: " + e.getMessage());
         }
-        equipmentService.saveAll(equipmentList);
-        emailService.sendReservationCompletedConfirmation(reservation);
 
-        return true;
+    reservation.setStatus(Completed);
+    reservationRepository.save(reservation);
+
+    equipmentService.saveAll(equipmentList);
+
+    return true;
+}
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
+//    private List<Equipment> fetchAndLockEquipment(Reservation reservation) {
+//        Set<ReservationItem> items = reservation.getItems();
+//        List<Equipment> equipmentList = new ArrayList<>();
+//
+//        for (ReservationItem item : items) {
+//            Equipment equipment = equipmentService.findByIdAndLock(item.getEquipment().getId()); // Fetch and lock
+//            if (equipment != null) {
+//                int updatedQuantity = equipment.getQuantity() - item.getQuantity();
+//                if (updatedQuantity < 0) {
+//                    // Throw an exception if there's not enough equipment
+//                    throw new InsufficientEquipmentException("Not enough " + equipment.getName() + " in storage. Requested: " + item.getQuantity() + ", Available: " + equipment.getQuantity());
+//                }
+//                equipment.setQuantity(updatedQuantity); // Set the new quantity
+//                equipmentList.add(equipment);
+//            }
+//        }
+//        return equipmentList;
+//    }
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    private List<Equipment> fetchAndLockEquipment(Reservation reservation) {
+        Set<ReservationItem> items = reservation.getItems();
+        List<Equipment> equipmentList = new ArrayList<>();
+
+        try {
+            for (ReservationItem item : items) {
+                Equipment equipment = equipmentService.findByIdAndLock(item.getEquipment().getId()); // Fetch and lock
+                if (equipment != null) {
+                    int updatedQuantity = equipment.getQuantity() - item.getQuantity();
+                    if (updatedQuantity < 0) {
+                        // Throw an exception if there's not enough equipment
+                        throw new InsufficientEquipmentException("Not enough " + equipment.getName() + " in storage. Requested: " + item.getQuantity() + ", Available: " + equipment.getQuantity());
+                    }
+                    equipment.setQuantity(updatedQuantity); // Set the new quantity
+                    equipmentList.add(equipment);
+                }
+            }
+            return equipmentList;
+
+        } catch (PessimisticLockingFailureException ex) {
+            // Handle the lock failure
+            throw new CustomRetryableException("Unable to acquire lock on equipment. Please try again.");
+        }
     }
+
+
+
+
 }

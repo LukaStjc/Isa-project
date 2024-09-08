@@ -7,18 +7,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
+import rs.ac.uns.ftn.informatika.jpa.exception.CustomOptimisticLockingException;
+import rs.ac.uns.ftn.informatika.jpa.exception.EquipmentNotFoundException;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
 
+import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -217,18 +221,31 @@ public class EquipmentController {
         equipmentService.delete(equipment);
         return new ResponseEntity<>("Equipment succesfully deleted", HttpStatus.OK);
     }
-    @PutMapping ("/update/{id}")
-    @PreAuthorize("hasRole('COMPANY_ADMIN')")
+    @PutMapping("/update/{id}")
+    @Transactional
+//    @PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<EquipmentDTO> updateEquipment(@PathVariable Integer id, @RequestBody EquipmentBasicDTO dto){
         Equipment equipment = equipmentService.findBy(id);
-        equipment.updateProperties(dto);
-        if(dto.getQuantity() == 0){
-            deleteEquipment(id);
-            return new ResponseEntity<>(HttpStatus.OK); // Return success response without saving
+
+        if (equipment == null) {
+            throw new EquipmentNotFoundException("The equipment has been deleted by another company admin   .");
         }
-        equipmentService.save(equipment);
-        return new ResponseEntity<>(new EquipmentDTO(equipment), HttpStatus.OK);
+
+        if (!equipment.getVersion().equals(dto.getVersion())) {
+            throw new CustomOptimisticLockingException("The equipment has been modified by another user. Please reload and try again.");
+        }
+
+            equipment.updateProperties(dto);
+
+        if (dto.getQuantity() == 0) {
+            deleteEquipment(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        Equipment updatedEquipment = equipmentService.save(equipment);
+        return new ResponseEntity<>(new EquipmentDTO(updatedEquipment), HttpStatus.OK);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentBasicDTO> getById(@PathVariable Integer id){
