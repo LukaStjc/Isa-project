@@ -15,6 +15,7 @@ import rs.ac.uns.ftn.informatika.jpa.service.ContractService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
 import rs.ac.uns.ftn.informatika.jpa.service.HospitalService;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Tag(name = "Contract", description = "Endpoints for managing contract between companies and hospitals")
@@ -37,6 +38,7 @@ public class ContractController {
     public ResponseEntity<List<Contract>> getAll(){
         return ResponseEntity.ok(contractService.findAll());
     }
+
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ContractDTO dto){
         Company company = companyService.findBy(dto.getCompanyId());
@@ -44,4 +46,10 @@ public class ContractController {
         Equipment equipment = equipmentService.findByNameMQ(dto.getEquipment().getName());
         return contractService.create(dto, company, hospital, equipment);
     }
+
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<?>  cancelContract(@PathVariable Integer id){
+        return contractService.cancelContract(id);
+    }
+
 }
