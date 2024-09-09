@@ -18,7 +18,7 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue notificationQueue() {
-        return new Queue("delivery-notifications", false);
+        return new Queue("contract-notifications", false);
     }
 
     @Bean

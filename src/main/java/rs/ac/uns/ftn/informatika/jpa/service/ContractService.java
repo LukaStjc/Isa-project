@@ -70,8 +70,8 @@ public class ContractService {
                 contract.getId(), contract.getHospital().getName(), contract.getCompany().getName());
 
         // Send the cancellation message to the queue
-        rabbitTemplate.convertAndSend("contract-exchange", "contract-routing-key", message);
-
+//        rabbitTemplate.convertAndSend("contract-exchange", "contract-routing-key", message);
+        rabbitTemplate.convertAndSend("contract-exchange", "notification-routing-key", message);
         return ResponseEntity.ok("Contract cancelled successfully");
     }
 }
