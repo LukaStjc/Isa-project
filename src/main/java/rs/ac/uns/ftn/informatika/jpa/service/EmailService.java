@@ -162,7 +162,7 @@ public class EmailService {
 		javaMailSender.send(mail);
 	}
 
-	public void sendReservationCompletedConfirmation(Reservation reservation){
+	public void sendReservationCompletedConfirmation(Reservation reservation, Equipment equipment){
 		RegisteredUser user = reservation.getUser();
 
 		SimpleMailMessage mail = new SimpleMailMessage();
@@ -174,7 +174,7 @@ public class EmailService {
 				+ "We are pleased to inform you that your reservation with ID " + reservation.getId() + " has been successfully completed.\n\n"
 				+ "Thank you for choosing our services.\n\n"
 				+ "Best regards,\n"
-				+ "Hospital Management";
+				+ equipment.getCompany().getName() + " Management";
 
 		mail.setText(message);
 

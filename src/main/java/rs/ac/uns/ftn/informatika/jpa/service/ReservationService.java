@@ -793,9 +793,16 @@ public class ReservationService {
         }
 
     reservation.setStatus(Completed);
+
     reservationRepository.save(reservation);
 
     equipmentService.saveAll(equipmentList);
+
+        Equipment equipment = equipmentList.stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No equipment found"));
+
+       // emailService.sendReservationCompletedConfirmation(reservation, equipment);
 
     return true;
 }
