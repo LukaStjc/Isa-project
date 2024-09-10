@@ -2,7 +2,9 @@ insert into location (country,city, street_name, street_number, longitude, latit
 insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Subotica' ,'Veselina Masleše',2, 19.66555, 46.10027);
 insert into location (country,city, street_name, street_number, longitude, latitude) values ('Italia','Roma' ,'Antona Čehova',1, 12.48277, 41.89333);
 insert into location (country,city, street_name, street_number, longitude, latitude) values ('Serbia','Novi Sad' ,'Bulevar cara Lazara',96, 19.84250, 45.25416);
+insert into hospital (name,location_id) values ('Bolnica Pirot', 3);
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 4);
+
 
 -- za sve korisnike ista lozinka: 'pass'
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (5, '2024-01-22', 'luka2001stajic@gmail.com', True, 'Marko', 'Markovic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
@@ -30,7 +32,7 @@ insert into registered_user (id, telephone_number, penalty_points, points, occup
 -- insert into registered_user (id, telephone_number, penalty_points, points, occupation) values (5, '0613241802', 0, 0, 'zemljoradnik');
 
 -- TODO promeniti average_score na 0, za kt1 su stavljene neke vrednosti
-insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beta','opis1' ,'2025-01-08 09:00:00','2025-01-08 17:00:00', 2.5, 2, 7); --id 1
+insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beta','opis1' ,'2025-01-08 00:00:00','2025-01-08 23:00:00', 2.5, 2, 7); --id 1
 insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('alfa','kvalitetna medicinska oprema' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 2.1, 3, 7); -- id 2
 insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('ceta','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 4, 7); -- id 3
 insert into company (name,description, opening_time, closing_time, average_score, location_id, created_by_admin) values ('beeee','sve za vas, od nas' ,'2020-01-01 07:00:00','2020-01-01 21:00:00', 3.3, 1, 7);
@@ -50,8 +52,8 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 
 insert into company_admin (id,company_id, registered_by_admin, password_changed) values (6, 1, 7, false);
 insert into company_admin (id,company_id, registered_by_admin, password_changed) values (10, 1, 7, false);
---insert into company_admin (id,company_id, registered_by_admin, password_changed) values (11, 2, 7, false);
---insert into company_admin (id,company_id, registered_by_admin, password_changed) values (12, 2, 7, false);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (11, 1, 7, false);
+insert into company_admin (id,company_id, registered_by_admin, password_changed) values (12, 2, 7, false);
 
 
 insert into complaint(id, comment, issued_by_user, company_admin_id) values (1, 'Nije mi dobro vracen kusur', 5, 6); -- TODO potrebno je ispostovati uslov da je ovaj korisnik vec imao neku rezervaciju opreme vezanu za tu kompaniju/admina kompanije

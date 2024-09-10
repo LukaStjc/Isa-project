@@ -7,7 +7,7 @@ RABBITMQ_HOST = 'localhost'
 def create_contract(company_id, hospital_name, equipment_data, contract_date):
     """Simulate the hospital creating a new contract by sending a message to RabbitMQ."""
     contract_data = {
-        "companyId": company_id,
+        "companyName": company_name,
         "hospitalName": hospital_name,
         "equipment": equipment_data,
         "date": contract_date
@@ -63,19 +63,16 @@ def listen_for_notifications():
 
 if __name__ == "__main__":
     # Simulate hospital contract creation
-    company_id = 1
+    company_name = "beta"
     hospital_name = "Bolnica Novi Sad"
     equipment_data = {
         "name": "Stetoskop",
-        "companyId": 1,
-        "equipmentType": 1,  # Assuming this is an enum value, make sure it matches your backend
-        "price": 299.99,
-        "quantity": 5
+        "quantity": 1200
     }
     contract_date = str(datetime.now().isoformat())  # Format the date to match your backend requirements
 
     # Create a contract by sending a message to RabbitMQ
-    create_contract(company_id, hospital_name, equipment_data, contract_date)
+    create_contract(company_name, hospital_name, equipment_data, contract_date)
 
     # Listen to RabbitMQ for notifications
     listen_for_notifications()

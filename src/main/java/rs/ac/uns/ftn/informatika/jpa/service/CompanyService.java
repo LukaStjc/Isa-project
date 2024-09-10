@@ -155,4 +155,8 @@ public class CompanyService {
         return company;
     }
 
+    public Company findBy(String companyName){
+        return companyRepository.findCompanyByName(companyName);
+    }
+
 }

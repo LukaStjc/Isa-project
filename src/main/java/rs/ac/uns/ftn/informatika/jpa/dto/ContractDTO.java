@@ -1,20 +1,18 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
-import rs.ac.uns.ftn.informatika.jpa.model.Company;
-import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
-import rs.ac.uns.ftn.informatika.jpa.model.Hospital;
+import rs.ac.uns.ftn.informatika.jpa.enumeration.DeliveryStatus;
 
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import java.util.Date;
-import java.util.List;
 
 public class ContractDTO {
-    private Integer companyId;
+
+    private Integer id;
+    private String companyName;
     private String  hospitalName;
     private EquipmentBasicDTO equipment;
     private Integer quantity;
-    private Date date;
+    private Date time;
+    private DeliveryStatus status;
 
     public ContractDTO() {
     }
@@ -42,19 +40,32 @@ public class ContractDTO {
         this.quantity = quantity;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getTime() {
+        return time;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setTime(Date time) {
+        this.time = time;
     }
 
-    public Integer getCompanyId() {
-        return companyId;
+    public String getCompanyName() {
+        return companyName;
+    }
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public void setCompanyId(Integer companyId) {
-        this.companyId = companyId;
+    public DeliveryStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DeliveryStatus status) {
+        this.status = status;
     }
 }

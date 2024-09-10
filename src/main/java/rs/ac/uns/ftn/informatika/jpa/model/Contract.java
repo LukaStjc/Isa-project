@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.model;
 
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ContractStatus;
+import rs.ac.uns.ftn.informatika.jpa.enumeration.DeliveryStatus;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 
 import javax.persistence.*;
@@ -28,6 +29,8 @@ public class Contract {
     private Date date;
     private ContractStatus status;
     private Integer deliveryDay = 15;
+
+    private DeliveryStatus thisMonthsDeliveryStatus = DeliveryStatus.PENDING;
 
 
     public Contract() {
@@ -101,4 +104,11 @@ public class Contract {
         this.deliveryDay = deliveryDay;
     }
 
+    public DeliveryStatus getThisMonthsDeliveryStatus() {
+        return thisMonthsDeliveryStatus;
+    }
+
+    public void setThisMonthsDeliveryStatus(DeliveryStatus thisMonthsDeliveryStatus) {
+        this.thisMonthsDeliveryStatus = thisMonthsDeliveryStatus;
+    }
 }
