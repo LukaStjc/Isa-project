@@ -11,7 +11,7 @@ public class ContractDTO {
     private String  hospitalName;
     private EquipmentBasicDTO equipment;
     private Integer quantity;
-    private Date time;
+    private Date date;
     private DeliveryStatus status;
 
     public ContractDTO() {
@@ -40,12 +40,12 @@ public class ContractDTO {
         this.quantity = quantity;
     }
 
-    public Date getTime() {
-        return time;
+    public Date getDate() {
+        return date;
     }
 
-    public void setTime(Date time) {
-        this.time = time;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public String getCompanyName() {

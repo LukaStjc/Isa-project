@@ -28,6 +28,7 @@ import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
 import rs.ac.uns.ftn.informatika.jpa.exception.CustomRetryableException;
 import rs.ac.uns.ftn.informatika.jpa.exception.ReservationConflictException;
 import rs.ac.uns.ftn.informatika.jpa.exception.ReservationLockedException;
+import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
@@ -41,6 +42,8 @@ import javax.transaction.Transactional;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -144,6 +147,7 @@ public class ReservationController {
         System.out.println(dto.getSelectedDateTime());
 
         CompanyAdmin admin = companyAdminService.findBy(Integer.parseInt(dto.getAdminId()));
+        Company company = admin.getCompany(); // Assuming admin is linked to the company
 
         String dateString = dto.getSelectedDateTime();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -156,6 +160,40 @@ public class ReservationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        Date openingTime = company.getOpeningTime();
+        Date closingTime = company.getClosingTime();
+
+        // Convert Date to LocalTime
+        LocalTime openingLocalTime = openingTime.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime closingLocalTime = closingTime.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime selectedLocalTime = parsedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+
+        LocalTime endTime = selectedLocalTime.plusMinutes(Integer.parseInt(dto.getDurationMinutes()));
+        String errorMessage = null;
+
+        // Check if the selected date is within the company's working hours
+        if (selectedLocalTime.isBefore(openingLocalTime) || endTime.isAfter(closingLocalTime)) {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+            String formattedOpeningTime = timeFormat.format(openingTime);
+            String formattedClosingTime = timeFormat.format(closingTime);
+
+
+            if (selectedLocalTime.isBefore(openingLocalTime) || selectedLocalTime.isAfter(closingLocalTime)) {
+                // Selected time is outside working hours
+                errorMessage = String.format(
+                        "Selected time is outside company working hours. Working hours are from %s to %s.",
+                        formattedOpeningTime, formattedClosingTime
+                );
+            } else if (endTime.isAfter(closingLocalTime)) {
+                // Duration exceeds working hours
+                errorMessage = String.format(
+                        "The selected time plus duration exceeds company working hours. Please select an earlier time. Working hours are from %s to %s.",
+                        formattedOpeningTime, formattedClosingTime
+                );
+            }
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        }
         Reservation reservation = new Reservation();
         reservation.setDurationMinutes(Integer.parseInt(dto.getDurationMinutes()));
         reservation.setStartingDate(parsedDate);

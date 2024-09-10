@@ -78,7 +78,7 @@ public class Contract {
         this.date = date;
     }
     public Integer getDeliveryDay(){
-        return this.getDate().getDay();
+        return this.deliveryDay;
     }
 
     public Equipment getEquipment() {

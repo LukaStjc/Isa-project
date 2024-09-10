@@ -45,9 +45,10 @@ public class ContractService {
         newContract.setCompany(company);
         newContract.setHospital(hospital);
         newContract.setEquipment(equipment);
-        newContract.setDate(dto.getTime());
+        newContract.setDate(dto.getDate());
         newContract.setQuantity(dto.getEquipment().getQuantity());
         newContract.setStatus(ContractStatus.Active);
+        newContract.setDeliveryDay(15);
 
         contractRepository.save(newContract);
         return ResponseEntity.ok("Contract created successfully");

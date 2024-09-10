@@ -46,7 +46,7 @@ public class DeliveryScheduler {
             if (now.isAfter(openingTime) && now.isBefore(closingTime)) {
 
                 // Calculate 3 days before delivery date
-                Integer deliveryDay = contract.getDeliveryDay(); // Assuming deliveryDay is the day of the month
+                Integer deliveryDay = contract.getDeliveryDay();
                 Calendar deliveryCal = Calendar.getInstance();
                 deliveryCal.setTime(new Date());
                 deliveryCal.set(Calendar.DAY_OF_MONTH, deliveryDay);  // Set the calendar to the delivery day of the current month
@@ -59,7 +59,7 @@ public class DeliveryScheduler {
                 Calendar todayCal = Calendar.getInstance();
                 todayCal.setTime(new Date());
 
-            if (todayCal.get(Calendar.DAY_OF_MONTH) > deliveryDay && !contract.getStatus().equals(DeliveryStatus.PENDING) ) {
+            if (todayCal.get(Calendar.DAY_OF_MONTH) > deliveryDay && !contract.getThisMonthsDeliveryStatus().equals(DeliveryStatus.PENDING) ) {
                     // Reset the delivery status to PENDING for next month
                     contract.setThisMonthsDeliveryStatus(DeliveryStatus.PENDING);
                     contractController.save(contract);
@@ -92,7 +92,11 @@ public class DeliveryScheduler {
                 if (contract.getThisMonthsDeliveryStatus() == DeliveryStatus.CANCELLED) {
                     continue;  // Skip if the contract has been cancelled
                 }
-
+                if(todayCal.get(Calendar.DAY_OF_MONTH) > deliveryDay){
+//                    System.out.println("Today's day: " + todayCal.get(Calendar.DAY_OF_MONTH) + ", Delivery day: " + deliveryDay);
+//                    System.out.println("wtf");
+                    continue;
+                }
                 // Create the notification message
                 String message = String.format("Delivery sent for contract ID %d to hospital %s by company %s.",
                         contract.getId(), contract.getHospital().getName(), company.getName());

@@ -1,6 +1,6 @@
 import pika
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 RABBITMQ_HOST = 'localhost'
 
@@ -69,8 +69,8 @@ if __name__ == "__main__":
         "name": "Stetoskop",
         "quantity": 1200
     }
-    contract_date = str(datetime.now().isoformat())  # Format the date to match your backend requirements
-
+    # contract_date = str(datetime.now().isoformat())  # Format the date to match your backend requirements
+    contract_date = str((datetime.now() - timedelta(hours=2)).isoformat())
     # Create a contract by sending a message to RabbitMQ
     create_contract(company_name, hospital_name, equipment_data, contract_date)
 
