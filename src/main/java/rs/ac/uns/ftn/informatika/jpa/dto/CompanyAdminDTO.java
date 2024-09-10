@@ -1,16 +1,29 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 
+
+@Schema(description = "Data Transfer Object for Company Admin information.")
 public class CompanyAdminDTO {
 
+    @Schema(description = "Email address of the company admin", example = "admin@example.com", required = true)
     private String email;
-    private String firstName;
-    private String lastName;
-    private String password;
-    private String companyName;
-    private String companyId;
 
+    @Schema(description = "First name of the company admin", example = "John", required = true)
+    private String firstName;
+
+    @Schema(description = "Last name of the company admin", example = "Doe", required = true)
+    private String lastName;
+
+    @Schema(description = "Password for the company admin's account", example = "password123", required = true)
+    private String password;
+
+    @Schema(description = "Name of the company the admin is associated with", example = "TechCorp")
+    private String companyName;
+
+    @Schema(description = "ID of the company the admin is associated with", example = "123")
+    private String companyId;
     public CompanyAdminDTO(){}
 
     public CompanyAdminDTO(String email, String firstName, String lastName, String password, String companyName) {

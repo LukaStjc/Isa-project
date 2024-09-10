@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
@@ -8,17 +9,33 @@ import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import java.util.ArrayList;
 import java.util.List;
 
+@Schema(description = "DTO for transferring company data including related equipment, admins, and reservations")
 public class CompanyDTO {
+
+    @Schema(description = "Unique identifier of the company", example = "1")
     private Integer id;
+
+    @Schema(description = "Name of the company", example = "Tech Innovators Ltd.")
     private String name;
+
+    @Schema(description = "Location of the company")
     private Location location;
+
+    @Schema(description = "Brief description of the company", example = "Leading provider of innovative tech solutions.")
     private String description;
+
+    @Schema(description = "Average score or rating of the company", example = "4.5")
     private Double averageScore;
+
+    @Schema(description = "List of equipment associated with the company")
     private List<EquipmentDTO> equipment;
 
+    @Schema(description = "List of company administrators")
     private List<CompanyAdminDTO> admins;
 
+    @Schema(description = "List of reservations associated with the company")
     private List<ReservationDTO> reservationDTOS;
+
     public CompanyDTO() {
     }
 

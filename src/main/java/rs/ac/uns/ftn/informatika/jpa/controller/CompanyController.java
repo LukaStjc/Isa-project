@@ -1,11 +1,13 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,7 @@ import java.util.Collection;
 import java.util.List;
 
 
+@Tag(name = "Company", description = "Endpoints for managing company details")
 @RestController
 @RequestMapping(value = "api/companies")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -59,6 +62,13 @@ public class CompanyController {
 
         return new ResponseEntity<>(companyBasicDTOS, HttpStatus.OK);
     }
+    @Operation(summary = "Get Company Details by ID", description = "Retrieve the details of a company, including reservations and admins, for the specified company ID. Requires COMPANY_ADMIN role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Company details retrieved successfully", content = @Content(schema = @Schema(implementation = CompanyDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - user does not have COMPANY_ADMIN role"),
+            @ApiResponse(responseCode = "404", description = "Company not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/{id}")
     @Transactional  // vasilije: posto sam dodao kod company za equipment LAZY, jer u suprotnom ne radi, morao sam ovde da dodam transactional mozda nije najpametnije resenje
     @PreAuthorize("hasRole('COMPANY_ADMIN')")
@@ -69,9 +79,17 @@ public class CompanyController {
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get Company Profile by ID", description = "Retrieve company details including reservations and admins for the specified company ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Company details retrieved successfully", content = @Content(schema = @Schema(implementation = CompanyDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Company not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/profile/{id}")
     @Transactional  // Mora ponovo jer je i ovde isto sto i iznad
-    public ResponseEntity<CompanyDTO> getCompanyForUserById(@PathVariable Integer id){
+    public ResponseEntity<CompanyDTO> getCompanyForUserById(
+            @Parameter(description = "ID of company for request", required = true)
+            @PathVariable Integer id){
         Company company = companyService.findBy(id);
         CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
         companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
@@ -93,7 +111,16 @@ public class CompanyController {
 //        locationService.save(location);
 //        company.setLocation(location);
 //    }
-    @PutMapping ("/update/{id}")
+    @Operation(
+            summary = "Update company details",
+            description = "Updates the specified company's location or other details."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Company updated successfully", content = @Content(schema = @Schema(implementation = CompanyDTO.class))),
+            @ApiResponse(responseCode = "204", description = "No content - company not found"),
+            @ApiResponse(responseCode = "403", description = "User is not authorized to update the company"),
+            @ApiResponse(responseCode = "500", description = "Server error while updating company")
+    })    @PutMapping ("/update/{id}")
     // Vasilije: za sada nisam hteo ovde da stavim transactional, mozda i treba,
     // ali sam opet imao problem sa duzinom sesije, i pukne program zbog lazyCollection-a
     // sa transakcijom produzim trajanje sesije i onda ne baca exception da ne moze

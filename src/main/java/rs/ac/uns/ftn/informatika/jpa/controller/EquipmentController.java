@@ -1,24 +1,29 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
+import rs.ac.uns.ftn.informatika.jpa.exception.CustomOptimisticLockingException;
+import rs.ac.uns.ftn.informatika.jpa.exception.EquipmentNotFoundException;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
 
+import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -192,9 +197,21 @@ public class EquipmentController {
         return equipmentType;
     }
 
+    @Operation(
+            summary = "Create a new equipment",
+            description = "Creates a new equipment entry and associates it with the specified company."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Equipment created successfully", content = @Content(schema = @Schema(implementation = EquipmentBasicDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "403", description = "User is not authorized to create equipment")
+    })
     @PostMapping(consumes = "application/json")
     @PreAuthorize("hasRole('COMPANY_ADMIN')")
-    public ResponseEntity<EquipmentBasicDTO> createEquipment(@RequestBody EquipmentBasicDTO dto){
+    public ResponseEntity<EquipmentBasicDTO> createEquipment(
+            @Parameter(description = "Details of the equipment to be created", required = true, content =  @Content(schema = @Schema(implementation = EquipmentBasicDTO.class)))
+            @RequestBody
+            EquipmentBasicDTO dto){
 
         // TODO dodati proveru da li je korisnik Admin sistema
         Company company = companyService.findBy(dto.getCompanyId());
@@ -209,6 +226,12 @@ public class EquipmentController {
 
         return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.CREATED);
     }
+    @Operation(summary = "Delete equipment", description = "Deletes the equipment with the specified ID. Only accessible to users with the COMPANY_ADMIN role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Equipment successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Equipment not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Access denied for non-admin users")
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('COMPANY_ADMIN')")
 
@@ -217,19 +240,56 @@ public class EquipmentController {
         equipmentService.delete(equipment);
         return new ResponseEntity<>("Equipment succesfully deleted", HttpStatus.OK);
     }
-    @PutMapping ("/update/{id}")
-    @PreAuthorize("hasRole('COMPANY_ADMIN')")
-    public ResponseEntity<EquipmentDTO> updateEquipment(@PathVariable Integer id, @RequestBody EquipmentBasicDTO dto){
+
+    @Operation(
+            summary = "Update equipment",
+            description = "Updates the details of the specified equipment."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Equipment updated successfully", content = @Content(schema = @Schema(implementation = EquipmentDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Equipment not found"),
+            @ApiResponse(responseCode = "409", description = "Optimistic locking failure")
+    })
+    @PutMapping("/update/{id}")
+    @Transactional
+// @PreAuthorize("hasRole('COMPANY_ADMIN')")
+    public ResponseEntity<EquipmentDTO> updateEquipment(
+            @Parameter(description = "ID of the equipment to be updated", required = true)
+            @PathVariable Integer id,
+
+            @RequestBody(required = true)
+            @Parameter(description = "Equipment details", required = true)
+            EquipmentBasicDTO dto
+    ){
         Equipment equipment = equipmentService.findBy(id);
-        equipment.updateProperties(dto);
-        if(dto.getQuantity() == 0){
-            deleteEquipment(id);
-            return new ResponseEntity<>(HttpStatus.OK); // Return success response without saving
+
+        if (equipment == null) {
+            throw new EquipmentNotFoundException("The equipment has been deleted by another company admin   .");
         }
-        equipmentService.save(equipment);
-        return new ResponseEntity<>(new EquipmentDTO(equipment), HttpStatus.OK);
+
+        if (!equipment.getVersion().equals(dto.getVersion())) {
+            throw new CustomOptimisticLockingException("The equipment has been modified by another user. Please reload and try again.");
+        }
+
+            equipment.updateProperties(dto);
+
+        if (dto.getQuantity() == 0) {
+            deleteEquipment(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        Equipment updatedEquipment = equipmentService.save(equipment);
+        return new ResponseEntity<>(new EquipmentDTO(updatedEquipment), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get equipment by ID",
+            description = "Retrieves the details of the equipment specified by the ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Equipment retrieved successfully", content = @Content(schema = @Schema(implementation = EquipmentBasicDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Equipment not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentBasicDTO> getById(@PathVariable Integer id){
         Equipment equipment = equipmentService.findBy(id);
