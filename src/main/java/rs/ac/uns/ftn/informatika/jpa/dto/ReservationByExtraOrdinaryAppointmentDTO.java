@@ -19,7 +19,7 @@ public class ReservationByExtraOrdinaryAppointmentDTO {
     @Valid
     private List<ReservationItemDTO> reservationItems;
 
-    private Integer availableAdminId;
+    private List<Integer> availableAdminId;
 
 
 

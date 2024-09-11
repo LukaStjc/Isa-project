@@ -27,10 +27,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.ReservationItemDTO;
-import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 import rs.ac.uns.ftn.informatika.jpa.exception.CustomRetryableException;
 import rs.ac.uns.ftn.informatika.jpa.exception.InsufficientEquipmentException;
@@ -384,14 +380,26 @@ public class ReservationService {
         oldReservation.setItems(null);
     }
 
-    private void penalizeUser(RegisteredUser loggedInUser, Reservation oldReservation) {
-        ZonedDateTime currentDate = ZonedDateTime.now();
-        ZonedDateTime startingDate = ZonedDateTime.ofInstant(oldReservation.getStartingDate().toInstant(), currentDate.getZone());
-        Duration duration = Duration.between(currentDate, startingDate);
-        // Cancelling a reservation within 24 hours before the scheduled shipping time will result in a penalty of 2 points
-        if (duration.toHours() <= 24) loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 2);
-        else loggedInUser.setPenaltyPoints(loggedInUser.getPenaltyPoints() + 1);
-        registeredUserService.save(loggedInUser);
+    public void penalizeUser(RegisteredUser loggedInUser, Reservation oldReservation) {
+        try {
+            RegisteredUser user = registeredUserService.findById(loggedInUser.getId());
+            ZonedDateTime currentDate = ZonedDateTime.now();
+            ZonedDateTime startingDate = ZonedDateTime.ofInstant(oldReservation.getStartingDate().toInstant(), currentDate.getZone());
+            Duration duration = Duration.between(currentDate, startingDate);
+
+            // Cancelling a reservation within 24 hours before the scheduled shipping time will result in a penalty of 2 points
+            if (duration.toHours() <= 24) {
+                user.setPenaltyPoints(user.getPenaltyPoints() + 2);
+            } else {
+                user.setPenaltyPoints(user.getPenaltyPoints() + 1);
+            }
+            
+            registeredUserService.save(user);
+        } catch (OptimisticLockingFailureException e) {
+            throw new RuntimeException("Failed to update user penalty points: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred while penalizing the user: " + e.getMessage(), e);
+        }
     }
 
     public boolean existsByUserAndCompany(RegisteredUser registeredUser, Company company){
@@ -567,16 +575,15 @@ public class ReservationService {
 
         while(start.plusHours(1).isBefore(end)){
             DateAndAdminDTO dateAndAdminDTO = new DateAndAdminDTO();
-            boolean isAvailable = false;
+            List<Integer> admins = new ArrayList<>();
             for(CompanyAdmin companyAdmin:company.getCompanyAdmins()){
                 if(isAdminFree(companyAdmin, date, start, start.plusHours(1))){
-                    isAvailable = true;
-                    dateAndAdminDTO.setAvailableAdminId(companyAdmin.getId());
-                    break;
+                    admins.add(companyAdmin.getId());
+                    dateAndAdminDTO.setAvailableAdminId(admins);
                 }
             }
 
-            if(isAvailable){
+            if(admins.size()!=0){
                 LocalDateTime dateTime = LocalDateTime.of(date, start);
                 dateAndAdminDTO.setDateSlot(dateTime);
                 availableSlots.add(dateAndAdminDTO);
@@ -603,49 +610,62 @@ public class ReservationService {
         return reservationRepository.findAllByAdminAndDayAndCreatedOrReady(admin, startOfDay, endOfDay);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createReservationByExtraOrdinaryAppointment(ReservationByExtraOrdinaryAppointmentDTO dto)
             throws DataAccessException, ClassNotFoundException, MailException, MessagingException, OptimisticLockException {
 
+        RegisteredUser registeredUser = (RegisteredUser) getUserCredentinals();
 
-
-        User user = getUserCredentinals();
-        RegisteredUser registeredUser = (RegisteredUser) user;;
-
-        // check if the user is forbidden to make a reservation this month
-        if (((RegisteredUser) user).getPenaltyPoints() >= 3) {
-            throw new RuntimeException("The user is forbidden from making a new reservation this month since he has canceled many reservations!");
+        if (registeredUser.getPenaltyPoints() >= 3) {
+            throw new RuntimeException("The user is forbidden from making a new reservation this month due to many cancellations!");
         }
+
         Date parsedDate;
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try{
+        try {
             parsedDate = formatter.parse(dto.getSelectedDateTime());
-        }catch(ParseException e){
-            throw new RuntimeException("Wrong date");
+        } catch (ParseException e) {
+            throw new RuntimeException("Wrong date format");
+        }
+
+        //CompanyAdmin admin = companyAdminService.findBy(dto.getAvailableAdminId());
+        
+        // Check if the slot is still available
+        Integer adminIdentificator = null;
+        for(Integer adminId: dto.getAvailableAdminId()){
+            CompanyAdmin admin = companyAdminService.findBy(adminId);
+            if (isSlotAvailable(admin, parsedDate)) {
+                adminIdentificator = adminId;
+                break;
+            }
+        }
+
+        if(adminIdentificator==null){
+            throw new ReservationConflictException("The selected appointment slot is no longer available.");
         }
 
 
         Reservation reservation = new Reservation();
         reservation.setStartingDate(parsedDate);
         reservation.setDurationMinutes(60);
-        reservation.setAdmin(companyAdminService.findBy(dto.getAvailableAdminId()));
+        reservation.setAdmin(companyAdminService.findBy(adminIdentificator));
 
         updateReservationDetails(reservation, registeredUser);
 
         for (ReservationItemDTO item : dto.getReservationItems()) {
             Equipment equipment = equipmentService.findBy(item.getEquipmentId());
 
-            if (equipment == null)
+            if (equipment == null) {
                 throw new ClassNotFoundException("Equipment with ID " + item.getEquipmentId() + " not found");
+            }
 
             if (equipment.getAvailableQuantity() < item.getQuantity()) {
-                throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the possible quantity");
+                throw new IllegalArgumentException("The chosen quantity of equipment with id " + item.getEquipmentId() + " is larger than the available quantity");
             }
 
             addReservationItem(reservation, item, equipment);
-
             setAvailableQuantity(item, equipment);
-
             equipmentService.save(equipment);
         }
 
@@ -653,15 +673,23 @@ public class ReservationService {
             reservationItemService.save(reservationItem);
         }
 
-        applyDiscountAndUpdateLoyalty(reservation,registeredUser);
+        applyDiscountAndUpdateLoyalty(reservation, registeredUser);
         registeredUserService.save(registeredUser);
 
-        reservationRepository.save(reservation);
+        try {
+            reservationRepository.save(reservation);
+        } catch (OptimisticLockingFailureException e) {
+            throw new ReservationConflictException("The reservation could not be created due to a conflict. Please try again.");
+        }
 
         emailService.sendReservationQRCodeASync(registeredUser, reservation);
     }
 
-
+    private boolean isSlotAvailable(CompanyAdmin admin, Date startDate) {
+        Date endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 60 minutes later
+        List<Reservation> conflictingReservations = reservationRepository.findConflictingReservations(startDate, endDate, admin.getId());
+        return conflictingReservations.isEmpty();
+    }
 
     public List<UserDTO> getAllUsersByCompany(Integer adminId) {
 //        List<Reservation> reservations = reservationRepository.findAllByCompanyAd
@@ -816,6 +844,18 @@ public class ReservationService {
         } catch (PessimisticLockingFailureException ex) {
             // Handle the lock failure
             throw new CustomRetryableException("Unable to acquire lock on equipment. Please try again.");
+        }
+    }
+
+    static void spin(long delay_in_milliseconds) {
+        long delay_in_nanoseconds = delay_in_milliseconds*1000000;
+        long start_time = System.nanoTime();
+        while (true) {
+            long now = System.nanoTime();
+            long time_spent_sleeping_thus_far = now - start_time;
+            if (time_spent_sleeping_thus_far >= delay_in_nanoseconds) {
+                break;
+            }
         }
     }
 

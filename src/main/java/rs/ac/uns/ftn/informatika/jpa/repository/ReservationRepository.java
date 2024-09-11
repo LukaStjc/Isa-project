@@ -60,4 +60,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
 
     @Query("SELECT r FROM Reservation r WHERE r.admin = :admin AND r.startingDate BETWEEN :startOfDay AND :endOfDay AND (r.status = 0 OR r.status = 1) ")
     List<Reservation> findAllByAdminAndDayAndCreatedOrReady(CompanyAdmin admin, Date startOfDay, Date endOfDay);
+
+    @Query(value = "SELECT r.* FROM Reservation r WHERE r.admin_id = :adminId AND " +
+       "((r.starting_date >= :startDate AND r.starting_date < :endDate) OR " +
+       "(r.starting_date <= :startDate AND :startDate < r.starting_date + INTERVAL '1 hour'))", 
+       nativeQuery = true)
+    List<Reservation> findConflictingReservations(@Param("startDate") Date startDate,
+                                              @Param("endDate") Date endDate,
+                                              @Param("adminId") Integer adminId);
 }

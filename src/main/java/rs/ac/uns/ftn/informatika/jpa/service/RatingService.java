@@ -69,7 +69,11 @@ public class RatingService {
             rating.setReasons(rateCompanyDTO.getReasons());
         }
 
-        return save(rating);
+        save(rating);
+
+        companyService.updateAverageScore(c);
+
+        return rating;
 
     }
 
@@ -96,6 +100,18 @@ public class RatingService {
 
 
 
+    }
+
+    static void spin(long delay_in_milliseconds) {
+        long delay_in_nanoseconds = delay_in_milliseconds*1000000;
+        long start_time = System.nanoTime();
+        while (true) {
+            long now = System.nanoTime();
+            long time_spent_sleeping_thus_far = now - start_time;
+            if (time_spent_sleeping_thus_far >= delay_in_nanoseconds) {
+                break;
+            }
+        }
     }
 
 

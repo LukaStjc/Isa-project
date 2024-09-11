@@ -27,6 +27,7 @@ import rs.ac.uns.ftn.informatika.jpa.dto.ReservationByPremadeAppointmentDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ReservationPremadeDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.UserDTO;
+import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 import rs.ac.uns.ftn.informatika.jpa.exception.CustomRetryableException;
 import rs.ac.uns.ftn.informatika.jpa.exception.ReservationConflictException;
 import rs.ac.uns.ftn.informatika.jpa.exception.ReservationLockedException;
@@ -161,6 +162,7 @@ public class ReservationController {
         reservation.setDurationMinutes(Integer.parseInt(dto.getDurationMinutes()));
         reservation.setStartingDate(parsedDate);
         reservation.setAdmin(admin);
+        reservation.setStatus(ReservationStatus.Created);
 
         try {
             reservationService.save(reservation);
@@ -225,6 +227,13 @@ public class ReservationController {
 
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping("/showAvailableAppointmentsOnDate")
+    @Operation(summary = "Show available appointments on a specific date for a given company",
+            description = "Retrieves all available appointments for a particular company on a specified date.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved available appointments", content = { @Content(mediaType = "application/json") })
+    @ApiResponse(responseCode = "400", description = "Bad request if the input parameters are invalid or other error occurs", content = @Content)
+    @ApiResponse(responseCode = "401", description = "Unauthorized if the user is not authenticated", content = @Content)
+    @ApiResponse(responseCode = "403", description = "Forbidden if the user does not have the role REGISTERED_USER", content = @Content)
     public ResponseEntity showAvailableAppointmentsOnDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam Integer companyId
@@ -241,13 +250,23 @@ public class ReservationController {
 
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(consumes = "application/json", value = "/create-by-extraordinary-appointment")
+    @Operation(summary = "Create a reservation by extraordinary appointment",
+            description = "Creates a reservation based on special criteria of an extraordinary appointment. Accessible only to registered users.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Reservation created successfully")
+    @ApiResponse(responseCode = "409", description = "The selected appointment is no longer available. Please try again.",
+            content = @Content)
+    @ApiResponse(responseCode = "400", description = "Bad request due to input error or runtime issues",
+            content = @Content)
+    @ApiResponse(responseCode = "401", description = "Unauthorized if the user is not authenticated", content = @Content)
+    @ApiResponse(responseCode = "403", description = "Forbidden if the user does not have the role REGISTERED_USER", content = @Content)
     public ResponseEntity createReservationByExtraOrdinaryAppointment(@RequestBody @Valid ReservationByExtraOrdinaryAppointmentDTO dto) throws Exception
     {
         try {
             reservationService.createReservationByExtraOrdinaryAppointment(dto);
-        } catch (OptimisticLockException | OptimisticLockingFailureException | StaleStateException e) {
-            return new ResponseEntity<>("This slot has just been booked by another user. Please try another slot.", HttpStatus.CONFLICT);
-        } catch (RuntimeException | MessagingException | ClassNotFoundException  e) {
+        } catch (OptimisticLockingFailureException | ReservationConflictException e) {
+            return new ResponseEntity<>("The selected appointment is no longer available. Please try again.", HttpStatus.CONFLICT);
+        } catch (RuntimeException | MessagingException | ClassNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 

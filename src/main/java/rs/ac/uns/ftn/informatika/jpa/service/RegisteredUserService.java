@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.repository.RegisteredUserRepository;
 import rs.ac.uns.ftn.informatika.jpa.dto.RegisteredUserProfileDTO;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 import java.util.List;
@@ -43,7 +45,11 @@ public class RegisteredUserService {
         return registeredUserRepository.getByEmail(email);
     }
 
-    public RegisteredUser findById(Integer id) { return  registeredUserRepository.findRegisteredUserById(id); }
+    @Transactional(readOnly = false)
+    public RegisteredUser findById(Integer id) {
+        return registeredUserRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("RegisteredUser not found with id: " + id));
+    }
 
     public RegisteredUser findByEmail(String email) { return  registeredUserRepository.findRegisteredUserByEmail(email); }
 

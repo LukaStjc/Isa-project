@@ -9,8 +9,10 @@ import rs.ac.uns.ftn.informatika.jpa.dto.CompanyLocationDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.CompanyProfileDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
+import rs.ac.uns.ftn.informatika.jpa.model.Rating;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.repository.CompanyRepository;
+import rs.ac.uns.ftn.informatika.jpa.repository.RatingRepository;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -24,6 +26,9 @@ public class CompanyService {
 
     @Autowired
     private LocationService locationService;
+
+    @Autowired
+    private RatingRepository ratingRepository;
 
     private static final double EARTH_RADIUS_KM = 6371.0;
 
@@ -153,6 +158,37 @@ public class CompanyService {
         System.out.println("Usao 3 put");
 
         return company;
+    }
+
+    public void updateAverageScore(Company c){
+
+        int ratingsCount = ratingRepository.countRatingsByCompany(c);
+        double sumOfRatings = 0;
+        if(ratingsCount == 0){
+            c.setAverageScore(0.0);
+        }else{
+            sumOfRatings = ratingRepository.sumRatingsByCompany(c);
+        }
+
+        Double averageScore =  (sumOfRatings/ratingsCount);
+
+
+
+        c.setAverageScore(averageScore);
+        save(c);
+
+    }
+
+    static void spin(long delay_in_milliseconds) {
+        long delay_in_nanoseconds = delay_in_milliseconds*1000000;
+        long start_time = System.nanoTime();
+        while (true) {
+            long now = System.nanoTime();
+            long time_spent_sleeping_thus_far = now - start_time;
+            if (time_spent_sleeping_thus_far >= delay_in_nanoseconds) {
+                break;
+            }
+        }
     }
 
 }
