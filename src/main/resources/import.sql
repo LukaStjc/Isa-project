@@ -5,6 +5,7 @@ insert into location (city,country, street_name, street_number, longitude, latit
 
 insert into hospital (name,location_id) values ('Bolnica Novi Sad', 4);
 
+
 -- za sve korisnike ista lozinka: 'pass'
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (5, '2024-01-22', 'luka2001stajic@gmail.com', True, 'Marko', 'Markovic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
 insert into userr (id, last_password_reset_date, email, enabled, first_name, last_name, password) values (6, '2024-01-22', 'parkoparkovic@gmail.com', True, 'Parko', 'Parkovic', '$2a$10$8kIhZmKlZwao9SGdp/ZfMeHHMWx84Q9in5Cl374/T4cbv7zzpihG.');
@@ -39,11 +40,12 @@ insert into equipment (name,description, type, price, quantity, company_id, avai
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Rendgen aprat x021','uredjaj za snimanje grudnog kosa', 2, 600000, 5, 1, 5, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Magnetna rezonanca p442','uredjaj za snimanje glave', 0, 700000, 6, 2, 6, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Kamerica 2mpx', 'Za snimanje creva', 0, 10000, 10, 2, 10, 0);
-insert into equipment (name,description, type, price, qua   ntity, company_id, available_quantity, version) values ('Mala kamera 3mpx', 'Za snimanje grla', 0, 9000, 25, 3, 25, 0);
+insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Mala kamera 3mpx', 'Za snimanje grla', 0, 9000, 25, 3, 25, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za majstorisanje' ,1  , 2500, 30, 3, 30, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Srafciger','alat za sve' ,1  , 2900, 80, 2, 80, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Skalpel','alat za sve' , 1 , 3000, 80, 1, 80, 0);
 insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('CT skener','alat za sve' , 1 , 10000, 80, 1, 80, 0);
+insert into equipment (name,description, type, price, quantity, company_id, available_quantity, version) values ('Stetoskop','lekar equipment' ,1  , 3000, 100, 1, 100, 0);
 
 
 insert into company_admin (id,company_id, registered_by_admin, password_changed) values (6, 1, 7, false);

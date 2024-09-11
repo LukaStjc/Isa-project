@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.informatika.jpa.dto.EquipmentBasicDTO;
@@ -14,7 +15,9 @@ import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.repository.EquipmentRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -91,4 +94,18 @@ public class EquipmentService {
     }
 
 
+    public Equipment findByNameMQ(String name) {
+
+        return equipmentRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("Equipment not found with name: " + name));
+    }
+
+    public List<String> getEquipmentTypes() {
+        List<String> response = new ArrayList<>();
+        EquipmentType[] types = EquipmentType.values();
+        for (EquipmentType type: types) {
+            response.add(type.toString());
+        }
+        return response;
+    }
 }

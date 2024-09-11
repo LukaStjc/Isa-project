@@ -31,6 +31,7 @@ import rs.ac.uns.ftn.informatika.jpa.enumeration.ReservationStatus;
 import rs.ac.uns.ftn.informatika.jpa.exception.CustomRetryableException;
 import rs.ac.uns.ftn.informatika.jpa.exception.ReservationConflictException;
 import rs.ac.uns.ftn.informatika.jpa.exception.ReservationLockedException;
+import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.RegisteredUser;
 import rs.ac.uns.ftn.informatika.jpa.model.Reservation;
@@ -47,6 +48,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Tag(name = "Reservation Management Controllers", description = "Manages all operations related to reservations.")
@@ -146,6 +153,7 @@ public class ReservationController {
         System.out.println(dto.getSelectedDateTime());
 
         CompanyAdmin admin = companyAdminService.findBy(Integer.parseInt(dto.getAdminId()));
+        Company company = admin.getCompany(); // Assuming admin is linked to the company
 
         String dateString = dto.getSelectedDateTime();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -158,6 +166,40 @@ public class ReservationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        Date openingTime = company.getOpeningTime();
+        Date closingTime = company.getClosingTime();
+
+        // Convert Date to LocalTime
+        LocalTime openingLocalTime = openingTime.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime closingLocalTime = closingTime.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime selectedLocalTime = parsedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+
+        LocalTime endTime = selectedLocalTime.plusMinutes(Integer.parseInt(dto.getDurationMinutes()));
+        String errorMessage = null;
+
+        // Check if the selected date is within the company's working hours
+        if (selectedLocalTime.isBefore(openingLocalTime) || endTime.isAfter(closingLocalTime)) {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+            String formattedOpeningTime = timeFormat.format(openingTime);
+            String formattedClosingTime = timeFormat.format(closingTime);
+
+
+            if (selectedLocalTime.isBefore(openingLocalTime) || selectedLocalTime.isAfter(closingLocalTime)) {
+                // Selected time is outside working hours
+                errorMessage = String.format(
+                        "Selected time is outside company working hours. Working hours are from %s to %s.",
+                        formattedOpeningTime, formattedClosingTime
+                );
+            } else if (endTime.isAfter(closingLocalTime)) {
+                // Duration exceeds working hours
+                errorMessage = String.format(
+                        "The selected time plus duration exceeds company working hours. Please select an earlier time. Working hours are from %s to %s.",
+                        formattedOpeningTime, formattedClosingTime
+                );
+            }
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        }
         Reservation reservation = new Reservation();
         reservation.setDurationMinutes(Integer.parseInt(dto.getDurationMinutes()));
         reservation.setStartingDate(parsedDate);
@@ -273,17 +315,44 @@ public class ReservationController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+
+    @Operation(
+            summary = "Get all users by company admin",
+            description = "Retrieves a list of users associated with the specified company admin ID. This endpoint is used to get all users managed by a particular company admin."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of users"),
+            @ApiResponse(responseCode = "404", description = "Company admin not found or no users available"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/get-users/{id}")
     public ResponseEntity<List<UserDTO>> getAllUsersByCompanyAdmin(@PathVariable Integer id){
 
         return new ResponseEntity<>(reservationService.getAllUsersByCompany(id), HttpStatus.OK);
     }
-
+    @Operation(
+            summary = "Get available reservations for a specific ID",
+            description = "Retrieves a list of available reservations for the specified ID. The ID typically represents a specific entity such as a user or company."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of available reservations"),
+            @ApiResponse(responseCode = "404", description = "ID not found or no reservations available"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/available/{id}")
     public ResponseEntity<List<ReservationDTO>> getAvailableReservations(@PathVariable Integer id){
 
         return new ResponseEntity<>(reservationService.getAvailableReservations(id), HttpStatus.OK);
     }
+    @Operation(
+            summary = "Mark a reservation as completed",
+            description = "Marks the reservation identified by the specified ID as completed. Handles locking exceptions if the reservation is currently being modified by another transaction."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservation marked as completed"),
+            @ApiResponse(responseCode = "409", description = "Conflict due to reservation being locked or retryable exception"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PutMapping("/mark-completed/{id}")
     public ResponseEntity<String> markReservationCompleted(@PathVariable Integer id) {
         try {

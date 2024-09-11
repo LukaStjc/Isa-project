@@ -54,7 +54,7 @@ public class CompanyService {
         return companyRepository.findByName(name);
     }
 
-    @Cacheable(value="company", keyGenerator = "customKeyGenerator")
+//    @Cacheable(value="company", keyGenerator = "customKeyGenerator")
     public Company findBy(Integer id) throws NoSuchElementException {
         return companyRepository.findById(id).get();
     }
@@ -189,6 +189,10 @@ public class CompanyService {
                 break;
             }
         }
+    }
+    
+    public Company findBy(String companyName){
+        return companyRepository.findCompanyByName(companyName);
     }
 
 }

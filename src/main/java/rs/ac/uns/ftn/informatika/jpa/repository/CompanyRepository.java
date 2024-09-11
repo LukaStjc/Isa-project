@@ -28,4 +28,5 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     List<Company> findByNameAndLocationContaining(String name, String location, Sort sort);
 
 
+    Company findCompanyByName(String companyName);
 }

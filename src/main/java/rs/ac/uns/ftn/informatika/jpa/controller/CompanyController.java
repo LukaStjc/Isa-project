@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -71,10 +72,11 @@ public class CompanyController {
     })
     @GetMapping("/{id}")
     @Transactional  // vasilije: posto sam dodao kod company za equipment LAZY, jer u suprotnom ne radi, morao sam ovde da dodam transactional mozda nije najpametnije resenje
-    @PreAuthorize("hasRole('COMPANY_ADMIN')")
+    //@PreAuthorize("hasRole('COMPANY_ADMIN')")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer id){
         Company company = companyService.findBy(id);
-        CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
+        Hibernate.initialize(company.getEquipment());
+        CompanyDTO companyDTO = new CompanyDTO(company);
         companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
     }
@@ -91,7 +93,7 @@ public class CompanyController {
             @Parameter(description = "ID of company for request", required = true)
             @PathVariable Integer id){
         Company company = companyService.findBy(id);
-        CompanyDTO companyDTO = new CompanyDTO(companyService.findBy(id));
+        CompanyDTO companyDTO = new CompanyDTO(company);
         companyDTO.setReservationDTOS(reservationService.getAllPredefinedByCompanyAdmin(company.getCompanyAdmins()));
         companyDTO.setAdmins(new ArrayList<>());
         return new ResponseEntity<>(companyDTO, HttpStatus.OK);
@@ -127,10 +129,14 @@ public class CompanyController {
     // da ucita equipment, jer mu vise nije dostupan...
     @Transactional
     @PreAuthorize("hasRole('COMPANY_ADMIN')")
-    public HttpEntity<? extends Object> updateCompany(@PathVariable Integer id, @RequestBody CompanyLocationDTO dto){
+    public HttpEntity<? extends Object> updateCompany(@PathVariable Integer id, @RequestBody CompanyLocationDTO dto) {
+        // Validation
+//        System.out.println(dto.getStreetNumber());
+        if (Integer.parseInt(dto.getStreetNumber())  < 0) {
+            return new ResponseEntity<String>("Street number must be a positive integer.", HttpStatus.BAD_REQUEST);
+        }
 
         Company company;
-
         try {
             company = companyService.updateCompany(id, dto);
         } catch (NoSuchElementException e) {

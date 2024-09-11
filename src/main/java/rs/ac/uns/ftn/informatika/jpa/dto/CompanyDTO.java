@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.informatika.jpa.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.hibernate.Hibernate;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.CompanyAdmin;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
@@ -76,13 +77,17 @@ public class CompanyDTO {
         this.admins = admins;
     }
 
-    public  CompanyDTO(Company company){
+    public CompanyDTO(Company company) {
         this.id = company.getId();
         this.name = company.getName();
         this.location = company.getLocation();
         this.averageScore = company.getAverageScore();
+
+        // Initialize the lazy-loaded equipment collection
+        Hibernate.initialize(company.getEquipment());
+
         this.equipment = equipmentToDTO(company.getEquipment());
-        this.admins =companyAdminsToDTO(company.getCompanyAdmins());
+        this.admins = companyAdminsToDTO(company.getCompanyAdmins());
         this.description = company.getDescription();
     }
     public List<EquipmentDTO> equipmentToDTO(List<Equipment> equipment){
