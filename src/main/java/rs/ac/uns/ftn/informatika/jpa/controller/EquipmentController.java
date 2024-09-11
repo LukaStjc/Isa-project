@@ -21,8 +21,10 @@ import rs.ac.uns.ftn.informatika.jpa.exception.EquipmentNotFoundException;
 import rs.ac.uns.ftn.informatika.jpa.model.Company;
 import rs.ac.uns.ftn.informatika.jpa.model.Equipment;
 import rs.ac.uns.ftn.informatika.jpa.model.Location;
+import rs.ac.uns.ftn.informatika.jpa.model.ReservationItem;
 import rs.ac.uns.ftn.informatika.jpa.service.CompanyService;
 import rs.ac.uns.ftn.informatika.jpa.service.EquipmentService;
+import rs.ac.uns.ftn.informatika.jpa.service.ReservationItemService;
 
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Transactional;
@@ -43,6 +45,8 @@ public class EquipmentController {
 
     @Autowired
     EquipmentService equipmentService;
+    @Autowired
+    ReservationItemService reservationItemService;
 
     @Operation(summary = "Retrieve equipment for a specific company")
     @ApiResponses(value = {
@@ -267,9 +271,24 @@ public class EquipmentController {
     //@PreAuthorize("hasRole('COMPANY_ADMIN')")
 
     public ResponseEntity<String> deleteEquipment(@PathVariable Integer id){
+        // Find the equipment by its ID
         Equipment equipment = equipmentService.findBy(id);
+
+        if (equipment == null) {
+            return new ResponseEntity<>("Equipment not found.", HttpStatus.NOT_FOUND);
+        }
+
+        // Remove associated ReservationItems before deleting the equipment
+        List<ReservationItem> reservationItems = reservationItemService.findByEquipment(equipment);
+
+        for (ReservationItem item : reservationItems) {
+            reservationItemService.delete(item);
+        }
+
+        // Now delete the equipment
         equipmentService.delete(equipment);
-        return new ResponseEntity<>("Equipment succesfully deleted", HttpStatus.OK);
+
+        return new ResponseEntity<>("Equipment successfully deleted.", HttpStatus.OK);
     }
 
     @Operation(
