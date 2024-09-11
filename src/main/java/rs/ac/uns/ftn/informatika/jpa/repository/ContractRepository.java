@@ -38,6 +38,10 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
 
     @Query("SELECT c FROM Contract c WHERE c.status = :status and (c.date BETWEEN :start AND :end)")
     List<Contract> findByTimeRange(@Param("start") Date start, @Param("end") Date end, @Param("status")ContractStatus status);
+    @Query("SELECT c FROM Contract c WHERE c.status = :status " +
+            "AND EXTRACT(HOUR FROM c.date) = :hour " +
+            "AND EXTRACT(MINUTE FROM c.date) = :minute")
+    List<Contract> findByTime(@Param("hour") int hour, @Param("minute") int minute, @Param("status") ContractStatus status);
 
     @Query("SELECT c FROM Contract c WHERE c.status = :status and (c.company.id = :id)")
     List<Contract> findAllActiveContractsByCompany(@Param("id")Integer id,@Param("status") ContractStatus active);

@@ -95,4 +95,8 @@ public class ContractController {
     ResponseEntity<List<ContractDTO>> findAllActiveContractsByCompany(@PathVariable Integer id){
         return new ResponseEntity<>(contractService.findAllActiveContractsByCompany(id), HttpStatus.OK);
     }
+
+    public List<Contract> checkContractsAtCurrentTime() {
+        return contractService.checkContractsAtCurrentTime();
+    }
 }

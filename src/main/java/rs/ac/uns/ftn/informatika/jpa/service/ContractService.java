@@ -160,4 +160,29 @@ public class ContractService {
         }
         return dtos;
     }
+    public List<Contract> checkContractsAtCurrentTime() {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        // Print the current time being checked
+        System.out.println("Checking contracts at time: " + hour + ":" + minute);
+
+        // Retrieve contracts within the current hour and minute
+        List<Contract> contracts = contractRepository.findByTime(hour, minute, ContractStatus.Active);
+
+        // Print the number of contracts found
+        System.out.println("Number of contracts found: " + contracts.size());
+
+        // Print details of each contract
+        for (Contract contract : contracts) {
+            System.out.println("Contract ID: " + contract.getId() + ", Date: " + contract.getDate());
+        }
+
+        return contracts;
+    }
+
 }

@@ -29,7 +29,9 @@ public class DeliveryScheduler {
     public void sendNotificationsDuringBusinessHours() {
 
         LocalTime now = LocalTime.now();
-        List<Contract> contracts = contractController.findActiveByDayAndTime(new Date());
+
+//        List<Contract> contracts = contractController.findActiveByDayAndTime(new Date());
+        List<Contract> contracts = contractController.checkContractsAtCurrentTime();
         // Assuming you have the company object or its opening and closing times.
 
         // Check if current time is within business hours
@@ -59,55 +61,66 @@ public class DeliveryScheduler {
                 Calendar todayCal = Calendar.getInstance();
                 todayCal.setTime(new Date());
 
-            if (todayCal.get(Calendar.DAY_OF_MONTH) > deliveryDay && !contract.getThisMonthsDeliveryStatus().equals(DeliveryStatus.PENDING) ) {
+                if (todayCal.get(Calendar.DAY_OF_MONTH) > deliveryDay && !contract.getThisMonthsDeliveryStatus().equals(DeliveryStatus.PENDING)) {
                     // Reset the delivery status to PENDING for next month
                     contract.setThisMonthsDeliveryStatus(DeliveryStatus.PENDING);
                     contractController.save(contract);
                     System.out.println("Delivery status reset to PENDING for contract ID: " + contract.getId());
                     continue;
-            }
+                }
 
 
                 // If it's 3 days before the delivery, check the equipment quantity
-                if (new Date().after(threeDaysBeforeDelivery) && new Date().getDay() < (deliveryDay)) {
-                boolean sufficientEquipment = checkCompanyEquipment(company, contract);
+                System.out.println("threeDaysBeforeDelivery");
+                System.out.println(threeDaysBeforeDelivery);
+                System.out.println("danas");
+                Date ss = new Date();
+                System.out.println(ss.getDay());
 
-                if (!sufficientEquipment) {
-                    // Mark delivery as cancelled
-                    contract.setThisMonthsDeliveryStatus(DeliveryStatus.CANCELLED);
-                    contractController.save(contract);
-                    System.out.println("Insufficient equipment. Delivery cancelled for contract ID: " + contract.getId());
+                if ((deliveryDay - todayCal.get(Calendar.DAY_OF_MONTH)) == 3 ) {
+                    boolean sufficientEquipment = checkCompanyEquipment(company, contract);
 
-                    // Create the notification message
-                    String message = String.format("Delivery for contract ID %d to hospital %s by company %s has been cancelled due to shortage of %s. Requested: %d, In stock: %d",
-                            contract.getId(), contract.getHospital().getName(), company.getName(), contract.getEquipment().getName(), contract.getQuantity(), contract.getEquipment().getAvailableQuantity());
+                    if (!sufficientEquipment) {
+                        // Mark delivery as cancelled
+                        contract.setThisMonthsDeliveryStatus(DeliveryStatus.CANCELLED);
+                        contractController.save(contract);
+                        System.out.println("Insufficient equipment. Delivery cancelled for contract ID: " + contract.getId());
 
-                    // Send the notification via RabbitMQ
-                    rabbitTemplate.convertAndSend("contract-exchange", "notification-routing-key", message);
+                        // Create the notification message
+                        String message = String.format("Delivery for contract ID %d to hospital %s by company %s has been cancelled due to shortage of %s. Requested: %d, In stock: %d",
+                                contract.getId(), contract.getHospital().getName(), company.getName(), contract.getEquipment().getName(), contract.getQuantity(), contract.getEquipment().getAvailableQuantity());
+
+                        // Send the notification via RabbitMQ
+                        rabbitTemplate.convertAndSend("contract-exchange", "notification-routing-key", message);
 
 
-                    continue;  // Skip the rest of the loop for this contract
-                }
+                        continue;  // Skip the rest of the loop for this contract
+                    }
                 }
                 if (contract.getThisMonthsDeliveryStatus() == DeliveryStatus.CANCELLED) {
                     continue;  // Skip if the contract has been cancelled
                 }
-                if(todayCal.get(Calendar.DAY_OF_MONTH) > deliveryDay){
-//                    System.out.println("Today's day: " + todayCal.get(Calendar.DAY_OF_MONTH) + ", Delivery day: " + deliveryDay);
-//                    System.out.println("wtf");
+                System.out.println("Today's day: " + todayCal.get(Calendar.DAY_OF_MONTH) + ", Delivery day: " + deliveryDay);
+
+                if (todayCal.get(Calendar.DAY_OF_MONTH) > deliveryDay) {
+                    System.out.println("Today's day: " + todayCal.get(Calendar.DAY_OF_MONTH) + ", Delivery day: " + deliveryDay);
+                    System.out.println("wtf");
                     continue;
                 }
-                // Create the notification message
-                String message = String.format("Delivery sent for contract ID %d to hospital %s by company %s.",
-                        contract.getId(), contract.getHospital().getName(), company.getName());
+                if (todayCal.get(Calendar.DAY_OF_MONTH) == deliveryDay) {
+                    // Create the notification message
+                    String message = String.format("Delivery sent for contract ID %d to hospital %s by company %s.",
+                            contract.getId(), contract.getHospital().getName(), company.getName());
 
-                // Send the notification via RabbitMQ
-                rabbitTemplate.convertAndSend("contract-exchange", "notification-routing-key", message);
+                    // Send the notification via RabbitMQ
+                    rabbitTemplate.convertAndSend("contract-exchange", "notification-routing-key", message);
 
-                // Mark the delivery as sent
-                contractController.markDeliveryAsSent(contract);
-            } else {
-                System.out.println("Company is closed. Skipping notifications.");
+                    // Mark the delivery as sent
+                    contractController.markDeliveryAsSent(contract);
+
+                } else {
+                    System.out.println("Company is closed. Skipping notifications.");
+                }
             }
         }
     }
