@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 
 import com.beust.jcommander.DefaultUsageFormatter;
 import org.aspectj.apache.bcel.ExceptionConstants;
+import org.hibernate.PessimisticLockException;
 import org.hibernate.StaleStateException;
 import org.hibernate.tool.schema.spi.CommandAcceptanceException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import java.text.SimpleDateFormat;
 import javax.print.attribute.DateTimeSyntax;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.*;
@@ -703,16 +705,61 @@ public class ReservationService {
         return  dtos;
     }
 
+    public Boolean checkIfTimeWindowPassed(Reservation reservation){
+        Date currentTime = new Date();
+        Date startingDate = reservation.getStartingDate(); // Assuming this returns a Date
+        int durationMinutes = reservation.getDurationMinutes();
 
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startingDate);
+        calendar.add(Calendar.MINUTE, durationMinutes);
+
+        Date endDate = calendar.getTime(); // This is the starting date plus the duration in minutes
+//        System.out.println(startingDate);
+//        System.out.println(durationMinutes);
+//        System.out.println(endDate);
+        if(currentTime.after(endDate)){
+            return true;
+        }
+        return false;
+    }
+    public Boolean checkIfBeforeStartingTime(Reservation reservation){
+        List<Integer> usersForPenalties = new ArrayList<>();
+
+        // Get the current time and compare with the reservation starting time
+        Date currentTime =new Date();
+        Date startingDateTime = reservation.getStartingDate(); // Assuming this is a LocalDateTime
+
+        if (currentTime.before(startingDateTime)) {
+            // If current time is before the starting date, send a custom alert
+            return true;
+        }
+        return false;
+
+    }
     public List<ReservationDTO> getAvailableReservations(Integer id) {
 
         List<Reservation> reservations = reservationRepository.findByAdminIdAndStatus(id, ReservationStatus.Ready);
+
         List<Reservation> reservationsForUpdate = new ArrayList<>();
         List<ReservationDTO> dtos = new ArrayList<>();
         Date currentTime = new Date();
         List<Integer> usersForPenalties = new ArrayList<>();
+
         for (Reservation reservation: reservations) {
-            if(currentTime.after(reservation.getStartingDate())){
+
+//            Date startingDate = reservation.getStartingDate(); // Assuming this returns a Date
+//            int durationMinutes = reservation.getDurationMinutes();
+//
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.setTime(startingDate);
+//            calendar.add(Calendar.MINUTE, durationMinutes);
+//
+//            Date endDate = calendar.getTime(); // This is the starting date plus the duration in minutes
+//            System.out.println(startingDate);
+//            System.out.println(durationMinutes);
+//            System.out.println(endDate);
+            if(checkIfTimeWindowPassed(reservation)){
                 usersForPenalties.add(reservation.getUser().getId());
                 reservation.setStatus(Cancelled);
                 reservationsForUpdate.add(reservation);
@@ -728,55 +775,33 @@ public class ReservationService {
 
         return dtos;
     }
-
-//    @Transactional
-//    public Boolean markReservationCompleted(Integer id) {
-//
-//        Reservation reservation = reservationRepository.findReservationById(id);
-//
-//        //Only locking the reservations so the admin can't access them at the same time
-//        List<Reservation> companyReservations = reservationRepository.findAllReservationsByAdminId(id, Ready);
-//
-//
-//        reservation.setStatus(Completed);
-//        reservationRepository.save(reservation);
-//
-//        List<Equipment> equipmentList = getEquipment(reservation);
-//
-//        equipmentService.saveAll(equipmentList);
-//
-////        emailService.sendReservationCompletedConfirmation(reservation);
-//
-//        return true;
-//    }
-//
-//    private static List<Equipment> getEquipment(Reservation reservation) {
-//        Set<ReservationItem> items = reservation.getItems();
-//
-//        List<Equipment> equipmentList = new ArrayList<>();
-//        // Iterate through each reservation item to get the equipment
-//        for (ReservationItem item : items) {
-//            Equipment equipment = item.getEquipment(); // Assuming ReservationItem has a method to get Equipment
-//            if (equipment != null) {
-//                int updatedQuantity = equipment.getQuantity() - item.getQuantity();
-//                if (updatedQuantity < 0) {
-//                    // Set the quantity to 0 and log a warning message
-//                    System.out.println("Warning: Quantity for equipment " + equipment.getName() + " would go below 0. Setting quantity to 0.");
-//                    equipment.setQuantity(0);
-//                } else {
-//                    equipment.setQuantity(updatedQuantity);
-//                }
-//                equipmentList.add(equipment);
-//            }
-//        }
-//        return equipmentList;
-//    }
     @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public Boolean markReservationCompleted(Integer id) {
+
+
         Reservation reservation = reservationRepository.findReservationById(id);
+        List<Integer> usersForPenalties = new ArrayList<>();
+        if(checkIfBeforeStartingTime(reservation)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The reservation cannot be marked as completed because it hasn't started yet.");
 
-        List<Reservation> companyReservations = reservationRepository.findAllReservationsByAdminId(id, Ready);
+        }
+        if(checkIfTimeWindowPassed(reservation)){
+            reservation.setStatus(Cancelled);
+            reservationRepository.save(reservation);
+            usersForPenalties.add(reservation.getUser().getId());
+            registeredUserService.penalizeUsers(usersForPenalties);
 
+            return true;
+        }
+//        List<Reservation> companyReservations = reservationRepository.findAllReservationsByAdminId(id, Ready);
+//        System.out.println("dobavio i zakljucao:");
+//        for (Reservation r:
+//                companyReservations) {
+//            System.out.println("id");
+//            System.out.println(reservation.id);
+//        }
+        reservationRepository.lockAllReservations();
         // Check and lock equipment
         List<Equipment> equipmentList;
         try {
@@ -791,9 +816,17 @@ public class ReservationService {
             // Handle any other exceptions that may occur
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred: " + e.getMessage());
         }
-
-    reservation.setStatus(Completed);
-    reservationRepository.save(reservation);
+        try{
+            reservation.setStatus(Completed);
+            reservationRepository.save(reservation);
+        }catch (PessimisticLockingFailureException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred 1: " + e.getMessage());
+        }catch (PessimisticLockException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred: 2 " + e.getMessage());
+        }catch (Exception e) {
+            // Handle any other exceptions that may occur
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred 3: " + e.getMessage());
+        }
 
     equipmentService.saveAll(equipmentList);
 

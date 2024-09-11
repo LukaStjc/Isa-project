@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import rs.ac.uns.ftn.informatika.jpa.dto.*;
 import rs.ac.uns.ftn.informatika.jpa.enumeration.EquipmentType;
 import rs.ac.uns.ftn.informatika.jpa.exception.CustomOptimisticLockingException;
@@ -208,24 +209,54 @@ public class EquipmentController {
     })
     @PostMapping(consumes = "application/json")
     @PreAuthorize("hasRole('COMPANY_ADMIN')")
+    @Transactional
     public ResponseEntity<EquipmentBasicDTO> createEquipment(
-            @Parameter(description = "Details of the equipment to be created", required = true, content =  @Content(schema = @Schema(implementation = EquipmentBasicDTO.class)))
-            @RequestBody
-            EquipmentBasicDTO dto){
+            @Parameter(description = "Details of the equipment to be created", required = true, content = @Content(schema = @Schema(implementation = EquipmentBasicDTO.class)))
+            @RequestBody EquipmentBasicDTO dto) {
 
-        // TODO dodati proveru da li je korisnik Admin sistema
-        Company company = companyService.findBy(dto.getCompanyId());
-        Equipment equipment = new Equipment(dto, company);
-        try{
-            equipment = equipmentService.save(equipment);
+        // Log incoming request
+        System.out.println("Received equipment DTO: " + dto);
+
+        // Validate inputs
+        if (dto.getName() == null || dto.getName().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        catch(RuntimeException e){
+
+        if (dto.getDescription() == null || dto.getDescription().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (dto.getEquipmentType() == null || dto.getEquipmentType().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            if (dto.getPrice() <= 0) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            if (dto.getQuantity() == null || dto.getQuantity() <= 0) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+
+            Company company = companyService.findBy(dto.getCompanyId());
+            Equipment equipment = new Equipment(dto, company);
+            Equipment newEquipment = equipmentService.save(equipment);
+
+            // Log successful creation
+            System.out.println("Created equipment: " + newEquipment);
+
+            return new ResponseEntity<>(new EquipmentBasicDTO(newEquipment), HttpStatus.CREATED);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.CREATED);
     }
+
+
     @Operation(summary = "Delete equipment", description = "Deletes the equipment with the specified ID. Only accessible to users with the COMPANY_ADMIN role.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Equipment successfully deleted"),
@@ -233,7 +264,7 @@ public class EquipmentController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Access denied for non-admin users")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('COMPANY_ADMIN')")
+    //@PreAuthorize("hasRole('COMPANY_ADMIN')")
 
     public ResponseEntity<String> deleteEquipment(@PathVariable Integer id){
         Equipment equipment = equipmentService.findBy(id);
@@ -270,8 +301,25 @@ public class EquipmentController {
         if (!equipment.getVersion().equals(dto.getVersion())) {
             throw new CustomOptimisticLockingException("The equipment has been modified by another user. Please reload and try again.");
         }
+        // Validate inputs
+        if (dto.getName() == null || dto.getName().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name field cannot be empty.");        }
 
-            equipment.updateProperties(dto);
+        if (dto.getDescription() == null || dto.getDescription().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (dto.getEquipmentType() == null || dto.getEquipmentType().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if(dto.getQuantity()< 0 || dto.getQuantity() == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        }
+
+
+        equipment.updateProperties(dto);
 
         if (dto.getQuantity() == 0) {
             deleteEquipment(id);
@@ -295,6 +343,11 @@ public class EquipmentController {
         Equipment equipment = equipmentService.findBy(id);
 
         return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.OK);
+    }
+
+    @GetMapping("/get-types")
+    public ResponseEntity<List<String>> getEquipmentTypes(){
+        return new ResponseEntity(equipmentService.getEquipmentTypes(), HttpStatus.OK);
     }
 
 }
