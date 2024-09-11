@@ -295,22 +295,43 @@ public class ReservationController {
     }
 
 
-
-
-
-
-
+    @Operation(
+            summary = "Get all users by company admin",
+            description = "Retrieves a list of users associated with the specified company admin ID. This endpoint is used to get all users managed by a particular company admin."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of users"),
+            @ApiResponse(responseCode = "404", description = "Company admin not found or no users available"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/get-users/{id}")
     public ResponseEntity<List<UserDTO>> getAllUsersByCompanyAdmin(@PathVariable Integer id){
 
         return new ResponseEntity<>(reservationService.getAllUsersByCompany(id), HttpStatus.OK);
     }
-
+    @Operation(
+            summary = "Get available reservations for a specific ID",
+            description = "Retrieves a list of available reservations for the specified ID. The ID typically represents a specific entity such as a user or company."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of available reservations"),
+            @ApiResponse(responseCode = "404", description = "ID not found or no reservations available"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/available/{id}")
     public ResponseEntity<List<ReservationDTO>> getAvailableReservations(@PathVariable Integer id){
 
         return new ResponseEntity<>(reservationService.getAvailableReservations(id), HttpStatus.OK);
     }
+    @Operation(
+            summary = "Mark a reservation as completed",
+            description = "Marks the reservation identified by the specified ID as completed. Handles locking exceptions if the reservation is currently being modified by another transaction."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservation marked as completed"),
+            @ApiResponse(responseCode = "409", description = "Conflict due to reservation being locked or retryable exception"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PutMapping("/mark-completed/{id}")
     public ResponseEntity<String> markReservationCompleted(@PathVariable Integer id) {
         try {

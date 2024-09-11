@@ -1,5 +1,10 @@
 package rs.ac.uns.ftn.informatika.jpa.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,11 +41,32 @@ public class ContractController {
     private EquipmentService equipmentService;
 
 
+    @Operation(
+            summary = "Retrieve all contracts",
+            description = "Fetches a list of all contracts available in the system."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of contracts"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+
     @GetMapping
     public ResponseEntity<List<Contract>> getAll(){
         return ResponseEntity.ok(contractService.findAll());
     }
 
+    @Operation(
+            summary = "Create a new contract",
+            description = "Creates a new contract with the specified details. The contract is associated with a company, hospital, and equipment."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully created the contract"),
+            @ApiResponse(responseCode = "404", description = "Company, hospital, or equipment not found",
+                    content = @Content(schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "Bad request, invalid input",
+                    content = @Content(schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ContractDTO dto){
         Company company = companyService.findBy(dto.getCompanyName());
@@ -64,6 +90,16 @@ public class ContractController {
         return contractService.create(dto, company, hospital, equipment);
     }
 
+    @Operation(
+            summary = "Cancel a specific contract",
+            description = "Cancels the contract identified by the specified ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully canceled the contract"),
+            @ApiResponse(responseCode = "404", description = "Contract not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request or invalid contract state"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PutMapping("/cancel/{id}")
     public ResponseEntity<?>  cancelContract(@PathVariable Integer id){
         return contractService.cancelContract(id);
@@ -73,6 +109,16 @@ public class ContractController {
         return contractService.findByDayOfMonthAndTime(day, hours, minutes);
     }
 
+    @Operation(
+            summary = "Cancel this month's delivery for a contract",
+            description = "Cancels the delivery scheduled for the current month for the specified contract."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully canceled this month's delivery"),
+            @ApiResponse(responseCode = "404", description = "Contract not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request or invalid contract state"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PutMapping("/{id}/cancel-delivery")
     public ResponseEntity<?> cancelThisMonthsDelivery(@PathVariable Integer id){
         return contractService.cancelThisMonthsDelivery(id);
@@ -91,6 +137,15 @@ public class ContractController {
         contractService.save(contract);
     }
 
+    @Operation(
+            summary = "Get all active contracts for a company",
+            description = "Fetches all active contracts associated with the specified company ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of active contracts"),
+            @ApiResponse(responseCode = "404", description = "Company not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/{id}/active")
     ResponseEntity<List<ContractDTO>> findAllActiveContractsByCompany(@PathVariable Integer id){
         return new ResponseEntity<>(contractService.findAllActiveContractsByCompany(id), HttpStatus.OK);

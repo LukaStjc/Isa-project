@@ -345,6 +345,14 @@ public class EquipmentController {
         return new ResponseEntity<>(new EquipmentBasicDTO(equipment), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get all equipment types",
+            description = "Retrieves a list of all available equipment types from the system."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of equipment types"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/get-types")
     public ResponseEntity<List<String>> getEquipmentTypes(){
         return new ResponseEntity(equipmentService.getEquipmentTypes(), HttpStatus.OK);
